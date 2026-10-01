@@ -12,6 +12,21 @@ const normalizer = new LyricsNormalizer(ttmlService);
 const source = {kind: 'provider', providerId: 'fixture', candidateId: '1'} as const;
 
 describe('LyricsNormalizer', () => {
+    it.each([
+        '[00:01.000]<00:01.000>A <00:02.000>B<00:03.000>',
+        '[00:01.000]A [00:02.000]B[00:03.000]'
+    ])('保留扩展 LRC 的真实边界与动态文字空格：%s', text => {
+        const result = normalizer.fromLrc(text, {source});
+        expect(result.ttml.metadata.timingMode).toBe('Word');
+        expect(result.render.lines[0].words.map(w => [w.word, w.startTime, w.endTime]))
+            .toEqual([['A ', 1000, 2000], ['B', 2000, 3000]]);
+    });
+
+    it('连续行首时间戳保持普通 LRC 重复行语义', () => {
+        const result = normalizer.fromLrc('[00:01.000][00:03.000]A B', {source});
+        expect(result.ttml.metadata.timingMode).toBe('Line');
+        expect(result.render.lines.map(l => l.startTime)).toEqual([1000, 3000]);
+    });
     it('保留 TTML 的逐字、翻译、Ruby、背景人声和对唱结构', () => {
         const fixture = ttmlService.serialize({
             metadata: {

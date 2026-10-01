@@ -1,3 +1,4 @@
+import {readStppCandidates} from '../services/lyrics/StppReader';
 // 歌词控制器
 
 import * as fs from 'fs';
@@ -5,7 +6,7 @@ import * as path from 'path';
 import {dialog, net} from 'electron';
 import {BaseController, Controller, IpcHandle} from '../decorators/IpcHandler';
 import {WindowManager} from '../core/WindowManager';
-import {extractEmbeddedLyrics, getMimeTypeFromExtension} from '../utils/metadata';
+import {extractAllEmbeddedLyrics, getMimeTypeFromExtension} from '../utils/metadata';
 import {generateLyricsSearchPatterns, findBestLyricsMatch} from '../utils/FileSearch';
 import {NetworkFileAdapter} from '../services/network/NetworkFileAdapter';
 import {
@@ -183,7 +184,7 @@ export class LyricsController extends BaseController {
     }
 
     @IpcHandle('lyrics:getEmbedded')
-    async getEmbedded(filePath: string): Promise<{ success: boolean; lyrics?: any; source?: string; error?: string }> {
+    async getEmbedded(filePath: string): Promise<{ success: boolean; lyrics?: any; candidates?: any[]; source?: string; error?: string }> {
         const mm = require('music-metadata');
         try {
             if (!filePath) {
@@ -199,22 +200,35 @@ export class LyricsController extends BaseController {
                 }
             }
 
-            let metadata;
-            if (isNetwork) {
-                const buffer = await this.networkFileAdapter.readFile(filePath);
-                const mimeType = getMimeTypeFromExtension(path.extname(filePath));
-                metadata = await mm.parseBuffer(buffer, {mimeType, size: buffer.length});
-            } else {
-                metadata = await mm.parseFile(filePath);
+            const candidates: any[] = [];
+            const isMp4 = ['.m4a', '.mp4', '.m4b'].includes(path.extname(filePath).toLowerCase());
+            const buffer = isNetwork ? await this.networkFileAdapter.readFile(filePath) : undefined;
+            if (isMp4) {
+                const handle = buffer ? undefined : await fs.promises.open(filePath, 'r');
+                try {
+                    const size = buffer?.length ?? (await handle!.stat()).size;
+                    candidates.push(...await readStppCandidates({size, read: async (offset, length) => {
+                        if (buffer) return buffer.subarray(offset, offset + length);
+                        const target = Buffer.alloc(length);
+                        const {bytesRead} = await handle!.read(target, 0, length, offset);
+                        if (bytesRead !== length) throw new Error('媒体文件读取不完整');
+                        return target;
+                    }}));
+                } catch (error) {
+                    candidates.push({candidateId: 'stpp:error', type: 'STPP', format: 'ttml', text: '', error: String(error)});
+                } finally {
+                    await handle?.close();
+                }
             }
-
-            if (!metadata) return {success: false, error: '无法解析音频文件元数据'};
-
-            const embeddedLyrics = extractEmbeddedLyrics(metadata);
-            if (embeddedLyrics) {
-                return {success: true, lyrics: embeddedLyrics, source: 'embedded'};
+            try {
+                const metadata = buffer
+                    ? await mm.parseBuffer(buffer, {mimeType: getMimeTypeFromExtension(path.extname(filePath)), size: buffer.length})
+                    : await mm.parseFile(filePath);
+                candidates.push(...extractAllEmbeddedLyrics(metadata));
+            } catch (error) {
+                if (!candidates.length) throw error;
             }
-            return {success: false, error: '文件中未包含内嵌歌词'};
+            return {success: true, candidates, lyrics: candidates.find(item => !item.error), source: 'embedded'};
         } catch (error: any) {
             let msg = error.message;
             if (error.code === 'ENOENT') msg = '音频文件不存在或无法访问';

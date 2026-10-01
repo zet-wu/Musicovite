@@ -246,16 +246,22 @@ function extractSynchronizedLyrics(value: any): SynchronizedLyrics | null {
  * @returns 内嵌歌词对象或null
  */
 export function extractEmbeddedLyrics(metadata: mm.IAudioMetadata): EmbeddedLyrics | null {
+    return extractAllEmbeddedLyrics(metadata)[0] ?? null;
+}
+
+export function extractAllEmbeddedLyrics(metadata: mm.IAudioMetadata): (EmbeddedLyrics & {candidateId: string})[] {
     if (!metadata || !metadata.native) {
-        return null;
+        return [];
     }
 
-    let embeddedLyrics: EmbeddedLyrics | null = null;
+    const results: (EmbeddedLyrics & {candidateId: string})[] = [];
+    const occurrences = new Map<string, number>();
 
     for (const [format, tags] of Object.entries(metadata.native)) {
         if (!Array.isArray(tags)) continue;
 
         for (const tag of tags) {
+            let embeddedLyrics: EmbeddedLyrics | null = null;
             const tagId = tag.id ? tag.id.toUpperCase() : '';
 
             if (isLyricsTag(tagId, format)) {
@@ -271,7 +277,6 @@ export function extractEmbeddedLyrics(metadata: mm.IAudioMetadata): EmbeddedLyri
                             text: lyricsText,
                             synchronized: false
                         };
-                        break;
                     }
                 } else if (tagId === 'SYLT' || tagId === 'SYNCHRONIZED LYRICS' || tagId === 'SYNCEDLYRICS') {
                     const syncLyrics = extractSynchronizedLyrics(tag.value);
@@ -285,7 +290,6 @@ export function extractEmbeddedLyrics(metadata: mm.IAudioMetadata): EmbeddedLyri
                             timestamps: syncLyrics.timestamps,
                             synchronized: true
                         };
-                        break;
                     }
                 } else if (tagId === 'TXXX' && (tag.value as any)?.description) {
                     const desc = (tag.value as any).description.toUpperCase();
@@ -299,16 +303,20 @@ export function extractEmbeddedLyrics(metadata: mm.IAudioMetadata): EmbeddedLyri
                                 text: lyricsText.trim(),
                                 synchronized: false
                             };
-                            break;
                         }
                     }
                 }
             }
+            if (embeddedLyrics) {
+                const key = JSON.stringify([format, tag.id, embeddedLyrics.language, embeddedLyrics.description]);
+                const ordinal = occurrences.get(key) ?? 0;
+                occurrences.set(key, ordinal + 1);
+                results.push({...embeddedLyrics, candidateId: 'tag:' + key + ':' + ordinal});
+            }
         }
-        if (embeddedLyrics) break;
     }
 
-    return embeddedLyrics;
+    return results;
 }
 
 /**

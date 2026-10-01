@@ -20,6 +20,7 @@ import type {
 import {CompanionLyricsMerger} from './CompanionLyricsMerger';
 import {parseKrc} from './krc/parseKrc';
 import {TtmlDocumentService} from './TtmlDocumentService';
+import {parseExtendedLrc} from './parseExtendedLrc';
 
 type ParsedFormat = 'lrc' | 'yrc' | 'qrc';
 
@@ -50,6 +51,14 @@ export class LyricsNormalizer {
     }
 
     fromLrc(lrc: string, context: NormalizeContext, auxiliary: AuxiliaryLyrics = {}): LyricsDocument {
+        const lines = parseExtendedLrc(lrc);
+        if (lines) {
+            const document: TTMLResult = {metadata: {...this.createStructuredMetadata(context), timingMode: 'Word'}, lines};
+            this.companionMerger.mergeLrc(document, auxiliary.translation, 'translation');
+            this.companionMerger.mergeLrc(document, auxiliary.romanization, 'romanization');
+            const text = this.ttmlService.serialize(document);
+            return this.createDocument(text, this.ttmlService.parse(text), context);
+        }
         return this.fromParsedLines(parseLrc(lrc), 'lrc', auxiliary, context);
     }
 
