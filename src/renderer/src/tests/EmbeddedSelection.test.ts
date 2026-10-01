@@ -20,6 +20,22 @@ beforeEach(() => {
     gateway.saveCanonical.mockImplementation(async (trackId, _text, source, selectionMode) => ({success: true, binding: {trackId, source, selectionMode}}));
 });
 describe('内嵌候选选择与持久化', () => {
+    it('媒体内容变化时更新手动绑定的同一轨道，不复用旧缓存', async () => {
+        gateway.readCanonical.mockResolvedValue({success: true, ttml: xml('old'), binding: {selectionMode: 'manual', source: {kind: 'embedded', trackId: 'song', candidateId: 'stpp:2', contentHash: 'old'}}});
+        gateway.getEmbedded.mockResolvedValue({success: true, candidates: [{...stpp(2, xml('new')), contentHash: 'new'}]});
+        const result = await service().load(track, new AbortController().signal);
+        expect(result.document?.ttml.lines[0].text).toBe('new');
+        expect(result.binding?.selectionMode).toBe('manual');
+        expect(result.document?.source).toMatchObject({candidateId: 'stpp:2', contentHash: 'new'});
+    });
+    it('预览后媒体改变则拒绝应用过期候选', async () => {
+        gateway.getEmbedded.mockResolvedValue({success: true, candidates: [{...stpp(2), contentHash: 'old'}]});
+        const instance = service();
+        const preview = (await instance.listEmbedded(query))[0].preview!;
+        gateway.getEmbedded.mockResolvedValue({success: true, candidates: [{...stpp(2), contentHash: 'new'}]});
+        await expect(instance.applyPreview(query, preview)).rejects.toThrow('已变化');
+        expect(gateway.saveCanonical).not.toHaveBeenCalled();
+    });
     it('首轨损坏时按文件顺序选下一轨，覆盖旧自动逐词缓存', async () => {
         gateway.readCanonical.mockResolvedValue({success: true, ttml: xml('old'), binding: {selectionMode: 'auto', source: {kind: 'provider'}}});
         gateway.getEmbedded.mockResolvedValue({success: true, candidates: [stpp(9, 'broken'), stpp(7), stpp(2)]});

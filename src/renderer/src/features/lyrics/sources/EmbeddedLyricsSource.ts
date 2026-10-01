@@ -4,6 +4,7 @@ import type {ProviderLyricsPayload, TrackLyricsQuery} from '../domain/types';
 export interface EmbeddedCandidate {
     candidateId: string;
     title: string;
+    contentHash?: string;
     stpp: boolean;
     payload?: ProviderLyricsPayload;
     error?: string;
@@ -18,6 +19,7 @@ export class EmbeddedLyricsSource {
             const candidate: EmbeddedCandidate = {
                 candidateId: String(embedded.candidateId ?? 'legacy:' + index),
                 title: [embedded.type, embedded.language, embedded.description].filter(Boolean).join(' · ') || '内嵌歌词',
+                contentHash: typeof embedded.contentHash === 'string' ? embedded.contentHash : undefined,
                 stpp: embedded.type === 'STPP'
             };
             if (embedded.error) return {...candidate, error: String(embedded.error)};

@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 import {readStppCandidates} from '../services/lyrics/StppReader';
 // 歌词控制器
 
@@ -227,6 +228,9 @@ export class LyricsController extends BaseController {
                 candidates.push(...extractAllEmbeddedLyrics(metadata));
             } catch (error) {
                 if (!candidates.length) throw error;
+            }
+            for (const candidate of candidates) {
+                candidate.contentHash = createHash('sha256').update(JSON.stringify([candidate.text, candidate.timestamps])).digest('hex');
             }
             return {success: true, candidates, lyrics: candidates.find(item => !item.error), source: 'embedded'};
         } catch (error: any) {

@@ -5,7 +5,7 @@ import {isPathWithin} from '../../utils/pathSecurity';
 
 export type PersistedLyricsSource =
     | {kind: 'local'; path: string}
-    | {kind: 'embedded'; trackId: string; candidateId?: string}
+    | {kind: 'embedded'; trackId: string; candidateId?: string; contentHash?: string}
     | {
         kind: 'provider';
         providerId: string;

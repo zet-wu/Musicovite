@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>TTML 播放验收夹具</title>
+<link rel="stylesheet" href="../../styles/dialogs/_lyrics-source-picker.scss">
+<style>
+body {margin: 0; background: #181822; color: white; font-family: sans-serif;}
+body.light {background: #f4f4f8; color: #20202a;}
+body {--color-text: #eee; --color-primary-bg: #242430; --color-secondary-bg: #303040; --color-border: #555; --radius-lg: 12px;}
+header {padding: 16px; position: relative; z-index: 2;}
+#lyrics {height: 75vh; width: 80vw; margin: auto; font-size: 32px;}
+#lyrics .amll-lyric-player {height: 100%; color: inherit; mix-blend-mode: normal;}
+button, input {margin: 4px;}
+</style>
+<header>
+    <button id="play">播放 / 暂停</button><button id="seek">跳至合唱</button><button id="theme">明暗主题</button>
+    <button id="picker">多候选选择夹具</button>
+    <label>加载 TTML <input id="file" type="file" accept=".ttml,.xml"></label>
+    <output id="status">准备中</output>
+</header>
+<div id="lyrics"></div>
+<script type="module" src="./ttml-playback.ts"></script>
+</html>

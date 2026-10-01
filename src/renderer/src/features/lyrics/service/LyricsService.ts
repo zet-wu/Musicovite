@@ -71,8 +71,12 @@ export class LyricsService {
             try {
                 const source = persisted.binding.source;
                 if (source.kind === 'embedded' && source.candidateId) {
-                    const available = await this.embeddedSource.find(query, source.candidateId);
+                    const available = (await this.listEmbedded(query)).find(item => item.candidateId === source.candidateId)?.preview;
                     if (!available) throw new Error('已绑定的内嵌候选已失效');
+                    if (source.contentHash && available.document.source.kind === 'embedded' && source.contentHash !== available.document.source.contentHash) {
+                        signal.throwIfAborted();
+                        return this.persist(query.trackId, available.document, 'manual');
+                    }
                 }
                 signal.throwIfAborted();
                 return {document: this.normalizer.fromTtml(persisted.ttml, this.createContext(query, source)), binding: persisted.binding};
@@ -114,21 +118,19 @@ export class LyricsService {
             .filter(candidate => candidate.identityScore >= AUTO_MATCH_IDENTITY_THRESHOLD)
             .map(candidate => ({candidate})));
         candidates.sort((a, b) => compareLyricsCandidates(a.candidate, b.candidate));
-        let lineFallback: LyricsDocument | null = null;
         for (const item of candidates) {
             signal.throwIfAborted();
             try {
                 const document = item.document ?? await this.fetchCandidate(query, item.candidate, signal);
                 signal.throwIfAborted();
-                if (isWordTimed(document)) return save(document);
-                lineFallback ??= document;
+                // 选中排序后的首个可用候选；外置逐行仍保留原有回退优先级。
+                return save(isWordTimed(document) ? document : localFallback ?? document);
             } catch (error) {
                 signal.throwIfAborted();
                 console.warn('⚠️ Lyrics: 候选自动匹配失败', error);
             }
         }
         if (localFallback) return save(localFallback);
-        if (lineFallback) return save(lineFallback);
         return {document: null, error: '未找到歌词'};
     }
 
@@ -137,7 +139,7 @@ export class LyricsService {
         return candidates.map(candidate => {
             try {
                 if (!candidate.payload) return candidate;
-                const source: LyricsSourceRef = {kind: 'embedded', trackId: query.trackId, candidateId: candidate.candidateId};
+                const source: LyricsSourceRef = {kind: 'embedded', trackId: query.trackId, candidateId: candidate.candidateId, ...(candidate.contentHash ? {contentHash: candidate.contentHash} : {})};
                 const document = this.normalizer.fromPayload(candidate.payload, this.createContext(query, source));
                 if (!document.render.lines.length) throw new Error('歌词没有可播放内容');
                 return {...candidate, preview: {document, format: candidate.payload.kind}};
@@ -172,6 +174,11 @@ export class LyricsService {
     }
 
     async applyPreview(query: TrackLyricsQuery, preview: LyricsCandidatePreview): Promise<LyricsLoadResult> {
+        const source = preview.document.source;
+        if (source.kind === 'embedded' && source.contentHash) {
+            const current = (await this.embeddedSource.list(query)).find(item => item.candidateId === source.candidateId);
+            if (!current?.payload || current.contentHash !== source.contentHash) throw new Error('内嵌歌词已变化，请刷新后重新选择');
+        }
         return this.persist(query.trackId, preview.document, 'manual');
     }
 
@@ -205,9 +212,9 @@ export class LyricsService {
                 ? this.normalizer.fromTtml(result.content, this.createContext(query, source))
                 : this.normalizer.fromLrc(result.content, this.createContext(query, source));
         } else if (source.kind === 'embedded') {
-            const payload = await this.embeddedSource.find(query, source.candidateId);
-            if (!payload) throw new Error('音频内嵌歌词不可用');
-            document = this.normalizer.fromPayload(payload, this.createContext(query, source));
+            const candidate = (await this.listEmbedded(query)).find(item => source.candidateId ? item.candidateId === source.candidateId : !!item.preview);
+            if (!candidate?.preview) throw new Error('音频内嵌歌词不可用');
+            document = candidate.preview.document;
         } else {
             const provider = this.providers.get(source.providerId);
             if (!provider) throw new Error('未知歌词来源');

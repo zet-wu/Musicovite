@@ -66,7 +66,12 @@ export class LyricsSourcePicker {
         this.content = this.requireElement('.lyrics-source-picker__results');
         this.preview = this.requireElement('.lyrics-source-picker__preview');
         this.status = this.requireElement('.lyrics-source-picker__status');
-        this.root.addEventListener('click', event => void this.handleClick(event));
+        this.root.addEventListener('click', event => {
+            const query = this.query;
+            void this.handleClick(event).catch(error => {
+                if (this.query === query) this.setStatus(error instanceof Error ? error.message : String(error));
+            });
+        });
         document.addEventListener('keydown', event => {
             if (event.key === 'Escape' && !this.root.hidden) this.close();
         });
@@ -85,6 +90,9 @@ export class LyricsSourcePicker {
         this.searchResults.clear();
         this.previewCache.clear();
         this.previewRequests.clear();
+        this.preview.innerHTML = '<p>选择候选后预览</p>';
+        this.setStatus('');
+        this.getActionButton('apply').disabled = true;
         this.inspectionController = new AbortController();
         this.root.hidden = false;
         this.requireElement('.lyrics-source-picker__track').textContent = `${track.title} · ${track.artist}`;
@@ -162,7 +170,7 @@ export class LyricsSourcePicker {
         const source = result.binding.source;
         const description = source.kind === 'provider'
             ? `${source.providerId} · ${result.binding.selectionMode === 'manual' ? '手动选择' : '自动匹配'}`
-            : source.kind === 'local' ? `本地 · ${source.path}` : '音频内嵌';
+            : source.kind === 'local' ? `本地 · ${source.path}` : `音频内嵌 · ${source.candidateId ?? '旧版绑定'}`;
         this.content.innerHTML = `<article class="lyrics-candidate current"><strong>当前使用</strong><p></p><div class="lyrics-candidate__badges"></div></article>`;
         const paragraph = this.content.querySelector('p');
         if (paragraph) paragraph.textContent = description;
@@ -401,7 +409,7 @@ export class LyricsSourcePicker {
                 resolved = await this.resolveCandidate(this.query, candidate, controller.signal);
                 this.updateCandidateBadges(candidate, resolved);
             } catch (error) {
-                if (!controller.signal.aborted) this.preview.textContent = error instanceof Error ? error.message : String(error);
+                if (!controller.signal.aborted && this.selectedCandidate === candidate) this.preview.textContent = error instanceof Error ? error.message : String(error);
                 return;
             }
         }
@@ -449,6 +457,7 @@ export class LyricsSourcePicker {
             this.setStatus('歌词已应用');
             await this.renderCurrent();
         } catch (error) {
+            if (this.query !== query) return;
             this.setStatus(error instanceof Error ? error.message : String(error));
             this.getActionButton('apply').disabled = false;
         }
@@ -457,10 +466,12 @@ export class LyricsSourcePicker {
     private async rerunAutomaticMatch(): Promise<void> {
         if (!this.track || !this.query) return;
         const query = this.query;
+        const track = this.track;
         this.setStatus('正在重新匹配...');
-        await getLyricsService().clearBinding(this.track);
-        const controller = new AbortController();
-        const result = await getLyricsService().load(this.track, controller.signal);
+        await getLyricsService().clearBinding(track);
+        if (this.query !== query) return;
+        const controller = this.inspectionController ?? new AbortController();
+        const result = await getLyricsService().load(track, controller.signal);
         if (this.query !== query) return;
         if (result.document && result.binding) {
             window.dispatchEvent(new CustomEvent<LyricsDocumentAppliedDetail>('lyrics:document-applied', {
@@ -475,7 +486,9 @@ export class LyricsSourcePicker {
 
     private async clearBinding(): Promise<void> {
         if (!this.track) return;
+        const query = this.query;
         await getLyricsService().clearBinding(this.track);
+        if (this.query !== query) return;
         this.setStatus('已清除绑定，外置歌词文件未被删除');
         await this.renderCurrent();
     }
@@ -493,9 +506,10 @@ export class LyricsSourcePicker {
         this.searchResults.set(provider.id, {providerId: provider.id, displayName: provider.displayName, state: 'loading', candidates: []});
         this.renderActiveTab();
         void lyricsSearchService.searchProvider(provider.id, this.query, controller.signal).then(result => {
+            if (controller.signal.aborted) return;
             this.searchResults.set(provider.id, result);
             this.renderActiveTab();
-        });
+        }).catch(() => undefined);
     }
 
     private async refreshCurrentSource(): Promise<void> {
@@ -510,7 +524,7 @@ export class LyricsSourcePicker {
         }
         if (this.activeTab === 'embedded') {
             this.embeddedPreviews = undefined;
-        this.embeddedRequest++;
+            this.embeddedRequest++;
             this.selectedPreview = null;
             this.getActionButton('apply').disabled = true;
             await this.renderEmbedded();
@@ -520,11 +534,12 @@ export class LyricsSourcePicker {
             this.retryActiveProvider();
             return;
         }
-        const result = await lyricsGateway.getBinding(this.query.trackId);
+        const result = await lyricsGateway.getBinding(query.trackId);
+        if (this.query !== query) return;
         if (!result.success || !result.binding) throw new Error(result.error ?? '当前没有歌词绑定');
         this.setStatus('正在刷新当前来源...');
-        const controller = new AbortController();
-        const refreshed = await getLyricsService().refreshBinding(this.query, result.binding, controller.signal);
+        const controller = this.inspectionController ?? new AbortController();
+        const refreshed = await getLyricsService().refreshBinding(query, result.binding, controller.signal);
         if (this.query !== query) return;
         if (!refreshed.document || !refreshed.binding) throw new Error(refreshed.error ?? '刷新当前来源失败');
         window.dispatchEvent(new CustomEvent<LyricsDocumentAppliedDetail>('lyrics:document-applied', {

@@ -246,7 +246,7 @@ function extractSynchronizedLyrics(value: any): SynchronizedLyrics | null {
  * @returns 内嵌歌词对象或null
  */
 export function extractEmbeddedLyrics(metadata: mm.IAudioMetadata): EmbeddedLyrics | null {
-    return extractAllEmbeddedLyrics(metadata)[0] ?? null;
+    return extractAllEmbeddedLyrics(metadata).find(item => item.text.trim()) ?? null;
 }
 
 export function extractAllEmbeddedLyrics(metadata: mm.IAudioMetadata): (EmbeddedLyrics & {candidateId: string})[] {
@@ -306,6 +306,15 @@ export function extractAllEmbeddedLyrics(metadata: mm.IAudioMetadata): (Embedded
                         }
                     }
                 }
+            }
+            if (!embeddedLyrics && isLyricsTag(tagId, format) && tagId !== 'LYRICIST'
+                && (tagId !== 'TXXX' || /LYRIC|歌词/i.test(String((tag.value as any)?.description ?? '')))) {
+                embeddedLyrics = {
+                    type: tagId === 'TXXX' ? 'TXXX' : tagId === 'SYLT' ? 'SYLT' : 'USLT',
+                    format, text: '', synchronized: false,
+                    language: (tag.value as any)?.language || 'unknown',
+                    description: (tag.value as any)?.description || ''
+                };
             }
             if (embeddedLyrics) {
                 const key = JSON.stringify([format, tag.id, embeddedLyrics.language, embeddedLyrics.description]);

@@ -112,15 +112,37 @@ export class TtmlDocumentService {
             return index >= 0 && index % 2 === 1 ? 'right' : 'left';
         };
         let index = 0;
+        const preserveRomanization = (source: Vocal, target: AlignedLyricResult['lines'][number]) => {
+            const roman = source.romanizations?.find(item => item.language === options.romanizationLanguage) ?? source.romanizations?.[0];
+            if (!roman?.words?.length) return;
+            target.words.forEach(word => {word.romanWord = '';});
+            for (const syllable of roman.words) {
+                let bestIndex = -1;
+                let bestOverlap = 0;
+                target.words.forEach((word, wordIndex) => {
+                    const overlap = Math.min(word.endTime, syllable.endTime) - Math.max(word.startTime, syllable.startTime);
+                    if (overlap > bestOverlap) {bestIndex = wordIndex; bestOverlap = overlap;}
+                });
+                if (bestIndex < 0) {
+                    // 无法可靠对齐时完整显示独立音译，不丢弃或伪造音节时间。
+                    target.words.forEach(word => {word.romanWord = '';});
+                    target.romanLyric = roman.text;
+                    return;
+                }
+                target.words[bestIndex].romanWord += syllable.text + (syllable.endsWithSpace ? ' ' : '');
+            }
+        };
         for (const line of document.lines as Vocal[]) {
             const mainAlignment = alignment(line.agentId);
             const main = result.lines[index++];
             main.alignment = mainAlignment;
             main.isDuet = mainAlignment === 'right';
+            preserveRomanization(line, main);
             if (line.backgroundVocal) {
                 const bg = result.lines[index++];
                 bg.alignment = line.backgroundVocal.agentId ? alignment(line.backgroundVocal.agentId) : mainAlignment;
                 bg.isDuet = bg.alignment === 'right';
+                preserveRomanization(line.backgroundVocal, bg);
             }
         }
         return result;

@@ -16,7 +16,11 @@ export function parseExtendedLrc(text: string): LyricLine[] | null {
         const angle = body.includes('<') && new RegExp(`<${stamp}>`).test(body);
         const square = !new RegExp(`^\\[${stamp}\\]`).test(body) && new RegExp(`.+\\[${stamp}\\]`).test(body);
         if (!angle && !square) {
-            lines.push({text: body, startTime, endTime: startTime});
+            const headers = raw.match(new RegExp(`^(?:\\[${stamp}\\])+`))![0];
+            for (const time of headers.matchAll(new RegExp(`\\[${stamp}\\]`, 'g'))) {
+                const start = milliseconds(time) + offset;
+                lines.push({text: raw.slice(headers.length), startTime: start, endTime: start});
+            }
             continue;
         }
         extended = true;

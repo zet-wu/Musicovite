@@ -4,6 +4,13 @@ import {TtmlDocumentService} from '@/features/lyrics/format/TtmlDocumentService'
 const service = new TtmlDocumentService({parser: new DOMParser(), implementation: new DOMImplementation(), serializer: new XMLSerializer()});
 const wrap = (body: string) => `<x:tt xmlns:x="http://www.w3.org/ns/ttml" xmlns:m="http://www.w3.org/ns/ttml#metadata"><x:head><x:metadata><m:agent xml:id="v8" type="person"/><m:agent xml:id="v1" type="person"/><m:agent xml:id="v9" type="person"/><m:agent xml:id="g" type="group"/></x:metadata></x:head><x:body><x:div>${body}</x:div></x:body></x:tt>`;
 describe('TTML 消费适配', () => {
+    it('一个正文词对应多个音译音节时全部保留', () => {
+        const projected = service.project({metadata: {}, lines: [{text: '何', startTime: 1000, endTime: 2000,
+            words: [{text: '何', startTime: 1000, endTime: 2000}],
+            romanizations: [{text: 'na ni', words: [{text: 'na', endsWithSpace: true, startTime: 1000, endTime: 1500}, {text: 'ni', startTime: 1500, endTime: 2000}]}]
+        }]});
+        expect(projected.lines[0].words[0].romanWord).toBe('na ni');
+    });
     it('按命名空间解析附属音译而非要求固定前缀', () => {
         const xml = '<t:tt xmlns:t="http://www.w3.org/ns/ttml" xmlns:a="http://music.apple.com/lyric-ttml-internal"><t:head><t:metadata><a:iTunesMetadata><a:transliterations><a:transliteration xml:lang="ja-Latn"><a:text for="L1"><a:span begin="1s" end="2s">a</a:span></a:text></a:transliteration></a:transliterations></a:iTunesMetadata></t:metadata></t:head><t:body><t:div><t:p a:key="L1" begin="1s" end="2s"><t:span begin="1s" end="2s">あ</t:span></t:p></t:div></t:body></t:tt>';
         expect(service.project(service.parse(xml)).lines[0].words[0].romanWord).toBe('a');

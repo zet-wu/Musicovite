@@ -46,9 +46,16 @@ export async function readStppCandidates(reader: MediaReader): Promise<StppCandi
                 result.push(candidate);
                 if (fragmented) throw new Error('暂不支持分片 MP4');
                 if (entries.length !== 1 || entries[0].type !== 'stpp') throw new Error('不支持的 sample 描述');
+                const entry = entries[0];
+                const namespaceEnd = data.indexOf(0, entry.data + 8);
+                if (namespaceEnd < entry.data + 8 || namespaceEnd >= entry.end
+                    || data.toString('utf8', entry.data + 8, namespaceEnd) !== 'http://www.w3.org/ns/ttml') {
+                    throw new Error('不支持的 STPP 命名空间');
+                }
                 const hdlr = child(data, mdia, 'hdlr');
                 if (data.toString('ascii', hdlr.data + 8, hdlr.data + 12) !== 'subt') throw new Error('不支持的字幕 handler');
                 const mdhd = child(data, mdia, 'mdhd');
+                if (!uint(data, mdhd, data[mdhd.data] === 1 ? 20 : 12)) throw new Error('无效的媒体 timescale');
                 const languageOffset = data[mdhd.data] === 1 ? 32 : 20;
                 const language = data.readUInt16BE(mdhd.data + languageOffset);
                 candidate.language = [10, 5, 0].map(shift => String.fromCharCode(((language >> shift) & 31) + 96)).join('');

@@ -12,3 +12,9 @@
 }
 .amll-lyrics-host [data-bg-alignment="right"] { transform-origin: right center; }
 .amll-lyrics-host [data-bg-alignment="center"] { transform-origin: center center; }
+
+/* AMLL 0.5.2 的注音正文容器默认纵向 flex，会把强调动画拆出的字竖排。 */
+.amll-lyrics-host [class~="FmKaba_wordBody"] {
+    display: block;
+    text-align: center;
+}

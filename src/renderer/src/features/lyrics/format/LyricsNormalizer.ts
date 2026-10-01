@@ -47,6 +47,7 @@ export class LyricsNormalizer {
 
     fromTtml(ttmlText: string, context: NormalizeContext): LyricsDocument {
         const document = this.ttmlService.parse(ttmlText);
+        if (!document.lines.length) throw new Error('TTML 未包含可用歌词');
         return this.createDocument(ttmlText, document, context);
     }
 
