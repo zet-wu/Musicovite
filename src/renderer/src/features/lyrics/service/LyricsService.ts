@@ -14,9 +14,17 @@ import type {LyricsProviderRegistry} from '../providers/LyricsProviderRegistry';
 import {LyricsSearchService} from './LyricsSearchService';
 import {EmbeddedLyricsSource} from '../sources/EmbeddedLyricsSource';
 import {LocalLyricsSource} from '../sources/LocalLyricsSource';
-import {AUTO_MATCH_IDENTITY_THRESHOLD, compareLyricsCandidates} from '../domain/candidateMatching';
+import {AUTO_MATCH_IDENTITY_THRESHOLD, compareLyricsCandidates, scoreLyricsCandidateQuality} from '../domain/candidateMatching';
 import {TtmlDocumentService} from '../format/TtmlDocumentService';
 import {shiftTimeline} from '../format/TtmlTimelineEditor';
+
+export interface EmbeddedLyricsPreview {
+    candidateId: string;
+    title: string;
+    stpp: boolean;
+    preview?: LyricsCandidatePreview;
+    error?: string;
+}
 
 export interface LyricsLoadResult {
     document: LyricsDocument | null;
@@ -53,61 +61,105 @@ export class LyricsService {
 
     async load(track: Track, signal: AbortSignal): Promise<LyricsLoadResult> {
         const query = toTrackLyricsQuery(track);
-        let fallback: LyricsDocument | null = null;
+        const save = (document: LyricsDocument) => {
+            signal.throwIfAborted();
+            return this.persist(query.trackId, document, 'auto');
+        };
         const persisted = await lyricsGateway.readCanonical(query.trackId);
-        if (persisted.success && persisted.ttml && persisted.binding) {
+        signal.throwIfAborted();
+        if (persisted.success && persisted.ttml && persisted.binding?.selectionMode === 'manual') {
             try {
-                const document = this.normalizer.fromTtml(
-                    persisted.ttml,
-                    this.createContext(query, persisted.binding.source)
-                );
-                return {document, binding: persisted.binding};
+                const source = persisted.binding.source;
+                if (source.kind === 'embedded' && source.candidateId) {
+                    const available = await this.embeddedSource.find(query, source.candidateId);
+                    if (!available) throw new Error('已绑定的内嵌候选已失效');
+                }
+                signal.throwIfAborted();
+                return {document: this.normalizer.fromTtml(persisted.ttml, this.createContext(query, source)), binding: persisted.binding};
             } catch (error) {
-                console.warn('⚠️ Lyrics: 已持久化 TTML 无效，将重新匹配', error);
+                signal.throwIfAborted();
+                console.warn('⚠️ Lyrics: 手动绑定失效，重新自动匹配', error);
             }
         }
-
+        const embedded = await this.listEmbedded(query);
+        signal.throwIfAborted();
+        const stpp = embedded.find(item => item.stpp && item.preview);
+        if (stpp?.preview) return save(stpp.preview.document);
+        if (persisted.success && persisted.ttml && persisted.binding?.selectionMode === 'auto' && persisted.binding.source.kind !== 'embedded') {
+            try {
+                return {document: this.normalizer.fromTtml(persisted.ttml, this.createContext(query, persisted.binding.source)), binding: persisted.binding};
+            } catch (error) {
+                console.warn('⚠️ Lyrics: 自动缓存无效，重新匹配', error);
+            }
+        }
+        let localFallback: LyricsDocument | null = null;
         const local = await this.localSource.find(query);
+        signal.throwIfAborted();
         if (local) {
-            const source: LyricsSourceRef = {kind: 'local', path: local.path};
-            const document = local.kind === 'ttml'
-                ? this.normalizer.fromTtml(local.content, this.createContext(query, source))
-                : this.normalizer.fromLrc(local.content, this.createContext(query, source));
-            if (isWordTimed(document)) return this.persist(query.trackId, document, 'auto');
-            fallback ??= document;
-        }
-
-        const embedded = await this.embeddedSource.find(query);
-        if (embedded) {
-            const source: LyricsSourceRef = {kind: 'embedded', trackId: query.trackId};
-            const document = this.normalizer.fromPayload(embedded, this.createContext(query, source));
-            if (isWordTimed(document)) return this.persist(query.trackId, document, 'auto');
-            fallback ??= document;
-        }
-
-        const searchResults = await new LyricsSearchService(this.providers).searchAll(query, signal);
-        if (signal.aborted) throw signal.reason;
-        const candidates = searchResults
-            .flatMap(result => result.candidates.slice(0, 2))
-            .filter(candidate => candidate.identityScore >= AUTO_MATCH_IDENTITY_THRESHOLD)
-            .sort(compareLyricsCandidates);
-        let onlineLineTimed: LyricsDocument | null = null;
-
-        for (const candidate of candidates) {
-            if (signal.aborted) throw signal.reason;
             try {
-                const document = await this.fetchCandidate(query, candidate, signal);
-                if (isWordTimed(document)) return this.persist(query.trackId, document, 'auto');
-                onlineLineTimed ??= document;
+                const source: LyricsSourceRef = {kind: 'local', path: local.path};
+                const document = local.kind === 'ttml'
+                    ? this.normalizer.fromTtml(local.content, this.createContext(query, source))
+                    : this.normalizer.fromLrc(local.content, this.createContext(query, source));
+                if (isWordTimed(document)) return save(document);
+                localFallback = document;
+            } catch (error) { console.warn('⚠️ Lyrics: 外置歌词解析失败', error); }
+        }
+        const searchResults = await new LyricsSearchService(this.providers).searchAll(query, signal);
+        signal.throwIfAborted();
+        const candidates: Array<{candidate: LyricsCandidate; document?: LyricsDocument}> = embedded
+            .filter(item => !item.stpp && item.preview)
+            .map(item => ({candidate: this.scoreEmbedded(item), document: item.preview!.document}));
+        candidates.push(...searchResults.flatMap(result => result.candidates.slice(0, 2))
+            .filter(candidate => candidate.identityScore >= AUTO_MATCH_IDENTITY_THRESHOLD)
+            .map(candidate => ({candidate})));
+        candidates.sort((a, b) => compareLyricsCandidates(a.candidate, b.candidate));
+        let lineFallback: LyricsDocument | null = null;
+        for (const item of candidates) {
+            signal.throwIfAborted();
+            try {
+                const document = item.document ?? await this.fetchCandidate(query, item.candidate, signal);
+                signal.throwIfAborted();
+                if (isWordTimed(document)) return save(document);
+                lineFallback ??= document;
             } catch (error) {
-                if (signal.aborted) throw error;
-                console.warn(`⚠️ Lyrics: ${candidate.providerId} 自动匹配失败`, error);
+                signal.throwIfAborted();
+                console.warn('⚠️ Lyrics: 候选自动匹配失败', error);
             }
         }
-
-        if (fallback) return this.persist(query.trackId, fallback, 'auto');
-        if (onlineLineTimed) return this.persist(query.trackId, onlineLineTimed, 'auto');
+        if (localFallback) return save(localFallback);
+        if (lineFallback) return save(lineFallback);
         return {document: null, error: '未找到歌词'};
+    }
+
+    async listEmbedded(query: TrackLyricsQuery): Promise<EmbeddedLyricsPreview[]> {
+        const candidates = await this.embeddedSource.list(query);
+        return candidates.map(candidate => {
+            try {
+                if (!candidate.payload) return candidate;
+                const source: LyricsSourceRef = {kind: 'embedded', trackId: query.trackId, candidateId: candidate.candidateId};
+                const document = this.normalizer.fromPayload(candidate.payload, this.createContext(query, source));
+                if (!document.render.lines.length) throw new Error('歌词没有可播放内容');
+                return {...candidate, preview: {document, format: candidate.payload.kind}};
+            } catch (error) {
+                return {...candidate, error: error instanceof Error ? error.message : String(error)};
+            }
+        });
+    }
+
+    scoreEmbedded(item: EmbeddedLyricsPreview): LyricsCandidate {
+        const preview = item.preview!;
+        const lines = preview.document.render.lines;
+        const candidate = {
+            providerId: 'embedded', candidateId: item.candidateId, title: item.title, artists: [],
+            capabilities: {
+                ttml: preview.format === 'ttml', wordTimed: isWordTimed(preview.document),
+                translation: lines.some(line => !!line.translatedLyric),
+                romanization: lines.some(line => !!line.romanLyric || line.words.some(word => !!word.romanWord)),
+                ruby: lines.some(line => line.words.some(word => !!word.ruby?.length))
+            }
+        };
+        return {...candidate, identityScore: 100, qualityScore: scoreLyricsCandidateQuality(candidate)};
     }
 
     async applyCandidate(
@@ -136,13 +188,7 @@ export class LyricsService {
     }
 
     async previewEmbedded(query: TrackLyricsQuery): Promise<LyricsCandidatePreview | null> {
-        const payload = await this.embeddedSource.find(query);
-        if (!payload) return null;
-        const source: LyricsSourceRef = {kind: 'embedded', trackId: query.trackId};
-        return {
-            document: this.normalizer.fromPayload(payload, this.createContext(query, source)),
-            format: payload.kind
-        };
+        return (await this.listEmbedded(query)).find(item => item.preview)?.preview ?? null;
     }
 
     async refreshBinding(
@@ -159,7 +205,7 @@ export class LyricsService {
                 ? this.normalizer.fromTtml(result.content, this.createContext(query, source))
                 : this.normalizer.fromLrc(result.content, this.createContext(query, source));
         } else if (source.kind === 'embedded') {
-            const payload = await this.embeddedSource.find(query);
+            const payload = await this.embeddedSource.find(query, source.candidateId);
             if (!payload) throw new Error('音频内嵌歌词不可用');
             document = this.normalizer.fromPayload(payload, this.createContext(query, source));
         } else {
@@ -170,6 +216,7 @@ export class LyricsService {
             if (!candidate) throw new Error('当前歌词候选已不可用');
             document = await this.fetchCandidate(query, candidate, signal);
         }
+        signal.throwIfAborted();
         return this.persist(query.trackId, document, binding.selectionMode);
     }
 

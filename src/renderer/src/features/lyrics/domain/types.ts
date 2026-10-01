@@ -46,7 +46,7 @@ export type ProviderLyricsPayload = (
 
 export type LyricsSourceRef =
     | {kind: 'local'; path: string}
-    | {kind: 'embedded'; trackId: string}
+    | {kind: 'embedded'; trackId: string; candidateId?: string}
     | {
         kind: 'provider';
         providerId: string;

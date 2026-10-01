@@ -313,7 +313,7 @@ export interface ElectronLyricsAPI {
         options?: {method?: string; headers?: Record<string, string>; body?: string}
     ): Promise<{status: number; statusText: string; body: string; headers: Record<string, string>}>;
     cancelProviderRequest(requestId: string): Promise<void>;
-    getEmbedded(filePath: string): Promise<{success: boolean; lyrics?: EmbeddedLyricsData; source?: string; error?: string}>;
+    getEmbedded(filePath: string): Promise<{success: boolean; lyrics?: EmbeddedLyricsData; candidates?: EmbeddedLyricsData[]; source?: string; error?: string}>;
 }
 
 export interface ElectronCoversAPI {

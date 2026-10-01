@@ -1,30 +1,41 @@
 import {lyricsGateway} from '@/infrastructure/electron';
 import type {ProviderLyricsPayload, TrackLyricsQuery} from '../domain/types';
 
-export class EmbeddedLyricsSource {
-    async find(query: TrackLyricsQuery): Promise<ProviderLyricsPayload | null> {
-        if (!query.filePath) return null;
-        const result = await lyricsGateway.getEmbedded(query.filePath);
-        const embedded = result.lyrics;
-        if (!result.success || !embedded?.text?.trim()) return null;
+export interface EmbeddedCandidate {
+    candidateId: string;
+    title: string;
+    stpp: boolean;
+    payload?: ProviderLyricsPayload;
+    error?: string;
+}
 
-        const text = embedded.text.replace(/^\uFEFF/, '').trim();
-        const format = embedded.format?.toLowerCase();
-        if (format === 'ttml' || /^<\?xml|^<tt[\s>]/i.test(text)) {
-            return {kind: 'ttml', ttml: text};
-        }
-        if (format === 'lrc' || hasLrcTimestamp(text)) {
-            return {kind: 'lrc', lyrics: text};
-        }
-        if (embedded.synchronized && embedded.timestamps?.length) {
-            return {
-                kind: 'lrc',
-                lyrics: embedded.timestamps
-                    .map(item => `[${formatTimestamp(item.time)}]${item.text}`)
-                    .join('\n')
+export class EmbeddedLyricsSource {
+    async list(query: TrackLyricsQuery): Promise<EmbeddedCandidate[]> {
+        if (!query.filePath) return [];
+        const result = await lyricsGateway.getEmbedded(query.filePath);
+        if (!result.success) return [];
+        return (result.candidates ?? (result.lyrics ? [result.lyrics] : [])).map((embedded, index) => {
+            const candidate: EmbeddedCandidate = {
+                candidateId: String(embedded.candidateId ?? 'legacy:' + index),
+                title: [embedded.type, embedded.language, embedded.description].filter(Boolean).join(' · ') || '内嵌歌词',
+                stpp: embedded.type === 'STPP'
             };
-        }
-        return null;
+            if (embedded.error) return {...candidate, error: String(embedded.error)};
+            const text = embedded.text.replace(/^\uFEFF/, '').trim();
+            if (embedded.format?.toLowerCase() === 'ttml' || text.startsWith('<')) {
+                candidate.payload = {kind: 'ttml', ttml: text};
+            } else if (hasLrcTimestamp(text)) {
+                candidate.payload = {kind: 'lrc', lyrics: text};
+            } else if (embedded.synchronized && embedded.timestamps?.length) {
+                candidate.payload = {kind: 'lrc', lyrics: embedded.timestamps.map(item => '[' + formatTimestamp(item.time) + ']' + item.text).join('\n')};
+            } else candidate.error = '未包含受支持的定时歌词';
+            return candidate;
+        });
+    }
+
+    async find(query: TrackLyricsQuery, candidateId?: string): Promise<ProviderLyricsPayload | null> {
+        const candidates = await this.list(query);
+        return (candidateId ? candidates.find(item => item.candidateId === candidateId) : candidates.find(item => item.payload))?.payload ?? null;
     }
 }
 

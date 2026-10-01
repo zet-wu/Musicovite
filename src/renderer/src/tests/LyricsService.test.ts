@@ -205,7 +205,7 @@ describe('LyricsService', () => {
         const service = new LyricsService({
             providers: registry,
             localSource: {find: vi.fn().mockResolvedValue(null)} as never,
-            embeddedSource: {find: vi.fn().mockResolvedValue(null)} as never,
+            embeddedSource: {list: vi.fn().mockResolvedValue([])} as never,
             normalizer: {fromTtml: vi.fn(() => cachedDocument)} as never
         });
 
@@ -286,8 +286,8 @@ describe('LyricsService', () => {
     });
 
     it('内嵌歌词存在时生成预览并以 manual binding 应用', async () => {
-        const embeddedDocument = {...document, source: {kind: 'embedded', trackId: 'track-1'} as const};
-        const embeddedSource = {find: vi.fn().mockResolvedValue({kind: 'lrc', lyrics: '[00:00]Song'})};
+        const embeddedDocument = {...document, render: shiftedRender, source: {kind: 'embedded', trackId: 'track-1', candidateId: 'tag:1'} as const};
+        const embeddedSource = {list: vi.fn().mockResolvedValue([{candidateId: 'tag:1', title: 'LRC', stpp: false, payload: {kind: 'lrc', lyrics: '[00:00]Song'}}])};
         const embeddedNormalizer = {fromPayload: vi.fn(() => embeddedDocument)};
         const service = new LyricsService({
             providers: new LyricsProviderRegistry(),
@@ -298,15 +298,15 @@ describe('LyricsService', () => {
 
         const preview = await service.previewEmbedded({trackId: 'track-1', title: 'Song', artists: []});
         expect(preview).toEqual({document: embeddedDocument, format: 'lrc'});
-        expect(embeddedSource.find).toHaveBeenCalledTimes(1);
+        expect(embeddedSource.list).toHaveBeenCalledTimes(1);
         expect(embeddedNormalizer.fromPayload).toHaveBeenCalledWith(
             {kind: 'lrc', lyrics: '[00:00]Song'},
-            expect.objectContaining({source: {kind: 'embedded', trackId: 'track-1'}})
+            expect.objectContaining({source: {kind: 'embedded', trackId: 'track-1', candidateId: 'tag:1'}})
         );
 
         await service.applyPreview({trackId: 'track-1', title: 'Song', artists: []}, preview!);
         expect(gateway.saveCanonical).toHaveBeenCalledWith(
-            'track-1', '<tt/>', {kind: 'embedded', trackId: 'track-1'}, 'manual'
+            'track-1', '<tt/>', {kind: 'embedded', trackId: 'track-1', candidateId: 'tag:1'}, 'manual'
         );
     });
 
@@ -314,7 +314,7 @@ describe('LyricsService', () => {
         const service = new LyricsService({
             providers: new LyricsProviderRegistry(),
             localSource: {find: vi.fn()} as never,
-            embeddedSource: {find: vi.fn().mockResolvedValue(null)} as never,
+            embeddedSource: {list: vi.fn().mockResolvedValue([])} as never,
             normalizer: normalizer as never
         });
 
@@ -418,7 +418,7 @@ describe('LyricsService', () => {
         const service = new LyricsService({
             providers: registry,
             localSource: {find: vi.fn().mockResolvedValue({kind: 'lrc', path: 'Song.lrc', content: '[00:00]Song'})} as never,
-            embeddedSource: {find: vi.fn().mockResolvedValue(null)} as never,
+            embeddedSource: {list: vi.fn().mockResolvedValue([])} as never,
             normalizer: testNormalizer as never
         });
 
@@ -455,7 +455,7 @@ describe('LyricsService', () => {
         const service = new LyricsService({
             providers: registry,
             localSource: {find: vi.fn().mockResolvedValue(null)} as never,
-            embeddedSource: {find: vi.fn().mockResolvedValue(null)} as never,
+            embeddedSource: {list: vi.fn().mockResolvedValue([])} as never,
             normalizer: {
                 fromPayload: vi.fn((payload: {kind: string}) => payload.kind === 'lrc' ? lineDocument : wordDocument)
             } as never
@@ -486,7 +486,7 @@ describe('LyricsService', () => {
         const service = new LyricsService({
             providers: registry,
             localSource: {find: vi.fn().mockResolvedValue({kind: 'lrc', path: 'Song.lrc', content: '[00:00]Song'})} as never,
-            embeddedSource: {find: vi.fn().mockResolvedValue(null)} as never,
+            embeddedSource: {list: vi.fn().mockResolvedValue([])} as never,
             normalizer: {fromLrc: vi.fn(() => localDocument)} as never
         });
 

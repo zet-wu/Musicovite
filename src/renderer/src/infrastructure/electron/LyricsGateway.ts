@@ -17,7 +17,7 @@ export interface LocalLyricsContentResult {
 
 export interface EmbeddedLyricsResult {
     success: boolean;
-    lyrics?: EmbeddedLyricsData;
+    lyrics?: EmbeddedLyricsData; candidates?: EmbeddedLyricsData[];
     source?: string;
     error?: string;
 }
