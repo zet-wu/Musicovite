@@ -57,6 +57,6 @@ describe('describeLyricsCandidatePreview', () => {
             endTime: 100
         }];
 
-        expect(describeLyricsDocument(result.document)).toEqual(['逐字', '翻译', '音译', '假名']);
+        expect(describeLyricsDocument(result.document)).toEqual(['逐字', '翻译', '音译', '注音']);
     });
 });

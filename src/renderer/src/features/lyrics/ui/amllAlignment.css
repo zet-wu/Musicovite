@@ -1,0 +1,14 @@
+.amll-lyrics-host [data-lyric-alignment="left"] {
+    text-align: left;
+    transform-origin: left center;
+}
+.amll-lyrics-host [data-lyric-alignment="right"] {
+    text-align: right;
+    transform-origin: right center;
+}
+.amll-lyrics-host [data-lyric-alignment="center"] {
+    text-align: center;
+    transform-origin: center center;
+}
+.amll-lyrics-host [data-bg-alignment="right"] { transform-origin: right center; }
+.amll-lyrics-host [data-bg-alignment="center"] { transform-origin: center center; }

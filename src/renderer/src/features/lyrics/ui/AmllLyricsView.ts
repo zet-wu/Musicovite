@@ -7,8 +7,10 @@ import {
     lyricsAppearanceSettingsService
 } from '@/features/settings/service/LyricsAppearanceSettingsService';
 import {projectLyricsForDisplay} from './LyricsDisplayProjection';
+import {applyAmllAlignment} from './AmllAlignment';
 
 interface AmllPlayerPort extends EventTarget {
+    currentLyricGroups?: Parameters<typeof applyAmllAlignment>[0]['currentLyricGroups'];
     getElement(): HTMLElement;
     setLyricLines(lines: LyricsDocument['render']['lines'], initialTime?: number): void;
     setCurrentTime(time: number, isSeek?: boolean): void;
@@ -149,6 +151,7 @@ export class AmllLyricsView {
             projectLyricsForDisplay(this.currentDocument.render.lines, settings),
             this.getEffectiveTimeMs()
         );
+        applyAmllAlignment(this.player);
     }
 
     private applyEffectiveTime(isSeek = false): void {
