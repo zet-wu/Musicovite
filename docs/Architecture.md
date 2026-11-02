@@ -58,6 +58,6 @@ AudioEngineManager 组合 Web Audio 与 WASAPI，并管理引擎切换状态。W
 
 ## 构建与资源
 
-Vite 从 `src/renderer/src` 构建主窗口和桌面歌词入口到 `src/renderer/public`；TypeScript 将主进程输出到 `dist/main`。Windows 包携带对应架构 NativeAudio.node；Python helper 在目标宿主的根目录虚拟环境中打包。品牌资源、项目 LICENSE 与第三方许可随包保留。
+Vite 从 `src/renderer/src` 构建主窗口和桌面歌词入口到 `src/renderer/public`；TypeScript 将主进程输出到 `dist/main`。Windows 包携带对应架构 NativeAudio.node；Python helper 在目标宿主的根目录虚拟环境中打包。品牌资源随包分发，打包流程沿用项目原有配置。
 
 正式文档描述当前架构和使用契约。过程说明、一次性测量、截图证据与实验输出保存在被忽略的 tmp。发布前的自动和平台检查见 [开发指南](Development.md)。

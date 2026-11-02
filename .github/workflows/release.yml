@@ -15,19 +15,17 @@ on:
 
 jobs:
   build-windows:
-    runs-on: ${{ matrix.runner }}
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
         include:
           - arch: x64
-            runner: windows-latest
             rust_target: x86_64-pc-windows-msvc
             msvc_arch: x64
           - arch: arm64
-            runner: windows-11-arm
             rust_target: aarch64-pc-windows-msvc
-            msvc_arch: arm64
+            msvc_arch: x64_arm64
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -58,17 +56,13 @@ jobs:
           npm install
           npm run install:renderer
           npm run install:rs
-          python -m venv .venv
-          .\.venv\Scripts\Activate.ps1
-          python -m pip install -r requirements.txt
+          pip install -r requirements.txt
 
       - name: Build Rust module
         run: npm --prefix native run build:${{ matrix.arch }}
 
       - name: Build application
-        run: |
-          .\.venv\Scripts\Activate.ps1
-          npm run build:win:${{ matrix.arch }}
+        run: npm run build:win:${{ matrix.arch }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -82,14 +76,7 @@ jobs:
           if-no-files-found: error
 
   build-macos:
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      matrix:
-        include:
-          - runner: macos-15-intel
-            arch: x64
-          - runner: macos-15
-            arch: arm64
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -114,21 +101,17 @@ jobs:
           npm install
           npm run install:renderer
           npm run install:rs
-          python -m venv .venv
-          . .venv/bin/activate
-          python -m pip install -r requirements.txt
+          pip install -r requirements.txt
 
       - name: Build application
-        run: |
-          . .venv/bin/activate
-          npm run build:mac
+        run: npm run build:mac
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: macos-build-${{ matrix.arch }}
+          name: macos-build
           path: |
             dist/*.dmg
             dist/*.zip
@@ -165,14 +148,10 @@ jobs:
           npm install
           npm run install:renderer
           npm run install:rs
-          python -m venv .venv
-          . .venv/bin/activate
-          python -m pip install -r requirements.txt
+          pip install -r requirements.txt
 
       - name: Build application
-        run: |
-          . .venv/bin/activate
-          npm run build:linux
+        run: npm run build:linux
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -202,7 +181,7 @@ jobs:
       - name: Download macOS artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: macos-build-*
+          name: macos-build
           path: artifacts/macos
 
       - name: Download Linux artifacts
@@ -220,7 +199,7 @@ jobs:
           prerelease: false
           files: |
             artifacts/windows/**/*
-            artifacts/macos/**/*
+            artifacts/macos/*
             artifacts/linux/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
