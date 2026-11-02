@@ -120,15 +120,23 @@ const SANDBOX_RUNTIME_SCRIPT = String.raw`
     }
 
     async function handleDeactivate(message) {
+        const failures = [];
         try {
             if (activeModule && typeof activeModule.deactivate === 'function') await activeModule.deactivate();
-        } finally {
+        } catch (error) {
+            failures.push(error);
+        }
+        try {
             if (activeContext && activeContext.subscriptions) activeContext.subscriptions.dispose();
+        } catch (error) {
+            failures.push(error);
+        } finally {
             callbacks.clear();
             activeModule = null;
             activeExports = null;
             activeContext = null;
         }
+        if (failures.length) throw new Error(failures.map(error => error.message || String(error)).join('; '));
         postResponse(message.requestId, true);
     }
 
@@ -192,10 +200,12 @@ const SANDBOX_RUNTIME_SCRIPT = String.raw`
                 disposables.clear();
             },
             dispose() {
+                const failures = [];
                 for (const disposable of disposables) {
-                    disposeValue(disposable);
+                    try { disposeValue(disposable); } catch (error) { failures.push(error); }
                 }
                 disposables.clear();
+                if (failures.length) throw new Error(failures.map(error => error.message || String(error)).join('; '));
             }
         };
     }

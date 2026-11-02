@@ -30,7 +30,11 @@ describe('沙箱插件当前模块协议', () => {
         const sandbox = runtime();
         await sandbox.send({type: 'sandbox:init', requestId: 'init', context: {extension: {}}, moduleVarName: 'plugin', code: `
             window.plugin = {
-                activate(context) { context.subscriptions.add({dispose() {console.log('disposed');}}); return {ready: true}; },
+                activate(context) {
+                    context.subscriptions.add({dispose() {throw new Error('dispose failure');}});
+                    context.subscriptions.add({dispose() {console.log('disposed');}});
+                    return {ready: true};
+                },
                 deactivate() {throw new Error('deactivation failure');}
             };
         `});
