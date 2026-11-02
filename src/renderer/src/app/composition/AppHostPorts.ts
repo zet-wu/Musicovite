@@ -126,7 +126,6 @@ export interface AppHostPorts {
     domEvents: DOMEventBindingHost;
     extensionHost: ExtensionHostApp;
     fileImport: FileImportHost;
-    legacyPluginApp: MusicBoxCompositionHost;
     library: LibraryAppHost;
     lifecycle: import('@/app/lifecycle').AppLifecycleHost;
     navigationBindings: NavigationComponentBindingHost;
@@ -201,7 +200,6 @@ export function createAppHostPorts(app: MusicBoxCompositionHost): AppHostPorts {
             showError: notificationPort.showError,
             showInfo: notificationPort.showInfo
         },
-        legacyPluginApp: app,
         library: {
             get currentView() {
                 return app.currentView;

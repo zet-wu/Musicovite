@@ -15,17 +15,9 @@ import './types';
 
 export type ExtensionExports = Record<string, unknown> | object | null;
 
-interface ExtensionModuleClass {
-    new(context: ExtensionContext): {
-        activate?: () => Promise<void> | void;
-        deactivate?: () => Promise<void> | void;
-    };
-}
-
 interface ExtensionModule {
     activate?: (context: ExtensionContext) => Promise<ExtensionExports> | ExtensionExports;
     deactivate?: () => Promise<void> | void;
-    default?: ExtensionModuleClass;
     sandboxHost?: SandboxExtensionHost;
 }
 
@@ -212,16 +204,8 @@ export class ExtensionActivator extends Disposable {
             const activateCallStart = Date.now();
             let exports: ExtensionExports = null;
 
-            if (module && typeof module.activate === 'function') {
-                exports = await module.activate(context);
-            } else if (module && typeof module.default === 'function') {
-                const ExtensionClass = module.default;
-                const instance = new ExtensionClass(context);
-                if (typeof instance.activate === 'function') {
-                    await instance.activate();
-                }
-                exports = instance;
-            }
+            if (!module || typeof module.activate !== 'function') throw new Error('插件必须导出 activate(context)');
+            exports = await module.activate(context);
 
             const activateCallTime = Date.now() - activateCallStart;
             const activateResolvedTime = Date.now() - startTime;

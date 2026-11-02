@@ -5,7 +5,6 @@ const SANDBOX_RUNTIME_SCRIPT = String.raw`
     let callbackIdSeed = 0;
     let requestIdSeed = 0;
     let activeModule = null;
-    let activeInstance = null;
     let activeExports = null;
     let contextData = null;
     let activeContext = null;
@@ -105,75 +104,31 @@ const SANDBOX_RUNTIME_SCRIPT = String.raw`
     }
 
     function resolveExtensionModule(windowObject, globalObject, moduleVarName) {
-        if (moduleVarName && typeof moduleVarName === 'string') {
-            return windowObject[moduleVarName] || globalObject[moduleVarName] || null;
-        }
-
-        if (windowObject.musicboxExtension || globalObject.musicboxExtension) {
-            return windowObject.musicboxExtension || globalObject.musicboxExtension;
-        }
-
-        const candidates = [];
-        collectExtensionModuleCandidates(candidates, windowObject);
-        if (globalObject !== windowObject) {
-            collectExtensionModuleCandidates(candidates, globalObject);
-        }
-
-        if (candidates.length === 1) {
-            return candidates[0];
-        }
-
-        return null;
-    }
-
-    function collectExtensionModuleCandidates(candidates, container) {
-        for (const key of Object.keys(container)) {
-            const value = container[key];
-            if (!value || typeof value !== 'object') {
-                continue;
-            }
-
-            if (typeof value.activate === 'function' || typeof value.default === 'function') {
-                candidates.push(value);
-            }
-        }
+        if (typeof moduleVarName !== 'string' || !moduleVarName) throw new Error('插件 manifest 必须声明 module');
+        const module = windowObject[moduleVarName] || globalObject[moduleVarName];
+        if (!module || typeof module.activate !== 'function') throw new Error('插件必须导出 activate(context)');
+        return module;
     }
 
     async function handleActivate(message) {
         const context = createContext(contextData);
         activeContext = context;
-        let exports = null;
-
-        if (activeModule && typeof activeModule.activate === 'function') {
-            exports = await activeModule.activate(context);
-        } else if (activeModule && typeof activeModule.default === 'function') {
-            activeInstance = new activeModule.default(context);
-            if (activeInstance && typeof activeInstance.activate === 'function') {
-                await activeInstance.activate();
-            }
-            exports = activeInstance;
-        }
+        const exports = await activeModule.activate(context);
 
         activeExports = sanitizeExports(exports);
         postResponse(message.requestId, true, {exports: activeExports});
     }
 
     async function handleDeactivate(message) {
-        if (activeModule && typeof activeModule.deactivate === 'function') {
-            await activeModule.deactivate();
-        } else if (activeInstance && typeof activeInstance.deactivate === 'function') {
-            await activeInstance.deactivate();
+        try {
+            if (activeModule && typeof activeModule.deactivate === 'function') await activeModule.deactivate();
+        } finally {
+            if (activeContext && activeContext.subscriptions) activeContext.subscriptions.dispose();
+            callbacks.clear();
+            activeModule = null;
+            activeExports = null;
+            activeContext = null;
         }
-
-        if (activeContext && activeContext.subscriptions) {
-            activeContext.subscriptions.dispose();
-        }
-
-        callbacks.clear();
-        activeModule = null;
-        activeInstance = null;
-        activeExports = null;
-        activeContext = null;
         postResponse(message.requestId, true);
     }
 

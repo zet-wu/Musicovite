@@ -247,7 +247,8 @@ export class ExtensionInstaller {
     }
 
     private _validateManifest(manifest: any): void {
-        if (manifest.apiVersion !== 1) throw new Error('EXTENSION_UNSUPPORTED_API_VERSION');
+        if (manifest.apiVersion !== 2) throw new Error('EXTENSION_UNSUPPORTED_API_VERSION');
+        if (typeof manifest.module !== 'string' || !/^[a-zA-Z_$][\w$]*$/.test(manifest.module)) throw new Error('插件 manifest 必须声明有效的 module');
         for (const field of ['id', 'name', 'version', 'main']) {
             if (!manifest[field]) throw new Error(`manifest.json 缺少必需字段: ${field}`);
         }

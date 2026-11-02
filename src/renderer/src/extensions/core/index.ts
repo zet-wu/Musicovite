@@ -17,6 +17,5 @@ export type {
     AppReadyEventDetail,
     ExtensionInfo,
     MusicBoxAPI,
-    MusicBoxApp,
-    MusicBoxPluginHost
+    MusicBoxApp
 } from './types';

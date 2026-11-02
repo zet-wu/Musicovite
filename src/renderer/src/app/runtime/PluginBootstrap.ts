@@ -2,29 +2,18 @@ import {ExtensionService} from "@extensions/core/ExtensionService";
 import {InstantiationService, ServiceCollection} from "@extensions/core/Instantiation";
 import {ActivationEvents} from "@extensions/core/ExtensionsRegistry";
 import {pluginManagerService} from "@/features/extensions/service";
-import type {
-    AppReadyEventDetail,
-    MusicBoxApp as LegacyMusicBoxApp,
-    MusicBoxPluginHost
-} from '@extensions/core/types';
+import type {AppReadyEventDetail} from '@extensions/core/types';
 import type {PluginBootstrapHost} from './AppRuntimePorts';
-import type {ComponentMap} from './components/ComponentTypes';
 
 interface PluginBootstrapOptions {
     app: PluginBootstrapHost;
-    legacyApp?: LegacyMusicBoxApp;
-    legacyComponents?: ComponentMap;
 }
 
 export class PluginBootstrap {
     private readonly app: PluginBootstrapHost;
-    private readonly legacyApp?: LegacyMusicBoxApp;
-    private readonly legacyComponents?: ComponentMap;
 
-    constructor({app, legacyApp, legacyComponents}: PluginBootstrapOptions) {
+    constructor({app}: PluginBootstrapOptions) {
         this.app = app;
-        this.legacyApp = legacyApp;
-        this.legacyComponents = legacyComponents;
     }
 
     async initializePluginSystem(): Promise<void> {
@@ -78,14 +67,9 @@ export class PluginBootstrap {
 
     notifyPluginSystemReady(): void {
         const app = this.app;
-        const pluginHost = this.createPluginReadyHost();
 
         try {
             const detail: AppReadyEventDetail = {
-                pluginHost,
-                host: pluginHost,
-                app: this.legacyApp ?? app as unknown as LegacyMusicBoxApp,
-                components: this.legacyComponents,
                 isInitialized: app.isInitialized
             };
 
@@ -97,21 +81,7 @@ export class PluginBootstrap {
         }
     }
 
-    private createPluginReadyHost(): MusicBoxPluginHost {
-        const app = this.app;
 
-        return {
-            get isInitialized() {
-                return app.isInitialized;
-            },
-            getCurrentView: () => app.currentView,
-            navigateToView: (viewId: string) => app.navigateToView(viewId),
-            on: (event, handler) => app.on(event, handler),
-            off: (event, handler) => app.off(event, handler),
-            emit: (event, ...args) => app.emit(event, ...args),
-            removeAllListeners: (event) => app.removeAllListeners(event)
-        };
-    }
 }
 
 export {};

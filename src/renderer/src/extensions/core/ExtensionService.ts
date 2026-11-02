@@ -371,7 +371,8 @@ class ExtensionService extends Disposable {
     }
 
     private async _loadExtension(manifest: ExtensionManifest): Promise<void> {
-        if (manifest.apiVersion !== 1) throw new Error('EXTENSION_UNSUPPORTED_API_VERSION');
+        if (manifest.apiVersion !== 2) throw new Error('EXTENSION_UNSUPPORTED_API_VERSION');
+        if (typeof manifest.module !== 'string' || !/^[a-zA-Z_$][\w$]*$/.test(manifest.module)) throw new Error('插件 manifest 必须声明有效的 module');
         try {
             const descriptor = new ExtensionDescriptor(manifest);
             this._registry.registerExtension(descriptor);
@@ -477,7 +478,8 @@ class ExtensionService extends Disposable {
 
     async installExtension(manifest: ExtensionManifest): Promise<string> {
         try {
-            if (manifest.apiVersion !== 1) throw new Error('EXTENSION_UNSUPPORTED_API_VERSION');
+            if (manifest.apiVersion !== 2) throw new Error('EXTENSION_UNSUPPORTED_API_VERSION');
+            if (typeof manifest.module !== 'string' || !/^[a-zA-Z_$][\w$]*$/.test(manifest.module)) throw new Error('插件 manifest 必须声明有效的 module');
             if (!manifest.id || !manifest.name || !manifest.version) {
                 throw new Error(t('audit:incompleteManifest'));
             }

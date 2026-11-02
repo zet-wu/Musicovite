@@ -91,7 +91,7 @@
     "颜色",
     "自定义"
   ],
-  "apiVersion": 1,
+  "apiVersion": 2,
   "localization": {
     "zh-CN": {
       "name": "主题增强",

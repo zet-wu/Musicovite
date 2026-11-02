@@ -64,6 +64,8 @@ MusicBox 的新插件系统参考了 VSCode 的扩展系统架构，提供了强
 {
   "id": "my-extension",
   "name": "My Extension",
+  "apiVersion": 2,
+  "module": "myExtension",
   "version": "1.0.0",
   "description": "扩展描述",
   "author": "作者名",
@@ -101,6 +103,8 @@ MusicBox 的新插件系统参考了 VSCode 的扩展系统架构，提供了强
   "isBuiltin": false
 }
 ```
+
+当前协议为 `apiVersion: 2`。manifest 的 `module` 必须是有效标识符，对应入口脚本中的 `window[module]` 对象。对象必须导出 `activate(context)`，可以导出 `deactivate()`；宿主在停用结束时释放订阅，即使插件的停用函数失败也会执行释放。安装和加载入口校验协议版本。语言、权限、存储和其他公开能力通过 `context.api` 提供。
 
 ### 主入口文件 (extension.js)
 
@@ -304,7 +308,7 @@ await window.extensionService.uninstallExtension('extension-id');
 
 ### Q: 如何访问应用的组件？
 
-A: 通过 API 访问，不要直接访问 `app` 或 `appReady.detail.components`。后者只用于有限的旧插件兼容，内部组件可能随重构移除；旧的 `components.trackList` 已移除，集合导航与播放应使用公开 API。
+A: 通过 `context.api` 访问集合导航与播放等公开能力。应用的 `appReady` DOM 通知只包含 `{isInitialized}`，不携带内部实例。
 
 ### Q: 如何持久化数据？
 

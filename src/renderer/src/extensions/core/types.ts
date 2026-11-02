@@ -45,31 +45,8 @@ export interface MusicBoxApp {
     [key: string]: any;
 }
 
-/**
- * Recommended app-ready host for extensions. Legacy appReady.detail.app and
- * appReady.detail.components are still emitted for older plugins, but the
- * collection-owned legacy trackList component is no longer exposed.
- */
-export interface MusicBoxPluginHost {
-    readonly isInitialized: boolean;
-    getCurrentView(): string;
-    navigateToView(viewId: string): void;
-    on(event: string, listener: (...args: any[]) => void): void;
-    off(event: string, listener: (...args: any[]) => void): void;
-    emit(event: string, ...args: any[]): void;
-    removeAllListeners(event?: string): void;
-}
-
-/**
- * Detail payload for the appReady DOM event emitted after extension startup.
- * Prefer pluginHost/host; app and components are legacy compatibility fields.
- * Plugins must not depend on a components.trackList property.
- */
+/** 应用就绪通知仅包含状态，插件通过 context.api 使用公开能力。 */
 export interface AppReadyEventDetail {
-    pluginHost: MusicBoxPluginHost;
-    host: MusicBoxPluginHost;
-    app: MusicBoxApp;
-    components?: MusicBoxApp['components'];
     isInitialized: boolean;
 }
 

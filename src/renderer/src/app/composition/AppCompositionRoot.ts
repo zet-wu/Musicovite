@@ -190,9 +190,7 @@ export function createAppComposition({
     });
 
     const pluginBootstrap = new PluginBootstrap({
-        app: hostPorts.pluginBootstrap,
-        legacyApp: hostPorts.legacyPluginApp as any,
-        legacyComponents: components
+        app: hostPorts.pluginBootstrap
     });
 
     const libraryController = new LibraryAppController({

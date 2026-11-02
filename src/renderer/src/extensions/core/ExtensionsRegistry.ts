@@ -68,7 +68,7 @@ export class ExtensionPoint<T = any> {
 }
 
 export interface ExtensionManifest {
-    apiVersion: 1;
+    apiVersion: 2;
     localization?: Partial<Record<'zh-CN' | 'zh-TW' | 'en', Record<string, string>>>;
     id: string;
     name: string;
@@ -76,7 +76,7 @@ export interface ExtensionManifest {
     description?: string;
     author?: string;
     main?: string;
-    module?: string;
+    module: string;
     activationEvents?: string[];
     contributes?: Record<string, any>;
     engines?: Record<string, string>;
@@ -104,7 +104,7 @@ export class ExtensionDescriptor {
     }
     readonly author: string;
     readonly main?: string;
-    readonly module?: string;
+    readonly module: string;
     readonly activationEvents: string[];
     get contributes(): Record<string, any> {
         const contributions = this.manifest.contributes || {};
