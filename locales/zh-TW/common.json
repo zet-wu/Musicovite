@@ -16,7 +16,5 @@
   "createdAt": "創建於 {{date}}",
   "loadingFolder": "正在載入 {{name}} 中的歌曲...",
   "band": "頻段 #{{id}}",
-  "sortToggle": "切換排序方向",
-  "moodCount_one": "{{count}} 次（{{percentage}}%）",
-  "moodCount_other": "{{count}} 次（{{percentage}}%）"
+  "sortToggle": "切換排序方向"
 }

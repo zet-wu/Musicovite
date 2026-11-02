@@ -185,6 +185,17 @@ export class NativeAudioController extends BaseController {
         }
     }
 
+    @IpcHandle('native-audio:set-visualization-enabled')
+    setVisualizationEnabled(enabled: boolean): void {
+        if (typeof enabled !== 'boolean') throw new Error('可视化开关必须为布尔值');
+        this.engine?.setVisualizationEnabled(enabled);
+    }
+
+    @IpcHandle('native-audio:get-visualization-frame')
+    getVisualizationFrame(): unknown {
+        return this.engine?.getVisualizationFrame() ?? null;
+    }
+
     @IpcHandle('native-audio:get-render-stats')
     async getRenderStats(): Promise<any> {
         try {

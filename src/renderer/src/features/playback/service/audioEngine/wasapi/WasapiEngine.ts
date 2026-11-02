@@ -1,3 +1,4 @@
+import {nativeAudioGateway} from '@/infrastructure/electron/NativeAudioGateway';
 import {t} from '@/shared/i18n';
 /**
  * WASAPI独占模式音频引擎（Rust实现的JS包装器）
@@ -47,6 +48,14 @@ class WasapiEngine {
     public getNextTrackIndex: (() => number) | null;
     public getPreviousTrackIndex: (() => number) | null;
     private progressTimer: ReturnType<typeof setInterval> | null;
+
+    async setVisualizationEnabled(enabled: boolean): Promise<void> {
+        await nativeAudioGateway.api.setVisualizationEnabled(enabled);
+    }
+
+    async readVisualization() {
+        return this.isPlaying ? nativeAudioGateway.api.getVisualizationFrame() : null;
+    }
 
     constructor() {
         this.nativeEngine = null;

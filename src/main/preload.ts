@@ -125,6 +125,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     // Native音频引擎（WASAPI shared/exclusive）
     nativeAudio: {
+        setVisualizationEnabled: (enabled: boolean) => ipcRenderer.invoke('native-audio:set-visualization-enabled', enabled),
+        getVisualizationFrame: () => ipcRenderer.invoke('native-audio:get-visualization-frame'),
         // 初始化Native音频引擎
         initialize: (shareMode?: string) => ipcRenderer.invoke('native-audio:initialize', shareMode),
 
@@ -542,12 +544,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
             ipcRenderer.invoke('extensions:storageUpdate', extensionId, scope, key, value),
     },
 
-    userdata: {
-        getMoodHistory: () => ipcRenderer.invoke('userdata:getMoodHistory'),
-        saveMood: (moodData: any) => ipcRenderer.invoke('userdata:saveMood', moodData),
-        getDiaryHistory: () => ipcRenderer.invoke('userdata:getDiaryHistory'),
-        saveDiary: (diaryData: any) => ipcRenderer.invoke('userdata:saveDiary', diaryData),
-        deleteMood: (timestamp: number) => ipcRenderer.invoke('userdata:deleteMood', timestamp),
-        deleteDiary: (timestamp: number) => ipcRenderer.invoke('userdata:deleteDiary', timestamp),
-    }
 });

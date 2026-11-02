@@ -309,5 +309,21 @@
   "importSettingsFromFile": "從檔案匯入設定",
   "exportSettingsToFile": "匯出當前設定到檔案",
   "resetAllParameters": "重置所有引數",
-  "unlockedClickToLock": "未鎖定（點選鎖定）"
+  "unlockedClickToLock": "未鎖定（點選鎖定）",
+  "homeWelcome": "讓音樂回到眼前",
+  "homeSubtitle": "從熟悉的旋律開始今天。",
+  "homeNowPlaying": "正在播放",
+  "homeWaveform": "波形",
+  "homeAmbient": "環境光",
+  "homeAddMusic": "加入音樂",
+  "homeAddFolder": "加入資料夾",
+  "homeAddFiles": "加入檔案",
+  "homeChooseTrack": "選擇一首歌曲，開始聆聽",
+  "homePlay": "播放",
+  "homePause": "暫停",
+  "homeLibraryCount": "音樂庫中有 {{count}} 首歌曲",
+  "homeEmptyLibrary": "加入本機音樂，建立你的音樂庫。",
+  "homeNoHistory": "最近播放的歌曲會出現在這裡。",
+  "homeOperationFailed": "操作失敗，請重試或查看記錄。",
+  "homeSignalUnavailable": "目前沒有音訊訊號"
 }

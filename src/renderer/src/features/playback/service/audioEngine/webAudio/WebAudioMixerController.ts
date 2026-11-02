@@ -14,6 +14,10 @@ class WebAudioMixerController {
     private audioContext: AudioContext | null;
     private gainNode: GainNode | null;
     private volume: number;
+    private analyser: AnalyserNode | null = null;
+    private visualizationEnabled = false;
+    private readonly samples = new Float32Array(512);
+    private sequence = 0;
     private equalizer: WebAudioEqualizer | null;
     private equalizerEnabled: boolean;
 
@@ -32,6 +36,7 @@ class WebAudioMixerController {
         this.gainNode.connect(audioContext.destination);
         this.gainNode.gain.value = this.volume;
         this.equalizer = new WebAudioEqualizer(audioContext);
+        if (this.visualizationEnabled) this.setVisualizationEnabled(true);
     }
 
     setVolume(volume: number): boolean {
@@ -95,6 +100,7 @@ class WebAudioMixerController {
             audioContext: this.audioContext,
             sourceNode,
             gainNode: this.gainNode,
+            analyser: this.visualizationEnabled ? this.analyser : null,
             equalizer: this.equalizer,
             equalizerEnabled: this.equalizerEnabled
         });
@@ -115,7 +121,31 @@ class WebAudioMixerController {
         });
     }
 
+    setVisualizationEnabled(enabled: boolean): void {
+        this.visualizationEnabled = enabled;
+        if (!this.gainNode || !this.audioContext) return;
+        if (enabled) {
+            if (!this.analyser) {
+                this.analyser = this.audioContext.createAnalyser();
+                this.analyser.fftSize = 512;
+            }
+            this.gainNode.connect(this.analyser);
+        } else if (this.analyser) {
+            try { this.gainNode.disconnect(this.analyser); } catch { /* 音频链重建时可能已断开。 */ }
+            this.analyser.disconnect();
+            this.analyser = null;
+        }
+    }
+
+    readVisualization() {
+        if (!this.visualizationEnabled || !this.analyser || !this.audioContext) return null;
+        this.analyser.getFloatTimeDomainData(this.samples);
+        return {samples: this.samples, sampleRate: this.audioContext.sampleRate, channels: 1, sequence: ++this.sequence};
+    }
+
     destroy(): void {
+        this.analyser?.disconnect();
+        this.analyser = null;
         try {
             this.gainNode?.disconnect();
         } catch (error) {

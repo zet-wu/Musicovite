@@ -158,15 +158,6 @@ interface ElectronAPI {
         onQuit: (callback: () => void) => void;
     };
 
-    // 用户数据
-    userdata: {
-        getMoodHistory: () => Promise<any[]>;
-        saveMood: (moodData: any) => Promise<any>;
-        getDiaryHistory: () => Promise<any[]>;
-        saveDiary: (diaryData: any) => Promise<any>;
-        deleteMood: (timestamp: number) => Promise<any>;
-        deleteDiary: (timestamp: number) => Promise<any>;
-    };
 
     // 桌面歌词
     desktopLyrics: ElectronDesktopLyricsAPI;

@@ -12,22 +12,6 @@ import {
     type RecentTrack
 } from "@/features/playback/service/RecentPlaybackHistoryService";
 import type {Track} from "@api/types/library";
-import type {DiaryData, MoodData} from "@api/types/userdata";
-
-type MoodKey = 'happy' | 'calm' | 'sad' | 'excited' | 'relaxed' | 'nostalgic';
-
-interface MoodStat {
-    mood: string;
-    emoji: string;
-    name: string;
-    count: number;
-    percentage: string;
-}
-
-interface DiaryEntry extends DiaryData {
-    currentTrack?: string;
-}
-
 const EMPTY_PLAY_STATS: PlayStats = {
     totalTracks: 0,
     totalDuration: 0,
@@ -44,8 +28,6 @@ class StatisticsPage extends Component {
     private tracks: Track[];
     private recentTracks: RecentTrack[];
     private playStats: PlayStats;
-    private moodHistory: MoodData[];
-    private diaryHistory: DiaryEntry[];
     private listenersSetup: boolean;
     private historyUnsubscribe: (() => void) | null;
     private isVisible: boolean;
@@ -65,8 +47,6 @@ class StatisticsPage extends Component {
         this.tracks = [];
         this.recentTracks = [];
         this.playStats = {...EMPTY_PLAY_STATS};
-        this.moodHistory = [];
-        this.diaryHistory = [];
         this.listenersSetup = false;
         this.historyUnsubscribe = null;
         this.isVisible = false;
@@ -87,8 +67,6 @@ class StatisticsPage extends Component {
         if (!this.isVisible || viewGeneration !== this.viewGeneration) return;
         this.tracks = pageData.tracks;
         this.loadPlayHistory();
-        this.moodHistory = pageData.moodHistory;
-        this.diaryHistory = pageData.diaryHistory as DiaryEntry[];
         this.calculatePlayStats();
         this.render();
     }
@@ -154,40 +132,6 @@ class StatisticsPage extends Component {
         }
     }
 
-    getMoodStats(): MoodStat[] {
-        const moodCounts: Record<string, number> = {};
-        const moodEmojis: Record<MoodKey, string> = {
-            happy: '😊',
-            calm: '😌',
-            sad: '😢',
-            excited: '🤩',
-            relaxed: '😎',
-            nostalgic: '🥺'
-        };
-        const moodNames: Record<MoodKey, string> = {
-            happy: t('messages:happy'),
-            calm: t('messages:calm'),
-            sad: t('messages:sad'),
-            excited: t('messages:excited'),
-            relaxed: t('messages:relaxed'),
-            nostalgic: t('messages:nostalgic')
-        };
-
-        this.moodHistory.forEach(item => {
-            moodCounts[item.mood] = (moodCounts[item.mood] || 0) + 1;
-        });
-
-        return Object.entries(moodCounts)
-            .sort(([, a], [, b]) => b - a)
-            .map(([mood, count]) => ({
-                mood,
-                emoji: moodEmojis[mood as MoodKey] || '😊',
-                name: moodNames[mood as MoodKey] || mood,
-                count,
-                percentage: ((count / this.moodHistory.length) * 100).toFixed(1)
-            }));
-    }
-
     formatDate(timestamp: number): string {
         const date = new Date(timestamp);
         const now = new Date();
@@ -205,8 +149,6 @@ class StatisticsPage extends Component {
     render(): void {
         if (!this.container) return;
 
-        const moodStats = this.getMoodStats();
-        const recentDiaries = this.diaryHistory.slice(-10).reverse();
         const mostPlayedTracks = this.playStats.mostPlayedTracks || [];
 
         this.container.innerHTML = `
@@ -293,60 +235,6 @@ class StatisticsPage extends Component {
                 </div>
                 ` : ''}
 
-                ${this.moodHistory.length > 0 ? `
-                <div class="stats-section">
-                    <h2 class="section-title">
-                        <svg class="title-icon" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/>
-                        </svg><span data-i18n="messages:listeningMood">${th('messages:listeningMood')}</span></h2>
-                    <div class="mood-stats-container">
-                        <div class="mood-overview">
-                            <div class="mood-total"><span data-i18n="messages:recorded">${th('messages:recorded')}</span><span>${this.moodHistory.length}</span><span data-i18n="messages:moods">${th('messages:moods')}</span></div>
-                        </div>
-                        <div class="mood-distribution">
-                            ${moodStats.map(stat => `
-                                <div class="mood-stat-item">
-                                    <div class="mood-emoji">${stat.emoji}</div>
-                                    <div class="mood-info">
-                                        <div class="mood-name">${stat.name}</div>
-                                        <div class="mood-count">${htmlT('common:moodCount', {count: stat.count, percentage: stat.percentage})}</div>
-                                    </div>
-                                    <div class="mood-bar">
-                                        <div class="mood-bar-fill" style="width: ${stat.percentage}%"></div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-                ` : ''}
-
-                ${this.diaryHistory.length > 0 ? `
-                <div class="stats-section">
-                    <h2 class="section-title">
-                        <svg class="title-icon" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                        </svg><span data-i18n="messages:musicDiary">${th('messages:musicDiary')}</span></h2>
-                    <div class="diary-list">
-                        ${recentDiaries.map(diary => `
-                            <div class="diary-item">
-                                <div class="diary-header">
-                                    <div class="diary-date">${this.formatDate(diary.timestamp)}</div>
-                                    ${diary.currentTrack ? `
-                                        <div class="diary-track">
-                                            <svg viewBox="0 0 24 24" class="diary-track-icon">
-                                                <path fill="currentColor" d="M12,3V13.55C11.41,13.21 10.73,13 10,13A4,4 0 0,0 6,17A4,4 0 0,0 10,21A4,4 0 0,0 14,17V7H18V3H12Z"/>
-                                            </svg>
-                                            ${diary.currentTrack}
-                                        </div>
-                                    ` : ''}
-                                </div>
-                                <div class="diary-content">${diary.content}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-                ` : ''}
             </div>
         `;
 

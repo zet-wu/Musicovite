@@ -309,5 +309,21 @@
   "importSettingsFromFile": "从文件导入设置",
   "exportSettingsToFile": "导出当前设置到文件",
   "resetAllParameters": "重置所有参数",
-  "unlockedClickToLock": "未锁定（点击锁定）"
+  "unlockedClickToLock": "未锁定（点击锁定）",
+  "homeWelcome": "让音乐回到眼前",
+  "homeSubtitle": "从熟悉的旋律开始今天。",
+  "homeNowPlaying": "正在播放",
+  "homeWaveform": "波形",
+  "homeAmbient": "环境光",
+  "homeAddMusic": "添加音乐",
+  "homeAddFolder": "添加文件夹",
+  "homeAddFiles": "添加文件",
+  "homeChooseTrack": "选择一首歌曲，开始聆听",
+  "homePlay": "播放",
+  "homePause": "暂停",
+  "homeLibraryCount": "音乐库中有 {{count}} 首歌曲",
+  "homeEmptyLibrary": "添加本地音乐，建立你的音乐库。",
+  "homeNoHistory": "最近播放的歌曲会出现在这里。",
+  "homeOperationFailed": "操作失败，请重试或查看日志。",
+  "homeSignalUnavailable": "暂无音频信号"
 }

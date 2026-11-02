@@ -6,6 +6,12 @@
 
 ## 入口与构建
 
+首页由 `HomePage` 展示当前播放状态、最近播放历史和音乐导入入口。波形与环境光的独立开关保存在 SettingsStore 中。隐藏页面、隐藏文档、销毁或减少动效偏好启用时释放可视化订阅。
+
+`VisualizationService` 共享最多约 25Hz 的串行采样循环。AudioEngineManager 为帧附加会话号与播放状态，并在换曲、seek 和引擎切换时丢弃旧会话的异步结果。帧为应用 EQ/音量后的单声道时域混音；`channels` 记录取样源声道数（Web Audio 分析器已下混为 1，WASAPI 记录设备声道数），`sampleRate` 是对应源采样率。采样数组在下一次读取时复用，消费者同步读取而不持有或修改。
+
+Web Audio 的 AnalyserNode 连接在 gain 后的分析支路，音频链重连时保留该支路。WASAPI 在 EQ 后按应用音量取样，使用预分配的 512 点环形窗口；实时线程使用 try_lock，竞争时丢帧，读取与 JavaScript 数组分配发生在非实时侧。专用 N-API 经 NativeAudioController/preload/NativeAudioGateway 提供最新快照，独立于 finished/error 事件。
+
 - Vite 配置：`src/renderer/vite.config.js`
 - Vite root：`src/renderer/src`
 - 构建输出：`src/renderer/public`

@@ -1,4 +1,5 @@
 import type {TrackSource} from './AudioTrack';
+import type {SignalSnapshot} from '../VisualizationService';
 
 export type AudioEngineType = 'webaudio' | 'wasapi';
 
@@ -14,6 +15,8 @@ export interface AudioEngineState {
 }
 
 export interface AudioEngineBridge {
+    setVisualizationEnabled(enabled: boolean): void | Promise<void>;
+    readVisualization(): SignalSnapshot | null | Promise<SignalSnapshot | null>;
     nativeEngine?: {
         getShareMode?(): Promise<unknown>;
         setShareMode?(mode: unknown): Promise<unknown>;

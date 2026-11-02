@@ -1,692 +1,189 @@
-import {setLocalizedText, th} from '@/shared/i18n';
+import {Component} from '@ui/base/Component';
+import {t, th, escapeTranslation, onLocaleChanged} from '@/shared/i18n';
+import {homeLibraryActionService} from '@/features/library/service/HomeLibraryActionService';
+import {playbackUiStateService} from '@/features/playback/service/PlaybackUiStateService';
+import {recentPlaybackHistoryService} from '@/features/playback/service/RecentPlaybackHistoryService';
+import {visualizationService, type VisualizationFrame} from '@/features/playback/service/VisualizationService';
+import {settingsStore} from '@/features/settings/service/SettingsStore';
+import type {Track} from '@api/types/track';
 
-/**
- * 首页组件
- */
-
-import {Component} from "@ui/base/Component";
-import {homeLibraryActionService} from "@/features/library/service/HomeLibraryActionService";
-import {homeJournalActionService} from "@/features/userData/service";
-import type {Track} from "@api/types/library";
-
-type BreathingPhase = 'inhale' | 'hold' | 'exhale';
-
-class HomePage extends Component {
-    private container: any;
-    private tracks: Track[];
-    recentTracks: Track[];
-    _lastTracksHash: string | null;
-    private visualizationAnimation: number | null;
-    private breathingInterval: ReturnType<typeof setInterval> | null;
-    private isVisible = false;
-    private viewGeneration = 0;
-    private renderDirty = true;
+export class HomePage extends Component {
+    private visible = false;
+    private generation = 0;
+    private waveform = settingsStore.load().homeWaveform !== false;
+    private ambient = settingsStore.load().homeAmbient === true;
+    private disposeSignal: (() => void) | null = null;
+    private disposers: Array<() => void> = [];
+    private resize: ResizeObserver | null = null;
+    private recent: Track[] = [];
+    private tracks: Track[] = [];
+    private level = 0;
+    private reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     constructor(container: string | Element | null) {
         super(container);
-        this.container = this.element;
-        this.tracks = [];
-        this.recentTracks = [];
-        this._lastTracksHash = null; // 防重复机制
-        this.visualizationAnimation = null;
-        this.breathingInterval = null;
-        this.setupElements();
+        if (this.element) this.addEventListenerManaged(this.element, 'click', event => void this.handleClick(event));
+        this.addEventListenerManaged(document, 'visibilitychange', () => this.updateSubscription());
+        this.addEventListenerManaged(this.reducedMotion, 'change', () => {this.updateSubscription(); this.draw(null);});
+        this.disposers.push(onLocaleChanged(() => {if (this.visible) this.render();}));
+        this.disposers.push(playbackUiStateService.subscribe(() => {if (this.visible) this.updatePlayback();}));
+        this.disposers.push(recentPlaybackHistoryService.subscribe(() => {if (this.visible) this.renderRecent();}));
         this.addAPIEventListenerManaged('libraryUpdated', (tracks: Track[]) => {
-            this.tracks = tracks || [];
-            this.renderDirty = true;
-            if (this.isVisible) this.render();
+            this.tracks = tracks;
+            if (this.visible) this.updateLibrary();
         });
     }
 
     async show(): Promise<void> {
-        const viewGeneration = ++this.viewGeneration;
-        this.isVisible = true;
-        if (this.element) {
-            (this.element as HTMLElement).style.display = 'block';
-        }
-
-        // 只有在没有tracks数据时才获取，避免重复调用
-        if (!this.tracks || this.tracks.length === 0) {
+        const generation = ++this.generation;
+        this.visible = true;
+        if (this.element instanceof HTMLElement) this.element.style.display = 'block';
+        this.render();
+        try {
             const tracks = await homeLibraryActionService.loadTracks();
-            if (!this.isVisible || viewGeneration !== this.viewGeneration) return;
+            if (generation !== this.generation || !this.visible) return;
             this.tracks = tracks;
-            this._lastTracksHash = this._generateTracksHash(this.tracks);
-            this.renderDirty = true;
+            this.updateLibrary();
+        } catch (error) {
+            this.showError(error);
         }
-
-        if (this.renderDirty || !this.container?.firstElementChild) {
-            this.render();
-        } else {
-            this.initializeVisualizationState();
-        }
-    }
-
-    // 生成tracks的简单哈希值
-    _generateTracksHash(tracks: Track[] | null | undefined): string {
-        if (!tracks || tracks.length === 0) return 'empty';
-        const sample = tracks.slice(0, 3).map(t => t.filePath || t.title).join('|');
-        return `${tracks.length}_${sample}`;
     }
 
     hide(): void {
-        this.viewGeneration++;
-        this.isVisible = false;
-        this.stopAudioVisualization();
-        this.stopBreathingGuide();
-        if (this.element instanceof HTMLElement) {
-            this.element.style.display = 'none';
-        }
+        this.visible = false;
+        this.generation++;
+        this.updateSubscription();
+        this.resize?.disconnect();
+        if (this.element instanceof HTMLElement) this.element.style.display = 'none';
     }
 
     destroy(): void {
-        this.stopAudioVisualization();
-        this.stopBreathingGuide();
+        this.hide();
+        this.disposers.splice(0).forEach(dispose => dispose());
         super.destroy();
     }
 
-    setupElements(): void {
-        this.container = this.element;
+    private render(): void {
+        if (!this.element) return;
+        const focus = (document.activeElement as HTMLElement | null)?.dataset.homeAction;
+        this.element.innerHTML = `
+            <div class="musicovite-home">
+                <header class="home-heading"><div><p class="home-eyebrow">Musicovite</p><h1>${th('app:homeWelcome')}</h1><p>${th('app:homeSubtitle')}</p></div><img src="favicon.svg" alt="" width="88" height="88"></header>
+                <section class="home-now" aria-label="${th('app:homeNowPlaying')}">
+                    <div class="home-ambient" aria-hidden="true"></div>
+                    <div class="home-now-content"><p class="home-eyebrow">${th('app:homeNowPlaying')}</p><h2 data-home-title></h2><p data-home-artist></p>
+                    <button type="button" data-home-action="play" class="home-primary"></button></div>
+                    <canvas class="home-waveform" aria-label="${th('app:homeWaveform')}"></canvas>
+                    <div class="home-controls"><button type="button" data-home-action="waveform" aria-pressed="${this.waveform}">${th('app:homeWaveform')}</button><button type="button" data-home-action="ambient" aria-pressed="${this.ambient}">${th('app:homeAmbient')}</button><span data-home-signal></span></div>
+                </section>
+                <div class="home-lower"><section class="home-recent"><h2>${th('app:recentlyPlayed')}</h2><div data-home-recent></div></section>
+                <section class="home-add"><h2>${th('app:homeAddMusic')}</h2><p data-home-library></p><button type="button" data-home-action="folder" class="home-primary">${th('app:homeAddFolder')}</button><button type="button" data-home-action="files">${th('app:homeAddFiles')}</button><p class="home-error" role="status"></p></section></div>
+            </div>`;
+        this.resize?.disconnect();
+        this.resize = new ResizeObserver(() => this.draw(null));
+        const canvas = this.element.querySelector('canvas');
+        if (canvas) this.resize.observe(canvas);
+        this.renderRecent();
+        this.updatePlayback();
+        this.updateLibrary();
+        this.updateSubscription();
+        this.draw(null);
+        if (focus) this.element.querySelector<HTMLElement>(`[data-home-action="${focus}"]`)?.focus();
     }
 
-    // 沉浸式功能事件监听器
-    setupImmersiveEventListeners(): void {
-        if (!this.container) return;
-
-        // 可视化控制按钮
-        const toggleVisualizerBtn = this.container.querySelector('#toggle-visualizer');
-        if (toggleVisualizerBtn) {
-            toggleVisualizerBtn.addEventListener('click', () => {
-                this.toggleAudioVisualizer();
-            });
-        }
-
-        const toggleBreathingBtn = this.container.querySelector('#toggle-breathing');
-        if (toggleBreathingBtn) {
-            toggleBreathingBtn.addEventListener('click', () => {
-                this.toggleBreathingGuide();
-            });
-        }
-
-        const toggleAmbientBtn = this.container.querySelector('#toggle-ambient');
-        if (toggleAmbientBtn) {
-            toggleAmbientBtn.addEventListener('click', () => {
-                this.toggleAmbientMode();
-            });
-        }
-
-        // 专注模式按钮
-        const focusBtn = this.container.querySelector('.focus-btn');
-        if (focusBtn) {
-            focusBtn.addEventListener('click', () => {
-                this.toggleFocusMode();
-                this.emit('toggleLyricsFullscreen');
-            });
-        }
-
-        // 心情记录按钮
-        this.container.querySelectorAll('.mood-btn').forEach((btn: HTMLElement) => {
-            btn.addEventListener('click', () => {
-                const mood = (btn as HTMLElement).dataset.mood || '';
-                this.recordMood(mood);
-                btn.classList.add('selected');
-                this.setTimeoutManaged(() => btn.classList.remove('selected'), 1000);
-            });
-        });
-
-        // 音乐日记保存按钮
-        const saveDiaryBtn = this.container.querySelector('.save-diary-btn');
-        if (saveDiaryBtn) {
-            saveDiaryBtn.addEventListener('click', () => {
-                this.saveMusicDiary();
-            });
-        }
+    private updatePlayback(): void {
+        const state = playbackUiStateService.getState();
+        const title = this.element?.querySelector('[data-home-title]');
+        const artist = this.element?.querySelector('[data-home-artist]');
+        const button = this.element?.querySelector<HTMLButtonElement>('[data-home-action="play"]');
+        if (title) title.textContent = state.currentTrack?.title || t('app:noTrackSelected');
+        if (artist) artist.textContent = state.currentTrack?.artist || t('app:homeChooseTrack');
+        if (button) {button.textContent = t(state.isPlaying ? 'app:homePause' : 'app:homePlay'); button.disabled = !state.currentTrack;}
     }
 
-    // 沉浸式功能实现方法
-    toggleAudioVisualizer(): void {
-        if (!this.container) return;
+    private updateLibrary(): void {
+        const target = this.element?.querySelector('[data-home-library]');
+        if (target) target.textContent = this.tracks.length ? t('app:homeLibraryCount', {count: this.tracks.length}) : t('app:homeEmptyLibrary');
+    }
 
-        const visualizer = this.container.querySelector('#audio-visualizer') as HTMLElement | null;
-        const breathingGuide = this.container.querySelector('.breathing-guide') as HTMLElement | null;
-        const breathingCircle = this.container.querySelector('#breathing-circle') as HTMLElement | null;
+    private renderRecent(): void {
+        this.recent = recentPlaybackHistoryService.loadHistory(6);
+        const target = this.element?.querySelector('[data-home-recent]');
+        if (!target) return;
+        target.innerHTML = this.recent.length ? this.recent.map((track, index) => `<button type="button" class="home-track" data-home-action="recent" data-index="${index}"><span class="home-track-number">${String(index + 1).padStart(2, '0')}</span><span><strong>${escapeTranslation(track.title || track.fileName || '')}</strong><small>${escapeTranslation(track.artist || t('app:unknownArtist'))}</small></span><span aria-hidden="true">▶</span></button>`).join('') : `<p>${th('app:homeNoHistory')}</p>`;
+    }
 
-        if (!visualizer) return;
-
-        const isActive = visualizer.classList.contains('active');
-        if (isActive) {
-            // 关闭音频可视化，显示呼吸引导
-            visualizer.classList.remove('active');
-            this.stopAudioVisualization();
-
-            if (breathingGuide && breathingCircle) {
-                breathingGuide.style.display = 'flex';
-                breathingCircle.classList.add('active');
-                this.startBreathingGuide();
+    private async handleClick(event: Event): Promise<void> {
+        const button = (event.target as Element).closest<HTMLButtonElement>('[data-home-action]');
+        if (!button) return;
+        try {
+            switch (button.dataset.homeAction) {
+                case 'play': await playbackUiStateService.toggleCurrentPlayback(); break;
+                case 'recent': {
+                    const index = Number(button.dataset.index);
+                    this.emit('trackPlayed', this.recent[index], index, this.recent);
+                    break;
+                }
+                case 'waveform':
+                case 'ambient': {
+                    const waveform = button.dataset.homeAction === 'waveform';
+                    if (waveform) this.waveform = !this.waveform; else this.ambient = !this.ambient;
+                    const enabled = waveform ? this.waveform : this.ambient;
+                    settingsStore.update(settingsStore.load(), waveform ? 'homeWaveform' : 'homeAmbient', enabled);
+                    button.setAttribute('aria-pressed', String(enabled));
+                    this.updateSubscription(); this.draw(null); break;
+                }
+                case 'folder':
+                case 'files': {
+                    button.disabled = true;
+                    const result = button.dataset.homeAction === 'folder' ? await homeLibraryActionService.scanSelectedFolders() : await homeLibraryActionService.addMusicFiles();
+                    if (result.changed) {this.tracks = result.tracks; this.updateLibrary();}
+                    break;
+                }
             }
-        } else {
-            // 开启音频可视化，隐藏呼吸引导
-            visualizer.classList.add('active');
-            this.startAudioVisualization();
-
-            if (breathingGuide && breathingCircle) {
-                breathingGuide.style.display = 'none';
-                breathingCircle.classList.remove('active');
-                this.stopBreathingGuide();
-            }
-        }
+        } catch (error) {this.showError(error);} finally {if (button.dataset.homeAction !== 'play') button.disabled = false;}
     }
 
-    startAudioVisualization(): void {
-        if (!this.container) return;
-        this.stopAudioVisualization();
+    private showError(error: unknown): void {
+        console.error('❌ 首页操作失败:', error);
+        const target = this.element?.querySelector('.home-error');
+        if (target) target.textContent = t('app:homeOperationFailed');
+    }
 
-        // todo 改高级实现
-        // 简单的音频可视化实现
-        const canvas = this.container.querySelector('#audio-visualizer') as HTMLCanvasElement | null;
+    private updateSubscription(): void {
+        const active = this.visible && !document.hidden && !this.reducedMotion.matches && (this.waveform || this.ambient);
+        if (active && !this.disposeSignal) this.disposeSignal = visualizationService.subscribe(frame => this.draw(frame));
+        else if (!active) {this.disposeSignal?.(); this.disposeSignal = null;}
+    }
+
+    private draw(frame: VisualizationFrame | null): void {
+        const canvas = this.element?.querySelector<HTMLCanvasElement>('canvas');
         if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-
-        const animate = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // 绘制动态波形
-            const time = Date.now() * 0.002;
-            const centerY = canvas.height / 2;
-
-            ctx.strokeStyle = 'rgba(51, 94, 234, 0.6)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-
-            for (let x = 0; x < canvas.width; x += 2) {
-                const y = centerY + Math.sin(x * 0.02 + time) * 20 +
-                    Math.sin(x * 0.01 + time * 1.5) * 10;
-                if (x === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            }
-            ctx.stroke();
-
-            this.visualizationAnimation = this.requestAnimationFrameManaged(animate);
-        };
-
-        animate();
-    }
-
-    stopAudioVisualization(): void {
-        if (this.visualizationAnimation) {
-            this.cancelAnimationFrameManaged(this.visualizationAnimation);
-            this.visualizationAnimation = null;
+        const bounds = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const width = Math.max(1, Math.round(bounds.width * dpr)), height = Math.max(1, Math.round(bounds.height * dpr));
+        if (canvas.width !== width || canvas.height !== height) {canvas.width = width; canvas.height = height;}
+        const context = canvas.getContext('2d');
+        if (!context) return;
+        context.clearRect(0, 0, width, height);
+        const samples = frame?.state === 'playing' ? frame.signal?.samples : null;
+        let energy = 0;
+        if (samples) for (const sample of samples) energy += sample * sample;
+        const rms = samples?.length ? Math.sqrt(energy / samples.length) : 0;
+        this.level += (rms - this.level) * 0.25;
+        const ambient = this.element?.querySelector<HTMLElement>('.home-ambient');
+        if (ambient) ambient.style.opacity = this.ambient && !this.reducedMotion.matches && frame?.state === 'playing' ? String(Math.min(0.28, this.level * 0.8)) : '0';
+        const status = this.element?.querySelector('[data-home-signal]');
+        if (status) status.textContent = frame?.state === 'unavailable' ? t('app:homeSignalUnavailable') : '';
+        if (!this.waveform) return;
+        context.strokeStyle = getComputedStyle(canvas).color;
+        context.lineWidth = 2 * dpr;
+        context.beginPath();
+        const count = samples?.length || 2;
+        for (let i = 0; i < count; i++) {
+            const x = i * width / (count - 1), y = height * (0.5 - Math.max(-1, Math.min(1, samples?.[i] || 0)) * 0.42);
+            if (i === 0) context.moveTo(x, y); else context.lineTo(x, y);
         }
-    }
-
-    toggleBreathingGuide(): void {
-        if (!this.container) return;
-
-        const breathingGuide = this.container.querySelector('.breathing-guide') as HTMLElement | null;
-        const breathingCircle = this.container.querySelector('#breathing-circle') as HTMLElement | null;
-        const visualizer = this.container.querySelector('#audio-visualizer') as HTMLElement | null;
-
-        if (!breathingGuide || !breathingCircle) return;
-
-        const isActive = breathingCircle.classList.contains('active');
-        if (isActive) {
-            // 关闭呼吸引导，显示音频可视化
-            breathingCircle.classList.remove('active');
-            breathingGuide.style.display = 'none';
-            this.stopBreathingGuide();
-
-            if (visualizer) {
-                visualizer.classList.add('active');
-                this.startAudioVisualization();
-            }
-        } else {
-            // 开启呼吸引导，隐藏音频可视化
-            breathingCircle.classList.add('active');
-            breathingGuide.style.display = 'flex';
-            this.startBreathingGuide();
-
-            if (visualizer) {
-                visualizer.classList.remove('active');
-                this.stopAudioVisualization();
-            }
-        }
-    }
-
-    startBreathingGuide(): void {
-        if (!this.container) return;
-
-        const breathingCircle = this.container.querySelector('#breathing-circle') as HTMLElement | null;
-        const breathingText = breathingCircle?.querySelector('.breathing-text') as HTMLElement | null;
-        if (!breathingCircle || !breathingText) return;
-
-        let phase: BreathingPhase = 'inhale'; // inhale, hold, exhale
-        let count = 0;
-
-        const updateBreathing = () => {
-            switch (phase) {
-                case 'inhale':
-                    setLocalizedText(breathingText, 'messages:breatheIn', {}, 'textContent');
-                    breathingCircle.style.transform = 'scale(1.3)';
-                    if (count >= 4) {
-                        phase = 'hold';
-                        count = 0;
-                    }
-                    break;
-                case 'hold':
-                    setLocalizedText(breathingText, 'messages:hold', {}, 'textContent');
-                    if (count >= 2) {
-                        phase = 'exhale';
-                        count = 0;
-                    }
-                    break;
-                case 'exhale':
-                    setLocalizedText(breathingText, 'messages:breatheOut', {}, 'textContent');
-                    breathingCircle.style.transform = 'scale(1)';
-                    if (count >= 4) {
-                        phase = 'inhale';
-                        count = 0;
-                    }
-                    break;
-            }
-            count++;
-        };
-
-        this.breathingInterval = this.setIntervalManaged(updateBreathing, 1000);
-        updateBreathing();
-    }
-
-    stopBreathingGuide(): void {
-        if (this.breathingInterval) {
-            this.clearIntervalManaged(this.breathingInterval);
-            this.breathingInterval = null;
-        }
-
-        if (!this.container) return;
-
-        const breathingCircle = this.container.querySelector('#breathing-circle') as HTMLElement | null;
-        const breathingText = breathingCircle?.querySelector('.breathing-text') as HTMLElement | null;
-        if (breathingCircle && breathingText) {
-            breathingCircle.style.transform = 'scale(1)';
-            setLocalizedText(breathingText, 'messages:deepBreathing', {}, 'textContent');
-        }
-    }
-
-    toggleAmbientMode(): void {
-        if (!this.container) return;
-
-        const ambientOverlay = this.container.querySelector('#ambient-overlay') as HTMLElement | null;
-        if (!ambientOverlay) return;
-
-        const isActive = ambientOverlay.classList.contains('active');
-        if (isActive) {
-            ambientOverlay.classList.remove('active');
-        } else {
-            ambientOverlay.classList.add('active');
-            this.updateAmbientMode();
-        }
-    }
-
-    updateAmbientMode(): void {
-        const hour = new Date().getHours();
-        if (!this.container) return;
-
-        const ambientOverlay = this.container.querySelector('#ambient-overlay') as HTMLElement | null;
-        if (!ambientOverlay) return;
-
-        let gradient: string;
-        if (hour >= 6 && hour < 12) {
-            // 早晨 - 温暖的金色
-            gradient = 'linear-gradient(45deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.05))';
-        } else if (hour >= 12 && hour < 18) {
-            // 下午 - 明亮的蓝色
-            gradient = 'linear-gradient(45deg, rgba(33, 150, 243, 0.1), rgba(3, 169, 244, 0.05))';
-        } else if (hour >= 18 && hour < 22) {
-            // 傍晚 - 温暖的橙色
-            gradient = 'linear-gradient(45deg, rgba(255, 87, 34, 0.1), rgba(255, 152, 0, 0.05))';
-        } else {
-            // 夜晚 - 深蓝紫色
-            gradient = 'linear-gradient(45deg, rgba(63, 81, 181, 0.1), rgba(103, 58, 183, 0.05))';
-        }
-        ambientOverlay.style.background = gradient;
-    }
-
-    toggleFocusMode(): void {
-        const isInFocusMode = document.body.classList.contains('focus-mode');
-        if (isInFocusMode) {
-            this.exitFocusMode();
-        } else {
-            this.enterFocusMode();
-        }
-    }
-
-    enterFocusMode(): void {
-        // 进入专注模式
-        document.body.classList.add('focus-mode');
-
-        // 启动所有沉浸式功能
-        this.toggleAudioVisualizer();
-        this.toggleBreathingGuide();
-        this.toggleAmbientMode();
-
-        // 更新按钮状态
-        this.updateFocusModeButton(true);
-
-        // 显示专注模式提示
-        this.showFocusModeNotification();
-    }
-
-    showFocusModeNotification(): void {
-        // 移除已存在的通知
-        const existingNotification = document.querySelector('.focus-mode-notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
-
-        const notification = document.createElement('div');
-        notification.className = 'focus-mode-notification';
-        notification.innerHTML = `
-            <div class="notification-content">
-                <h3 data-i18n="messages:focusModeEnabled">${th('messages:focusModeEnabled')}</h3>
-                <p data-i18n="messages:enjoyImmersiveListeningUseTheButtonBelowOrHomeTo">${th('messages:enjoyImmersiveListeningUseTheButtonBelowOrHomeTo')}</p>
-                <div class="notification-actions">
-                    <button class="exit-focus-btn" data-i18n="messages:exitFocusMode">${th('messages:exitFocusMode')}</button>
-                    <button class="minimize-notification-btn" data-i18n="messages:gotIt">${th('messages:gotIt')}</button>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(notification);
-
-        // 退出专注模式按钮
-        notification.querySelector('.exit-focus-btn')?.addEventListener('click', () => {
-            this.exitFocusMode();
-        });
-
-        // 最小化通知按钮
-        notification.querySelector('.minimize-notification-btn')?.addEventListener('click', () => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translate(-50%, -50%) scale(0.8)';
-            this.setTimeoutManaged(() => notification.remove(), 300);
-        });
-
-        // 5秒后自动最小化通知
-        this.setTimeoutManaged(() => {
-            if (notification.parentNode) {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translate(-50%, -50%) scale(0.8)';
-                this.setTimeoutManaged(() => notification.remove(), 300);
-            }
-        }, 5000);
-    }
-
-    exitFocusMode(): void {
-        // 退出专注模式
-        document.body.classList.remove('focus-mode');
-
-        // 更新按钮状态
-        this.updateFocusModeButton(false);
-
-        // 移除专注模式通知（如果存在）
-        const notification = document.querySelector('.focus-mode-notification');
-        if (notification) {
-            notification.remove();
-        }
-    }
-
-    updateFocusModeButton(isInFocusMode: boolean): void {
-        if (!this.container) return;
-
-        const focusBtn = this.container.querySelector('.focus-btn') as HTMLElement | null;
-        if (!focusBtn) return;
-
-        if (isInFocusMode) {
-            setLocalizedText(focusBtn, 'messages:exitFocusMode', {}, 'textContent');
-            focusBtn.classList.add('focus-mode-active');
-        } else {
-            setLocalizedText(focusBtn, 'messages:startFocusing', {}, 'textContent');
-            focusBtn.classList.remove('focus-mode-active');
-        }
-    }
-
-    async recordMood(mood: string): Promise<void> {
-        await homeJournalActionService.recordMood(mood);
-    }
-
-    async saveMusicDiary(): Promise<void> {
-        if (!this.container) return;
-
-        const diaryInput = this.container.querySelector('.diary-input') as HTMLTextAreaElement | null;
-        if (!diaryInput || !diaryInput.value.trim()) return;
-
-        await homeJournalActionService.saveMusicDiary(diaryInput.value.trim());
-
-        // 清空输入框并显示保存成功提示
-        diaryInput.value = '';
-        const saveBtn = this.container.querySelector('.save-diary-btn') as HTMLButtonElement | null;
-        if (!saveBtn) return;
-        const originalText = saveBtn.textContent;
-        setLocalizedText(saveBtn, 'messages:saved', {}, 'textContent');
-        saveBtn.disabled = true;
-
-        this.setTimeoutManaged(() => {
-            saveBtn.textContent = originalText;
-            saveBtn.disabled = false;
-        }, 1500);
-    }
-
-    render(): void {
-        if (!this.container) return;
-
-        this.stopAudioVisualization();
-        this.stopBreathingGuide();
-
-        this.container.innerHTML = `
-            <div class="page-content clean-home">
-                <!-- 欢迎区域 -->
-                <div class="welcome-section">
-                    <div class="welcome-content">
-                        <h1 class="welcome-title" data-i18n="messages:welcomeToMusicbox">${th('messages:welcomeToMusicbox')}</h1>
-                        <p class="welcome-subtitle" data-i18n="messages:musicForEveryMoment">${th('messages:musicForEveryMoment')}</p>
-                    </div>
-                    <div class="welcome-visual">
-                        <div class="music-waves">
-                            <div class="wave"></div>
-                            <div class="wave"></div>
-                            <div class="wave"></div>
-                            <div class="wave"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 音乐可视化中心 -->
-                <div class="music-visualization-center">
-                    <div class="visualization-container">
-                        <canvas id="audio-visualizer" class="audio-visualizer"></canvas>
-                        <div class="breathing-guide">
-                            <div class="breathing-circle" id="breathing-circle">
-                                <div class="breathing-text" data-i18n="messages:deepBreathing">${th('messages:deepBreathing')}</div>
-                            </div>
-                        </div>
-                        <div class="ambient-overlay" id="ambient-overlay"></div>
-                    </div>
-
-                    <div class="visualization-controls">
-                        <button class="viz-control-btn" id="toggle-visualizer" title="${th('messages:audioVisualization')}" data-i18n-title="messages:audioVisualization">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M3,2H5V22H3V2M7,12H9V22H7V12M11,6H13V22H11V6M15,9H17V22H15V9M19,13H21V22H19V13Z"/>
-                            </svg>
-                        </button>
-                        <button class="viz-control-btn" id="toggle-breathing" title="${th('messages:breathingGuide')}" data-i18n-title="messages:breathingGuide">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6Z"/>
-                            </svg>
-                        </button>
-                        <button class="viz-control-btn" id="toggle-ambient" title="${th('messages:ambientEffects')}" data-i18n-title="messages:ambientEffects">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M12,18.5A6.5,6.5 0 0,1 5.5,12A6.5,6.5 0 0,1 12,5.5A6.5,6.5 0 0,1 18.5,12A6.5,6.5 0 0,1 12,18.5M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 核心功能区域 -->
-                <div class="core-features-section">
-                    <div class="features-grid">
-                        <!-- 专注模式 -->
-                        <div class="feature-card focus-mode-card" id="focus-mode-card">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>
-                                </svg>
-                            </div>
-                            <div class="feature-content">
-                                <h3 data-i18n="messages:focusMode">${th('messages:focusMode')}</h3>
-                                <p data-i18n="messages:immerseYourselfInMusicAndFocusOnTheMoment">${th('messages:immerseYourselfInMusicAndFocusOnTheMoment')}</p>
-                                <button class="focus-btn feature-btn" data-i18n="messages:startFocusing">${th('messages:startFocusing')}</button>
-                            </div>
-                        </div>
-
-                        <!-- 聆听心情 -->
-                        <div class="feature-card mood-card" id="mood-journal-card">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/>
-                                </svg>
-                            </div>
-                            <div class="feature-content">
-                                <h3 data-i18n="messages:listeningMood">${th('messages:listeningMood')}</h3>
-                                <p data-i18n="messages:recordHowYouFeelAsYouListen">${th('messages:recordHowYouFeelAsYouListen')}</p>
-                                <div class="mood-buttons">
-                                    <button class="mood-btn" data-mood="happy" title="${th('messages:happy')}" data-i18n-title="messages:happy">😊</button>
-                                    <button class="mood-btn" data-mood="calm" title="${th('messages:calm')}" data-i18n-title="messages:calm">😌</button>
-                                    <button class="mood-btn" data-mood="sad" title="${th('messages:sad')}" data-i18n-title="messages:sad">😢</button>
-                                    <button class="mood-btn" data-mood="excited" title="${th('messages:excited')}" data-i18n-title="messages:excited">🤩</button>
-                                    <button class="mood-btn" data-mood="relaxed" title="${th('messages:relaxed')}" data-i18n-title="messages:relaxed">😎</button>
-                                    <button class="mood-btn" data-mood="nostalgic" title="${th('messages:nostalgic')}" data-i18n-title="messages:nostalgic">🥺</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 音乐日记 -->
-                        <div class="feature-card diary-card" id="music-diary-card">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                                </svg>
-                            </div>
-                            <div class="feature-content">
-                                <h3 data-i18n="messages:musicDiary">${th('messages:musicDiary')}</h3>
-                                <p data-i18n="messages:saveThoughtsAndMemoriesInspiredByMusic">${th('messages:saveThoughtsAndMemoriesInspiredByMusic')}</p>
-                                <div class="diary-container">
-                                    <textarea class="diary-input" placeholder="${th('messages:todaysMusicMadeMeThinkOf')}" data-i18n-placeholder="messages:todaysMusicMadeMeThinkOf" rows="3"></textarea>
-                                    <button class="save-diary-btn feature-btn" data-i18n="messages:saveEntry">${th('messages:saveEntry')}</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 快速开始区域 -->
-                <div class="quick-start-section">
-                    <div class="quick-start-content">
-                        <h2 class="quick-start-title" data-i18n="messages:startListening">${th('messages:startListening')}</h2>
-                        <p class="quick-start-subtitle" data-i18n="messages:makeMusicPartOfYourLife">${th('messages:makeMusicPartOfYourLife')}</p>
-                        <div class="quick-start-actions">
-                            <button class="quick-start-btn primary" id="scan-folder-btn">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
-                                </svg>
-                                <span data-i18n="messages:addMusicFolder">${th('messages:addMusicFolder')}</span>
-                            </button>
-                            <button class="quick-start-btn secondary" id="add-files-btn">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
-                                </svg>
-                                <span data-i18n="messages:addMusicFiles">${th('messages:addMusicFiles')}</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        `;
-
-        this.setupPageEventListeners();
-        this.initializeVisualizationState();
-        this.initializeFocusModeState();
-        this.renderDirty = false;
-    }
-
-    // 初始化专注模式状态
-    initializeFocusModeState(): void {
-        const isInFocusMode = document.body.classList.contains('focus-mode');
-        this.updateFocusModeButton(isInFocusMode);
-    }
-
-    // 初始化可视化状态
-    initializeVisualizationState(): void {
-        if (!this.container) return;
-
-        const visualizer = this.container.querySelector('#audio-visualizer') as HTMLElement | null;
-        const breathingGuide = this.container.querySelector('.breathing-guide') as HTMLElement | null;
-        const ambientOverlay = this.container.querySelector('#ambient-overlay') as HTMLElement | null;
-
-        if (visualizer) {
-            visualizer.classList.add('active');
-            this.startAudioVisualization();
-        }
-
-        if (breathingGuide) {
-            breathingGuide.style.display = 'none';
-        }
-
-        if (ambientOverlay) {
-            ambientOverlay.classList.remove('active');
-        }
-    }
-
-    setupPageEventListeners(): void {
-        if (!this.container) return;
-
-        // 沉浸式首页功能事件监听器
-        this.setupImmersiveEventListeners();
-
-        // 扫描文件夹按钮
-        const scanBtn = this.container.querySelector('#scan-folder-btn');
-        if (scanBtn) {
-            scanBtn.addEventListener('click', async () => {
-                try {
-                    const result = await homeLibraryActionService.scanSelectedFolders();
-                    if (result.changed) {
-                        this.tracks = result.tracks;
-                    }
-                } catch (error) {
-                    console.error('扫描文件夹失败:', error);
-                }
-            });
-        }
-
-        // 添加文件按钮
-        const addFilesBtn = this.container.querySelector('#add-files-btn');
-        if (addFilesBtn) {
-            addFilesBtn.addEventListener('click', async () => {
-                try {
-                    const result = await homeLibraryActionService.addMusicFiles();
-                    if (result.changed) {
-                        this.tracks = result.tracks;
-                    }
-                } catch (error) {
-                    console.error('添加文件失败:', error);
-                }
-            });
-        }
+        context.stroke();
     }
 }
-
-export {HomePage};

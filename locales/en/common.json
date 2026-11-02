@@ -16,7 +16,5 @@
   "createdAt": "Created {{date}}",
   "loadingFolder": "Loading tracks in {{name}}...",
   "band": "Band #{{id}}",
-  "sortToggle": "Toggle sort direction",
-  "moodCount_one": "{{count}} time ({{percentage}}%)",
-  "moodCount_other": "{{count}} times ({{percentage}}%)"
+  "sortToggle": "Toggle sort direction"
 }

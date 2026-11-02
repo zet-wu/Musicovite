@@ -191,6 +191,14 @@ class WebAudioEngine {
         return await this.transportController.seek(position);
     }
 
+    setVisualizationEnabled(enabled: boolean): void {
+        this.mixerController.setVisualizationEnabled(enabled);
+    }
+
+    readVisualization() {
+        return this.isPlaying ? this.mixerController.readVisualization() : null;
+    }
+
     // 设置音量
     setVolume(volume: number): boolean {
         return this.mixerController.setVolume(volume);

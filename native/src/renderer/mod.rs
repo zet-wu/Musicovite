@@ -7,3 +7,6 @@ mod wasapi;
 
 pub use dither::{DitherType, Ditherer};
 pub use wasapi::{RenderStats, WasapiRenderer};
+
+mod visualization;
+pub use visualization::{SignalFrame, VisualizationTap};

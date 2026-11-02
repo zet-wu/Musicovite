@@ -1,3 +1,4 @@
+import type {VisualizationFrame} from '../VisualizationService';
 /**
  * 音频引擎管理器
  * 负责音频引擎生命周期、切换和状态恢复
@@ -19,6 +20,9 @@ class AudioEngineManager {
     public currentEngine: AudioEngineBridge | null;
     public engineType: AudioEngineType;
     private savedState: AudioEngineState;
+    private visualizationEnabled = false;
+    private visualizationSession = 0;
+    private visualizationTransitions = 0;
     public onTrackChanged: ((track: unknown) => void | Promise<void>) | null;
     public onPlaybackStateChanged: ((isPlaying: boolean) => void | Promise<void>) | null;
     public onPositionChanged: ((position: number) => void | Promise<void>) | null;
@@ -85,6 +89,8 @@ class AudioEngineManager {
         try {
             this.currentEngine = await audioEngineFactory.create(engineType);
             this.setupEngineCallbacks();
+            this.visualizationSession++;
+            await this.currentEngine.setVisualizationEnabled(this.visualizationEnabled);
             console.log(`✅ ${engineType === 'wasapi' ? 'WASAPI' : 'WebAudio'}引擎初始化成功`);
             return true;
         } catch (error) {
@@ -100,6 +106,7 @@ class AudioEngineManager {
         if (!this.currentEngine) return;
 
         this.currentEngine.onTrackChanged = async (track) => {
+            this.visualizationSession++;
             if (this.onTrackChanged) await this.onTrackChanged(track);
         };
 
@@ -134,12 +141,14 @@ class AudioEngineManager {
      * @returns {Promise<boolean>}
      */
     async switchEngine(newEngineType: AudioEngineType): Promise<boolean> {
+        this.visualizationSession++;
         if (newEngineType === this.engineType) {
             console.log('ℹ️ 引擎类型未变化，无需切换');
             return true;
         }
 
         const previousEngineType = this.engineType;
+        this.visualizationTransitions++;
 
         try {
             console.log(`🔄 切换引擎: ${this.engineType} -> ${newEngineType}`);
@@ -179,6 +188,8 @@ class AudioEngineManager {
             console.error('❌ 引擎切换失败:', error);
             this.engineType = previousEngineType;
             return false;
+        } finally {
+            this.visualizationTransitions--;
         }
     }
 
@@ -243,11 +254,37 @@ class AudioEngineManager {
         return this.engineType;
     }
 
+    async setVisualizationEnabled(enabled: boolean): Promise<void> {
+        this.visualizationEnabled = enabled;
+        await this.currentEngine?.setVisualizationEnabled(enabled);
+    }
+
+    async readVisualization(): Promise<VisualizationFrame | null> {
+        if (this.visualizationTransitions) return null;
+        const engine = this.currentEngine;
+        const session = this.visualizationSession;
+        const signal = this.visualizationEnabled && engine?.isPlaying ? await engine.readVisualization() : null;
+        if (this.visualizationTransitions || engine !== this.currentEngine || session !== this.visualizationSession) return null;
+        return {
+            session, timestamp: performance.now(),
+            state: !engine ? 'unavailable' : !engine.isPlaying ? (engine.isPaused ? 'paused' : 'stopped') : engine.getVolume() === 0 ? 'muted' : signal ? 'playing' : 'unavailable',
+            signal: engine?.getVolume() === 0 ? null : signal
+        };
+    }
+
     // ==================== 代理方法 ====================
     // 以下方法将调用转发到当前引擎
 
     async loadTrack(filePath: string): Promise<boolean> {
-        return this.currentEngine?.loadTrack(filePath) || false;
+        this.visualizationSession++;
+        this.visualizationTransitions++;
+        try {
+            await this.currentEngine?.setVisualizationEnabled(false);
+            return await this.currentEngine?.loadTrack(filePath) || false;
+        } finally {
+            await this.currentEngine?.setVisualizationEnabled(this.visualizationEnabled);
+            this.visualizationTransitions--;
+        }
     }
 
     async play(): Promise<boolean> {
@@ -259,11 +296,20 @@ class AudioEngineManager {
     }
 
     async stop(): Promise<boolean> {
+        this.visualizationSession++;
         return await this.currentEngine?.stop() || false;
     }
 
     async seek(position: number): Promise<boolean> {
-        return this.currentEngine?.seek(position) || false;
+        this.visualizationSession++;
+        this.visualizationTransitions++;
+        try {
+            await this.currentEngine?.setVisualizationEnabled(false);
+            return await this.currentEngine?.seek(position) || false;
+        } finally {
+            await this.currentEngine?.setVisualizationEnabled(this.visualizationEnabled);
+            this.visualizationTransitions--;
+        }
     }
 
     setVolume(volume: number): boolean {
@@ -271,7 +317,7 @@ class AudioEngineManager {
     }
 
     getVolume(): number {
-        return this.currentEngine?.getVolume() || 0.7;
+        return this.currentEngine?.getVolume() ?? 0.7;
     }
 
     async getPosition(): Promise<number> {
@@ -323,6 +369,9 @@ class AudioEngineManager {
     }
 
     destroy(): void {
+        this.visualizationSession++;
+        this.visualizationEnabled = false;
+        void this.currentEngine?.setVisualizationEnabled(false);
         if (this.currentEngine) {
             this.currentEngine.destroy();
             this.currentEngine = null;

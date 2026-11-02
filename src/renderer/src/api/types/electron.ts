@@ -27,6 +27,8 @@ export interface ElectronAudioAPI {
 }
 
 export interface ElectronNativeAudioAPI {
+    setVisualizationEnabled(enabled: boolean): Promise<void>;
+    getVisualizationFrame(): Promise<{samples: number[]; sequence: number; sampleRate: number; channels: number} | null>;
     initialize(shareMode?: WasapiShareMode): Promise<unknown>;
     loadTrack(filePath: string): Promise<unknown>;
     play(): Promise<unknown>;

@@ -4,6 +4,7 @@ type WebAudioChainOptions = {
     audioContext: AudioContext;
     sourceNode: AudioNode;
     gainNode: GainNode;
+    analyser?: AnalyserNode | null;
     equalizer: WebAudioEqualizer | null;
     equalizerEnabled: boolean;
 };
@@ -16,6 +17,7 @@ class WebAudioChain {
         try {
             gainNode.disconnect();
             gainNode.connect(audioContext.destination);
+            if (options.analyser) gainNode.connect(options.analyser);
             console.log('✅ gainNode -> destination 连接确保');
         } catch (error) {
             console.warn('⚠️ gainNode连接确保失败:', error);
@@ -63,6 +65,7 @@ class WebAudioChain {
         try {
             gainNode.disconnect();
             gainNode.connect(audioContext.destination);
+            if (options.analyser) gainNode.connect(options.analyser);
         } catch (error) {
             console.warn('⚠️ gainNode重连失败:', error);
         }

@@ -309,5 +309,21 @@
   "importSettingsFromFile": "Import settings from file",
   "exportSettingsToFile": "Export settings to file",
   "resetAllParameters": "Reset all parameters",
-  "unlockedClickToLock": "Unlocked (click to lock)"
+  "unlockedClickToLock": "Unlocked (click to lock)",
+  "homeWelcome": "Make room for music",
+  "homeSubtitle": "Start your day with a familiar melody.",
+  "homeNowPlaying": "Now playing",
+  "homeWaveform": "Waveform",
+  "homeAmbient": "Ambient light",
+  "homeAddMusic": "Add music",
+  "homeAddFolder": "Add folder",
+  "homeAddFiles": "Add files",
+  "homeChooseTrack": "Choose a track to start listening",
+  "homePlay": "Play",
+  "homePause": "Pause",
+  "homeLibraryCount": "{{count}} tracks in your library",
+  "homeEmptyLibrary": "Add local music to build your library.",
+  "homeNoHistory": "Your recently played tracks will appear here.",
+  "homeOperationFailed": "Operation failed. Please retry or check the logs.",
+  "homeSignalUnavailable": "Audio signal unavailable"
 }

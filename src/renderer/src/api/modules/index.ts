@@ -10,7 +10,6 @@ export * from '../types';
 
 // API 模块
 export {FileAPI, fileAPI} from './FileAPI';
-export {UserDataAPI, userDataAPI} from './UserDataAPI';
 export {TrayAPI, trayAPI} from './TrayAPI';
 export {NetworkAPI, networkAPI} from './NetworkAPI';
 export {UpdateAPI, updateAPI} from './UpdateAPI';

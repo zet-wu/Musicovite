@@ -11,7 +11,6 @@ export {lyricsGateway} from './LyricsGateway';
 export {coversGateway} from './CoversGateway';
 export {equalizerPresetGateway} from './EqualizerPresetGateway';
 export {trayGateway} from './TrayGateway';
-export {userDataGateway} from './UserDataGateway';
 export {systemGateway} from './SystemGateway';
 export {audioGateway} from './AudioGateway';
 export {nativeAudioGateway} from './NativeAudioGateway';

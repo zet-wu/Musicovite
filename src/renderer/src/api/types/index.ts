@@ -4,7 +4,6 @@
 
 export * from './common';
 export * from './file';
-export * from './userdata';
 export * from './window';
 export * from './library';
 export * from './track';

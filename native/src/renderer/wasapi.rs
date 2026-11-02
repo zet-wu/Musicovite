@@ -148,6 +148,7 @@ impl RenderStats {
 }
 
 pub struct WasapiRenderer {
+    pub visualization: Arc<crate::renderer::VisualizationTap>,
     stream_thread: Option<std::thread::JoinHandle<()>>,
     stats: Arc<Mutex<RenderStats>>,
 }
@@ -155,6 +156,7 @@ pub struct WasapiRenderer {
 impl WasapiRenderer {
     pub fn new() -> Self {
         Self {
+            visualization: Arc::new(crate::renderer::VisualizationTap::new()),
             stream_thread: None,
             stats: Arc::new(Mutex::new(RenderStats::default())),
         }
@@ -182,6 +184,9 @@ impl WasapiRenderer {
         let buffer_durations = config.get_wasapi_buffer_durations();
         let share_mode = config.share_mode;
         let stats = self.stats.clone();
+        self.visualization.invalidate();
+        self.visualization.resume();
+        let visualization = self.visualization.clone();
 
         let stream_thread = std::thread::spawn(move || {
             if let Err(e) = run_render_loop(
@@ -202,6 +207,7 @@ impl WasapiRenderer {
                 equalizer_enabled,
                 parametric_equalizer_enabled,
                 stats.clone(),
+                visualization,
             ) {
                 eprintln!("❌ 渲染线程错误: {}", e);
                 stats.lock().render_errors += 1;
@@ -246,6 +252,7 @@ fn run_render_loop(
     equalizer_enabled: Arc<AtomicBool>,
     parametric_equalizer_enabled: Arc<AtomicBool>,
     stats: Arc<Mutex<RenderStats>>,
+    visualization: Arc<crate::renderer::VisualizationTap>,
 ) -> Result<(), String> {
     // 初始化COM
     let hr = initialize_mta();
@@ -478,6 +485,7 @@ fn run_render_loop(
                 } => {
                     let _ = command;
                     consumer.clear();
+                    visualization.resume();
                     pending_stats.seek_clears += 1;
 
                     // 重置抖动器状态，避免跳转时的伪影
@@ -573,6 +581,8 @@ fn run_render_loop(
                     }
                 }
             }
+
+            visualization.capture(&audio_data, channels, sample_rate, vol);
 
             let audio_bytes = encode_samples_for_device(
                 &mut audio_data,

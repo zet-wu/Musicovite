@@ -749,6 +749,7 @@ impl AudioEngine {
     }
 
     pub fn seek(&mut self, position: f64) -> Result<(), String> {
+        self.renderer.visualization.invalidate();
         if self.current_file.is_none() {
             return Err("未加载音频文件".to_string());
         }
@@ -808,6 +809,16 @@ impl AudioEngine {
             }
         }
         None
+    }
+
+    pub fn set_visualization_enabled(&self, enabled: bool) {
+        self.renderer.visualization.set_enabled(enabled);
+    }
+
+    pub fn get_visualization_frame(&self) -> Option<crate::renderer::SignalFrame> {
+        if !self.is_playing.load(Ordering::Relaxed) || self.is_paused.load(Ordering::Relaxed) { return None; }
+        let frame = self.renderer.visualization.read();
+        if frame.valid { Some(frame) } else { None }
     }
 
     pub fn get_render_stats(&self) -> RenderStats {

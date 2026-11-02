@@ -1,8 +1,6 @@
 import {t, getLocale} from '@/shared/i18n';
 import type {Track} from "@api/types/library";
 import {coverLookupService} from "@/features/mediaAssets/service/CoverLookupService";
-import {userDataService} from "@/features/userData/service";
-import type {DiaryData, MoodData} from "@api/types/userdata";
 import {libraryDataService} from "./LibraryDataService";
 
 export interface LibraryArtistInfo {
@@ -41,8 +39,6 @@ export interface CoverLookupResult {
 
 export interface StatisticsPageData {
     tracks: Track[];
-    moodHistory: MoodData[];
-    diaryHistory: DiaryData[];
 }
 
 export class LibraryPageDataService {
@@ -74,13 +70,7 @@ export class LibraryPageDataService {
     }
 
     async getStatisticsPageData(): Promise<StatisticsPageData> {
-        const [tracks, moodHistory, diaryHistory] = await Promise.all([
-            this.getTracks(),
-            userDataService.getMoodHistory(),
-            userDataService.getDiaryHistory()
-        ]);
-
-        return {tracks, moodHistory, diaryHistory};
+        return {tracks: await this.getTracks()};
     }
 
     async findArtistCover(artistName: string): Promise<CoverLookupResult> {

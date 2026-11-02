@@ -1,4 +1,5 @@
 import {t} from '@/shared/i18n';
+import type {VisualizationFrame} from './VisualizationService';
 
 import {cacheManager} from '@/shared/cache';
 import type {MusicBoxSettings, WasapiShareMode} from '@api/types/settings';
@@ -17,6 +18,8 @@ interface CurrentEngineBridge {
 }
 
 export interface AudioEngineManagerBridge {
+    setVisualizationEnabled(enabled: boolean): Promise<void>;
+    readVisualization(): Promise<VisualizationFrame | null>;
     currentEngine?: CurrentEngineBridge | null;
     initialize(engineType: AudioEngineType): Promise<boolean>;
     loadTrack(filePath: string): Promise<boolean>;

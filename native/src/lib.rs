@@ -9,6 +9,14 @@ use napi::{Env, JsObject, Result};
 use parking_lot::Mutex;
 use std::sync::Arc;
 
+#[napi(object)]
+pub struct VisualizationFrame {
+    pub samples: Vec<f64>,
+    pub sequence: u32,
+    pub sample_rate: u32,
+    pub channels: u32,
+}
+
 // 模块声明
 mod core;
 mod decoder;
@@ -141,6 +149,21 @@ impl NativeAudioEngine {
         let mut response = create_success_response(&mut env)?;
         response.set_named_property("position", env.create_double(position)?)?;
         Ok(response)
+    }
+
+    #[napi]
+    pub fn get_visualization_frame(&self) -> Option<VisualizationFrame> {
+        self.engine.lock().get_visualization_frame().map(|frame| VisualizationFrame {
+            samples: frame.samples[..frame.count].iter().map(|sample| *sample as f64).collect(),
+            sequence: frame.sequence,
+            sample_rate: frame.sample_rate,
+            channels: frame.channels,
+        })
+    }
+
+    #[napi]
+    pub fn set_visualization_enabled(&self, enabled: bool) {
+        self.engine.lock().set_visualization_enabled(enabled);
     }
 
     #[napi]

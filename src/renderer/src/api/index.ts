@@ -11,7 +11,6 @@ import {
     networkAPI,
     trayAPI,
     updateAPI,
-    userDataAPI,
 } from '@api/modules';
 
 export {
@@ -19,12 +18,10 @@ export {
     networkAPI,
     trayAPI,
     updateAPI,
-    userDataAPI,
 };
 
 export const MusicBoxAPI = {
     file: fileAPI,
-    userdata: userDataAPI,
     tray: trayAPI,
     network: networkAPI,
     update: updateAPI

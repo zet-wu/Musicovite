@@ -6,6 +6,7 @@ Musicovite 是基于 Electron、TypeScript 与 Rust 的本地音乐播放器，�
 
 - 音乐库目录与文件来源、歌单、收藏、最近播放及元数据编辑。
 - TTML/逐字歌词、桌面歌词、播放队列与均衡器。
+- 首页展示实际播放信号波形、可选环境光和最近播放；隐藏时停止取样与绘制。
 - Windows WASAPI shared/exclusive 音频引擎；Windows、macOS 和 Linux 的 Web Audio 路径。
 - 简体中文、繁体中文（台湾用词）、英语，以及权限受控的沙箱插件。
 
