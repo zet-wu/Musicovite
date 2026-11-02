@@ -132,20 +132,6 @@ class StatisticsPage extends Component {
         }
     }
 
-    formatDate(timestamp: number): string {
-        const date = new Date(timestamp);
-        const now = new Date();
-        const diff = now.getTime() - date.getTime();
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-        if (days === 0) return t('messages:today');
-        if (days === 1) return t('messages:yesterday');
-        if (days < 7) return t('dynamic:daysAgo', {count: days});
-        if (days < 30) return t('dynamic:weeksAgo', {count: Math.floor(days / 7)});
-        if (days < 365) return t('dynamic:monthsAgo', {count: Math.floor(days / 30)});
-        return t('dynamic:yearsAgo', {count: Math.floor(days / 365)});
-    }
-
     render(): void {
         if (!this.container) return;
 

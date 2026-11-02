@@ -8,5 +8,8 @@
   "audioFiles": "Audio files",
   "images": "Images",
   "image": "Select image",
-  "artwork": "Select album artwork"
+  "artwork": "Select album artwork",
+  "startupRecovery": "Startup failed. Existing data has been preserved. Open the data folder to inspect or restore a backup, then retry.",
+  "openProfile": "Open data folder",
+  "retryStartup": "Restart"
 }

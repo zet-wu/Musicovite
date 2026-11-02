@@ -3,7 +3,8 @@
  * 负责应用的初始化、启动和生命周期管理
  */
 
-import {app} from 'electron';
+import {app, dialog, shell} from 'electron';
+import {nativeT} from '../services/i18n/Translation';
 import {registerLocaleController} from '../controllers/LocaleController';
 import * as fs from 'fs';
 import {ServiceContainer} from './ServiceContainer';
@@ -130,7 +131,20 @@ export class Application {
             this.runBenchmarkScriptIfRequested().catch(e => console.error('❌ Benchmark脚本执行失败:', e));
         } catch (error) {
             console.error('❌ 应用启动失败:', error);
-            throw error;
+            // 数据加载失败时提供人工恢复入口，保持原文件完整。
+            for (;;) {
+                const {response} = await dialog.showMessageBox({
+                    type: 'error', title: 'Musicovite',
+                    message: nativeT('native:startupRecovery'),
+                    detail: error instanceof Error ? error.message : String(error),
+                    buttons: [nativeT('native:openProfile'), nativeT('native:retryStartup'), nativeT('native:quit')],
+                    defaultId: 1, cancelId: 2
+                });
+                if (response === 0) {await shell.openPath(app.getPath('userData')); continue;}
+                if (response === 1) app.relaunch();
+                app.quit();
+                return;
+            }
         }
     }
 

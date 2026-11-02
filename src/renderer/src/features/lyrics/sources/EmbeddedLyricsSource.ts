@@ -17,9 +17,9 @@ export class EmbeddedLyricsSource {
         if (!query.filePath) return [];
         const result = await lyricsGateway.getEmbedded(query.filePath);
         if (!result.success) return [];
-        return (result.candidates ?? (result.lyrics ? [result.lyrics] : [])).map((embedded, index) => {
+        return (result.candidates ?? []).map((embedded) => {
             const candidate: EmbeddedCandidate = {
-                candidateId: String(embedded.candidateId ?? 'legacy:' + index),
+                candidateId: embedded.candidateId,
                 title: [embedded.type, embedded.language, embedded.description].filter(Boolean).join(' · ') || t('messages:embeddedLyrics'),
                 contentHash: typeof embedded.contentHash === 'string' ? embedded.contentHash : undefined,
                 stpp: embedded.type === 'STPP'

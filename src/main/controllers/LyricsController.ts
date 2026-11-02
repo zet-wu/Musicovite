@@ -186,7 +186,7 @@ export class LyricsController extends BaseController {
     }
 
     @IpcHandle('lyrics:getEmbedded')
-    async getEmbedded(filePath: string): Promise<{ success: boolean; lyrics?: any; candidates?: any[]; source?: string; error?: string }> {
+    async getEmbedded(filePath: string): Promise<{ success: boolean; candidates?: any[]; source?: string; error?: string }> {
         const mm = require('music-metadata');
         try {
             if (!filePath) {
@@ -233,7 +233,7 @@ export class LyricsController extends BaseController {
             for (const candidate of candidates) {
                 candidate.contentHash = createHash('sha256').update(JSON.stringify([candidate.text, candidate.timestamps])).digest('hex');
             }
-            return {success: true, candidates, lyrics: candidates.find(item => !item.error), source: 'embedded'};
+            return {success: true, candidates, source: 'embedded'};
         } catch (error: any) {
             let msg = error.message;
             if (error.code === 'ENOENT') msg = '音频文件不存在或无法访问';

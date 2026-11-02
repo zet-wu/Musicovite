@@ -61,7 +61,7 @@ describe('RecentPlaybackHistoryService', () => {
         service = new RecentPlaybackHistoryService();
     });
 
-    it('初始化时直接丢弃旧版播放历史缓存', () => {
+    it('初始化仅使用当前历史并保留其他存储数据', () => {
         localStorage.setItem('musicbox_cache_musicbox-play-history', JSON.stringify({
             data: [createTrack(1)]
         }));
@@ -72,8 +72,8 @@ describe('RecentPlaybackHistoryService', () => {
 
         expect(service.loadHistory()).toEqual([]);
         expect(service.loadPlayCountStats()).toEqual({});
-        expect(localStorage.getItem('musicbox_cache_musicbox-play-history')).toBeNull();
-        expect(localStorage.getItem('musicbox_cache_musicbox-play-count-stats')).toBeNull();
+        expect(localStorage.getItem('musicbox_cache_musicbox-play-history')).not.toBeNull();
+        expect(localStorage.getItem('musicbox_cache_musicbox-play-count-stats')).not.toBeNull();
     });
 
     it('最近播放只保留最新 100 首而累计统计不受上限影响', () => {

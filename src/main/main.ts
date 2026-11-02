@@ -3,12 +3,10 @@
  * 使用新架构的 Application 类替代旧的全局变量模式
  */
 
+import './core/InitializeProductIdentity';
 import {app, BrowserWindow, protocol} from 'electron';
 import {Application} from './core/Application';
 import {getAudioStreamScheme} from './services/audio/AudioStreamProtocol';
-import {initializeProductIdentity} from './core/ProductIdentity';
-
-initializeProductIdentity();
 
 // 必须在 app ready 之前调用（硬件加速设置在 Application.applyConfiguration 中处理）
 protocol.registerSchemesAsPrivileged([{

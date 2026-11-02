@@ -8,5 +8,8 @@
   "audioFiles": "音訊檔案",
   "images": "圖片檔案",
   "image": "選擇圖片",
-  "artwork": "選擇專輯封面"
+  "artwork": "選擇專輯封面",
+  "startupRecovery": "啟動失敗，原有資料已保留。可開啟資料目錄檢查並還原備份，再重新啟動。",
+  "openProfile": "開啟資料目錄",
+  "retryStartup": "重新啟動"
 }

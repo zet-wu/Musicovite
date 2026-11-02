@@ -35,7 +35,7 @@ class EmbeddedLyricsDiagnosticsService {
 
         const filePath = filePaths[0];
         const result = await lyricsGateway.getEmbedded(filePath);
-        const lyrics = result.lyrics;
+        const lyrics = result.candidates?.find(candidate => !candidate.error);
         const debugResult: DebugEmbeddedLyricsResult = {
             success: result.success,
             error: result.error,
