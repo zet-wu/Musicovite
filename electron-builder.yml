@@ -1,11 +1,14 @@
 appId: com.musicovite.app
 productName: Musicovite
+beforePack: scripts/before-pack.cjs
 copyright: Copyright © 2025-present asxez MusicBox
 directories:
   output: dist
   buildResources: build
 files:
   - dist/main/**/*
+  - "!dist/main/NativeAudio.node"
+  - "!dist/main/metadata_editor*"
   - build/branding/**/*
   - LICENSE
   - src/renderer/public/**/*
@@ -27,31 +30,16 @@ files:
   - "!**/dist/python-modules/**/*"
   - "!src/main/metadata_editor*"
 
-asarUnpack:
-  - "dist/main/metadata_editor*"
-  - "dist/main/NativeAudio.node"
-
-extraResources:
-  - from: "dist/main/metadata_editor.exe"
-    to: "metadata_editor.exe"
-    filter: ["**/*"]
-  - from: "dist/main/metadata_editor"
-    to: "metadata_editor"
-    filter: ["**/*"]
-
 # macOS 配置
 mac:
+  extraResources:
+    - from: dist/main/metadata_editor
+      to: metadata_editor
   category: public.app-category.music
   icon: build/branding/musicovite.icns
   target:
     - target: dmg
-      arch:
-        - x64
-        - arm64
     - target: zip
-      arch:
-        - x64
-        - arm64
   # 代码签名配置（需要开发者证书）
   # identity: "Developer ID Application: Your Name (TEAM_ID)"
   # hardenedRuntime: true
@@ -63,6 +51,8 @@ mac:
 win:
   icon: build/branding/musicovite.ico
   extraResources:
+    - from: dist/main/metadata_editor.exe
+      to: metadata_editor.exe
     - from: "dist/main/NativeAudio.node"
       to: "NativeAudio.node"
       filter: ["**/*"]
@@ -77,6 +67,9 @@ win:
 
 # Linux 配置
 linux:
+  extraResources:
+    - from: dist/main/metadata_editor
+      to: metadata_editor
   icon: build/branding/png/
   target:
     - target: AppImage

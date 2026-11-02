@@ -1,6 +1,6 @@
-# MusicBox 插件系统
+# Musicovite 插件系统
 
-MusicBox 插件系统用于在不修改播放器核心代码的前提下扩展播放器能力。插件通过 `manifest.json` 声明元数据、激活事件、权限和贡献点，通过入口脚本的 `activate(context)` / `deactivate()` 管理生命周期。
+Musicovite 插件系统用于在不修改播放器核心代码的前提下扩展播放器能力。插件通过 `manifest.json` 声明元数据、激活事件、权限和贡献点，通过入口脚本的 `activate(context)` / `deactivate()` 管理生命周期。
 
 ## 目录结构
 
@@ -34,9 +34,10 @@ my-extension/
 ```json
 {
   "id": "hello-world",
+  "apiVersion": 2,
   "name": "Hello World",
   "version": "1.0.0",
-  "description": "MusicBox 插件示例",
+  "description": "Musicovite 插件示例",
   "author": "MusicBox Team",
   "main": "extension.js",
   "module": "helloWorldExtension",

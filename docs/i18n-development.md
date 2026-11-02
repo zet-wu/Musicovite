@@ -1,4 +1,4 @@
-# MusicBox 0.3.3 国际化开发与验收
+# Musicovite 国际化开发
 
 ## 语言与数据契约
 
@@ -32,7 +32,7 @@ renderer 先订阅后取快照，忽略旧 revision。切换不重载页面或�
 6. 不在模块顶层缓存翻译结果，不用译文做身份或错误分支判断。业务分支使用 code；外部错误显示本地化摘要和独立的原始诊断详情。
 7. 运行校验、类型检查与回归。词库校验拒绝重复 JSON key、空白/HTML 文案、缺词、变量不一致和已知引用缺失；生成的 `TranslationKey`、`TranslationParams` 可用于新的严格类型调用层。
 
-术语：track=歌曲/歌曲/track；playlist=歌单/播放清單/playlist；library=音乐库/音樂庫/library；settings=设置/設定/settings；file=文件/檔案/file；folder=文件夹/資料夾/folder。MusicBox、WASAPI、TTML 等名称保持原样。
+术语：track=歌曲/歌曲/track；playlist=歌单/播放清單/playlist；library=音乐库/音樂庫/library；settings=设置/設定/settings；file=文件/檔案/file；folder=文件夹/資料夾/folder。Musicovite、WASAPI、TTML 等名称保持原样。
 
 繁体初稿可以借助 OpenCC，但必须检查台湾术语、语境和自称，不对用户内容运行转换。运行时不依赖 OpenCC 翻译 UI。
 
@@ -101,24 +101,3 @@ npm run build:renderer
 - 启用内置主题插件后切换语言，检查设置与面板；关闭插件后不再接收事件。不符合 apiVersion 2 的外部插件应被拒绝。
 - 在最小窗口、迷你模式、缩放和伪本地化英语下检查按钮、菜单、弹窗、长说明的截断和溢出。
 - 在 Windows/macOS/Linux 各自安装包中离线检查两个入口与托盘/文件选择器。系统按钮、Electron 角色菜单和安装器的语言可能由操作系统控制；不把它们计入应用自定义文案的实时切换承诺。
-
-本轮自动测试覆盖语言解析、初始持久化、写盘失败回退、并发 revision、旧快照丢弃、复数、转义和输入保留，并复用音乐库/播放/歌词回归。Windows 实际播放、截图、ASAR 安装包、macOS/Linux 运行验证仍须按上述清单验收。
-
-## 2026-11-02 自动检查记录
-
-- 分支：`dev`；应用版本：`0.3.3`。
-- 三语资源：各 1,339 个原始词条键（包含复数形式），校验通过。
-- `npm run build:ts`、`npm run build:renderer`：通过。Vite 仍提示单个组件 chunk 大于 1 MB，属于构建告警，不影响构建完成。
-- renderer `typecheck`、`lint`（含架构检查）：通过。
-- renderer Vitest：72 个测试文件通过、1 个跳过；305 个用例通过、1 个跳过。
-- Windows `build:rs`：通过，存在原有 Rust dead-code 告警。
-- `git diff --check`：通过。
-- 未修改上游文档网站导航或发布配置；未生成或验证安装包。
-
-## 后续界面反馈与补漏
-
-- 撤销按钮新增的 max-content、flex、nowrap 和图标防收缩限制，两份页面 SCSS 恢复到原有样式；翻译标记复用原文字元素。
-- 补齐歌词格式/特性徽章、来源标签与失败提示、歌词右键菜单、启动与扫描提示、更新通知、快捷键录入及数量摘要、均衡器选项与分组、列表辅助标签、播放队列缺失元数据提示、插件配置验证提示。
-- 对已创建的菜单、标签、徽章及选择状态文本采用原位绑定，切换语言不重建控件或重新请求歌词。
-- 新增动态模板正文/属性漏译检查，以及快捷键摘要、录入提示和分组选项的语言切换回归。歌词正文、用户标签、协议标识和原始外部诊断不作自动翻译。
-- 维护者在本轮修复后反馈“复测没有问题了”。这是维护者的界面复测结果，不代表 ASAR 安装包及 macOS/Linux 全矩阵验收；代理未再次启动窗口。

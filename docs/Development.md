@@ -1,6 +1,6 @@
 # 开发指南
 
-本文记录 MusicBox 本地开发、检查、构建和常见排障流程。
+本文记录 Musicovite 本地开发、检查、构建和常见排障流程。
 
 ## 环境要求
 
@@ -110,24 +110,9 @@ npm run lint
 npm run typecheck:renderer
 ```
 
-## 文档站
+## 文档
 
-文档站位于 `docs/`，使用 VitePress。
-
-```bash
-cd docs
-npm install
-npm run docs:dev
-npm run docs:build
-npm run docs:preview
-```
-
-主要页面：
-
-- `docs/index.md`：官网首页。
-- `docs/Architecture.md`：总体架构。
-- `docs/RendererArchitecture.md`：渲染进程架构。
-- `docs/Development.md`：本文。
+应用、渲染进程、歌词与开发指南直接存放在 docs，品牌源稿与平台图标位于 build/branding。运行 npm run build:icons 可重新生成图标。
 
 ## 开发流程建议
 
@@ -208,11 +193,11 @@ Windows 完整构建主要步骤：
 
 `electron-builder.yml` 中配置了平台目标、图标、asar unpack 和 extra resources。Windows 包中的 `NativeAudio.node` 与各平台生成的 `metadata_editor` 必须作为独立资源可访问。Python helper、原生模块、签名和系统打包工具依赖宿主平台，不要默认可以从一个操作系统完整交叉构建所有目标。
 
-当前 `electron-builder.yml` 将 Windows 专用的 `NativeAudio.node` 放在全局 `extraResources` 中。正式构建 macOS/Linux 安装包前，必须先将其改为 Windows 条件资源，否则非 Windows 构建仍可能查找该文件。构建多架构安装包时，还必须分别生成与目标 CPU 架构匹配的原生模块，不能把 x64 的 `.node` 文件放入 arm64 安装包。
+Windows 专用 NativeAudio.node 在 win.extraResources 中分发。每个目标架构使用对应的原生模块；Python helper 在目标宿主的根目录 .venv 中构建。
 
 ## 手动验证清单
 
-当前项目没有根目录统一自动化测试套件。重要改动建议至少手动覆盖：
+渲染进程使用 Vitest，运行 `npm --prefix src/renderer test`；Rust 运行 `cargo test --manifest-path native/Cargo.toml`。发布时按目标平台验证以下桌面行为：
 
 - 启动、关闭、最小化、最大化、托盘关闭行为。
 - 首次进入欢迎页、选择音乐目录、扫描音乐库。

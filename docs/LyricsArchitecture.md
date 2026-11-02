@@ -1,6 +1,6 @@
 # 歌词系统架构
 
-MusicBox 的歌词管线以 TTML 作为唯一 canonical 表示，并使用 AMLL Core 作为播放详情页唯一歌词渲染器。来源原始格式只存在于采集与归一化边界内，不会成为长期运行时模型或持久化格式。
+Musicovite 的歌词管线以 TTML 作为唯一 canonical 表示，并使用 AMLL Core 作为播放详情页唯一歌词渲染器。来源原始格式只存在于采集与归一化边界内，不会成为长期运行时模型或持久化格式。
 
 ## 数据流
 
@@ -34,7 +34,7 @@ LyricsNormalizer
 - `features/lyrics/sources/`：本地与内嵌歌词入口。
 - `features/lyrics/service/`：自动加载顺序、搜索会话、取消和应用候选。
 - `features/lyrics/ui/`：AMLL Core 生命周期与统一来源选择器。
-- `src/main/services/LyricsPersistenceService.ts`：canonical TTML 和歌曲绑定持久化。
+- `src/main/services/lyrics/LyricsPersistenceService.ts`：canonical TTML 和歌曲绑定持久化。
 
 Renderer 不直接访问文件系统。canonical 文件和绑定通过 preload 暴露的歌词 IPC 访问，存放在 Electron `userData/lyrics/` 下。`canonical/` 保存 TTML，`bindings.json` 保存来源和歌曲绑定；清除绑定不会删除 canonical 文件。
 
@@ -47,6 +47,12 @@ Renderer 不直接访问文件系统。canonical 文件和绑定通过 preload �
 手动选择候选会保存 `manuallySelected` binding，并立即刷新当前歌词。该绑定优先于自动匹配，只有用户执行“清除绑定”或“重新自动匹配”后才退出。统一来源选择器可从单曲右键菜单和播放详情歌词区域右键菜单进入，并按当前、本地、内嵌及四个 provider 分栏显示独立加载与错误状态。
 
 AMLL 文字颜色默认使用主题的 `--color-text`，随浅色/深色模式切换；设置页可以切换为自定义颜色。翻译、行/逐字罗马字和 TTML Ruby/假名均可独立关闭。这些设置只改变 AMLL render projection，不会删除或改写 canonical TTML 中的内容。
+
+## 内嵌 STPP 支持范围
+
+STPP 读取 ISO BMFF 的 stco/co64、stsz/stsc/stts 表，支持非分片 subt/stpp、单 sample、单 sample description、TTML namespace 以及 moov 位于文件尾部和多个 mdat。单 XML 限 16 MiB、moov 索引限 64 MiB。edit list、分片和多 sample 返回候选级错误。
+
+内嵌候选通过 candidates 数组返回，STPP 使用 track ID，标签使用格式/标签 ID/语言/描述/同类序号定位；每次自动加载重新枚举 STPP。完整 TTML 保留 Ruby、音译、翻译、歌手和背景声；渲染投影受 AMLL Core 0.5.2 的布局能力约束，多背景声部的独立布局需要渲染层支持。正文解析在内存 DOM 中补齐解析器所需字段，canonical 保存保留完整文档语义。
 
 ## 后续编辑能力
 

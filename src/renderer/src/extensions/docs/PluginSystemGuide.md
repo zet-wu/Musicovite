@@ -292,17 +292,7 @@ await window.extensionService.uninstallExtension('extension-id');
 
 ## 示例扩展
 
-参考 `examples/hello-world-extension` 目录查看完整的示例扩展。
-
-## 迁移指南
-
-从旧插件系统迁移到新系统：
-
-1. 将 `PluginBase` 改为导出 `activate` 和 `deactivate` 函数
-2. 使用 `context.subscriptions` 替代 `this.disposables`
-3. 使用新的 API 替代直接访问 `app`
-4. 创建 `manifest.json` 文件
-5. 更新激活事件和贡献点
+参考 `examples/hello-world` 目录查看完整的示例扩展。
 
 ## 常见问题
 

@@ -76,24 +76,15 @@ class PythonModuleBuilder {
     }
 
     async checkPython() {
-        this.log('检查Python环境...');
-        const pythonCommands = ['python3', 'python', 'py'];
-
-        for (const cmd of pythonCommands) {
-            try {
-                const result = await this.runCommand(cmd, ['--version']);
-                if (result.success && result.stdout.includes('Python')) {
-                    this.pythonPath = cmd;
-                    this.log(`找到Python: ${cmd} - ${result.stdout}`, 'success');
-                    return true;
-                }
-            } catch (error) {
-                this.log(`检测${cmd}失败: ${error.message}`, 'warn');
-            }
+        const expected = path.join(this.projectRoot, '.venv');
+        const active = process.env.VIRTUAL_ENV;
+        const normalize = value => this.platform === 'win32' ? path.resolve(value).toLowerCase() : path.resolve(value);
+        if (!active || normalize(active) !== normalize(expected)) {
+            throw new Error('请在当前终端激活仓库根目录 .venv 后构建 Python helper');
         }
-
-        this.log('未找到Python环境', 'error');
-        return false;
+        this.pythonPath = path.join(expected, this.platform === 'win32' ? 'Scripts/python.exe' : 'bin/python');
+        const result = await this.runCommand(this.pythonPath, ['--version']);
+        return result.success;
     }
 
     async installDependencies() {
@@ -106,12 +97,6 @@ class PythonModuleBuilder {
             throw new Error(`安装依赖失败: ${result.stderr}`);
         }
 
-        // 安装PyInstaller
-        this.log('安装PyInstaller...');
-        const pyinstallerResult = await this.runCommand(this.pythonPath, ['-m', 'pip', 'install', 'pyinstaller']);
-        if (!pyinstallerResult.success) {
-            throw new Error(`安装PyInstaller失败: ${pyinstallerResult.stderr}`);
-        }
         this.log('依赖安装完成', 'success');
     }
 
@@ -129,7 +114,7 @@ class PythonModuleBuilder {
             this.specFile
         ];
 
-        const result = await this.runCommand('pyinstaller', args);
+        const result = await this.runCommand(this.pythonPath, ['-m', 'PyInstaller', ...args]);
         if (!result.success) {
             throw new Error(`PyInstaller打包失败: ${result.stderr}`);
         }
@@ -169,7 +154,7 @@ class PythonModuleBuilder {
             '--include-package=mutagen'
         ];
 
-        const result = await this.runCommand('nuitka', args);
+        const result = await this.runCommand(this.pythonPath, ['-m', 'nuitka', ...args]);
         if (!result.success) {
             throw new Error(`Nuitka打包失败: ${result.stderr}`);
         }
@@ -200,7 +185,7 @@ class PythonModuleBuilder {
             if (!fs.existsSync(this.distDir)) {
                 fs.mkdirSync(this.distDir, {recursive: true});
             }
-            fs.copyFileSync(executablePath, targetPath);
+            if (path.resolve(executablePath) !== path.resolve(targetPath)) fs.copyFileSync(executablePath, targetPath);
             this.log(`可执行文件已复制到: ${targetPath}`, 'success');
 
             // 在Unix系统上设置执行权限

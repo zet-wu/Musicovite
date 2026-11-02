@@ -46,7 +46,6 @@ src/renderer/src/features/
   playback/                播放队列、状态、音频引擎、UI 绑定
   playlists/               歌单数据、播放、封面、文件导入与目录绑定
   settings/                设置页 controller/service/renderer
-  userData/                心情、日记等用户数据
 
 src/renderer/src/ui/
   base/                    基础 Component
@@ -92,7 +91,7 @@ extensions -> public Extension API
 
 - 创建 `ComponentRegistry`、`DOMEventBinder`、`APIEventBinder`、`ViewRouter`。
 - 创建播放、音乐库、歌单、快捷键、插件、网络磁盘等 app controller。
-- 将 feature service 与 `MusicBoxApp` facade、UI facade、legacy plugin app bridge 显式连接。
+- 通过明确端口连接 feature service、应用协调器与 UI。
 - 配置跨功能依赖，例如 `desktopLyricsService` 获取播放快照，`equalizerService` 获取当前音频引擎。
 
 当新功能需要跨模块协作时，应优先在组合根注入一个明确端口，而不是在模块内部读取全局对象。
@@ -105,9 +104,7 @@ extensions -> public Extension API
 
 ## 运行时 facade
 
-`app/runtime/MusicBoxApp.ts` 仍然暴露很多应用级方法，例如 `scanMusicFolder()`、`handleViewChange()`、`playTrackFromPlaylist()`。这些方法主要用于兼容旧 UI 绑定和插件调用，真实实现已经下沉到 `features/*`。
-
-新增代码不要继续扩大 `MusicBoxApp` 的职责，除非它是应用级 facade 必须暴露的兼容入口。
+`app/runtime/MusicBoxApp.ts` 提供应用生命周期和跨功能协调方法，具体业务由 features 持有。
 
 ## 集合页面生命周期
 
@@ -161,13 +158,7 @@ features/<domain>/
 4. feature service 调用 gateway。
 5. controller/UI 只依赖 feature service。
 
-## 兼容层与架构检查
-
-`core/` 和 `services/` 目录是迁移期兼容层。每个文件必须：
-
-- 包含 `@deprecated` 注释。
-- 只包含注释和 import/export 转发。
-- 不包含新的业务逻辑。
+## 架构检查
 
 `src/renderer/scripts/check-architecture-boundaries.mjs` 会检查：
 
@@ -222,7 +213,7 @@ npm run lint
 
 ## 新增 renderer 代码检查清单
 
-- 是否放在 canonical 目录，而不是 deprecated `core/` / `services/`。
+- 是否放在所属 app/features/ui/infrastructure/shared 目录。
 - 是否通过 gateway 访问 preload API。
 - 是否把跨模块依赖显式注入到组合根或端口对象。
 - 可增长集合是否复用了 `AdaptiveCollectionSurface`，主从页面是否复用了 `MasterDetailViewHost`。
