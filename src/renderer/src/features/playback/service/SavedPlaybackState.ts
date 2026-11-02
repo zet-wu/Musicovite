@@ -4,7 +4,7 @@ export interface SavedPlaybackState {
     version: 1;
     queue: PlaybackQueueSnapshot;
     position: number;
-    timestamp: number;
+    timestamp?: number;
 }
 
 export function savePlaybackSnapshot(state: PlaybackStateSnapshot, position = state.position): SavedPlaybackState {
@@ -16,7 +16,7 @@ export function readPlaybackSnapshot(value: unknown): SavedPlaybackState {
     const state = value as SavedPlaybackState;
     if (state?.version !== 1 || !state.queue || !Array.isArray(state.queue.entries)
         || !['sequence', 'shuffle', 'repeat-one'].includes(state.queue.playMode)
-        || !Number.isFinite(state.position) || state.position < 0 || !Number.isFinite(state.timestamp)) {
+        || !Number.isFinite(state.position) || state.position < 0) {
         throw new Error('保存的播放状态格式无效');
     }
     const ids = new Set<string>();
@@ -27,8 +27,9 @@ export function readPlaybackSnapshot(value: unknown): SavedPlaybackState {
         }
         ids.add(entry.queueId);
     }
+    const result = {...state, timestamp: Number.isFinite(state.timestamp) ? state.timestamp : undefined};
     if (state.queue.currentQueueId !== null && !ids.has(state.queue.currentQueueId)) {
-        throw new Error('保存的当前队列项不存在');
+        return {...result, queue: {...state.queue, currentQueueId: null}, position: 0};
     }
-    return state;
+    return result;
 }

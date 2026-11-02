@@ -38,9 +38,9 @@ BrowserWindow 启用 contextIsolation、webSecurity，关闭 nodeIntegration。�
 
 `music-library-cache.json` version 1 同时保存曲目索引、歌单、收藏和忽略列表，属于用户数据。歌单使用 `trackIds/manualTrackIds`；固定系统集合 `system:favorites` 派生歌曲收藏状态。封面使用应用管理的快照文件名。重建索引保留歌单与用户引用，来源绑定负责物化成员与排除项。
 
-SettingsController 持有自动扫描开关、频率、上次扫描时间及自动歌单封面偏好。设置更新串行化；AutoScanScheduler 通过控制器更新时间。损坏设置不被默认值覆盖。
+SettingsController 持有自动扫描开关、频率、上次扫描时间及自动歌单封面偏好。设置读取允许扩展字段，并补齐缺省项；写入入口校验当前设置项。设置更新串行化，AutoScanScheduler 通过控制器更新时间。损坏 JSON 保留原文件。
 
-播放恢复以 queue 快照确定成员、当前项及播放模式；最近播放历史单独记录实际播放会话。音乐文件、内嵌标签与外置歌词保留原位置。新 profile 的首次使用通过用户添加来源建立索引。
+音乐库统计由索引重算，缺失的描述和时间使用空值；来源标签可保留扩展值。播放恢复以 queue 快照确定成员、当前项及播放模式；当前项失效时保留队列并取消定位，保存时间不作为恢复条件；最近播放历史单独记录实际播放会话。音乐文件、内嵌标签与外置歌词保留原位置。新 profile 的首次使用通过用户添加来源建立索引。
 
 ## 音频与首页
 

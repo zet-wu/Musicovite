@@ -11,8 +11,16 @@ it('持久化只保存队列和位置并恢复当前项', () => {
 
 it.each([
     {playlist: []},
-    {version: 9},
-    {version: 1, queue: {entries: [], currentQueueId: 'missing', playMode: 'sequence'}, position: 0, timestamp: 1}
-])('拒绝旧格式、未知版本和无效当前项：%s', value => {
+    {version: 9}
+])('拒绝旧格式和未知版本：%s', value => {
     expect(() => readPlaybackSnapshot(value)).toThrow();
+});
+
+it('缺少保存时间或当前项失效时保留队列并取消本次定位', () => {
+    const queue = {entries: [{queueId: 'one', track: {filePath: 'music.flac'}}], currentQueueId: 'missing', playMode: 'sequence'};
+    const state = readPlaybackSnapshot({version: 1, queue, position: 12});
+    expect(state.queue.entries).toEqual(queue.entries);
+    expect(state.queue.currentQueueId).toBeNull();
+    expect(state.position).toBe(0);
+    expect(queue.currentQueueId).toBe('missing');
 });

@@ -58,6 +58,20 @@ describe('歌单绑定有效性', () => {
 });
 
 describe('LibrarySourceManager 当前格式', () => {
+    it('未知来源标签和缺失时间不阻止来源与绑定加载', async () => {
+        const manager = await createManager();
+        await fs.promises.writeFile(manager.sourceFilePath, JSON.stringify({
+            version: 1,
+            sources: [{id: 'source', type: 'directory', path: 'music', origin: 'custom-import', knownFiles: []}],
+            playlistBindings: [{id: 'binding', playlistId: 'playlist', sourceId: 'source', managedFiles: [], excludedPaths: []}]
+        }));
+        await manager.load();
+        expect(manager.getSources()[0]).toMatchObject({origin: 'custom-import', createdAt: 0});
+        expect(manager.getPlaylistBindings()[0]).toMatchObject({sourceId: 'source', createdAt: 0});
+        await manager.save();
+        expect(JSON.parse(await fs.promises.readFile(manager.sourceFilePath, 'utf8')).sources[0].origin).toBe('custom-import');
+    });
+
     it('首次创建空来源，已登记来源可重启恢复', async () => {
         const manager = await createManager();
         expect(await manager.load()).toMatchObject({state: 'created', sourceCount: 0});

@@ -193,8 +193,7 @@ export class LibraryCacheManager {
         if (!Array.isArray(data.tracks) || !Array.isArray(data.playlists)
             || !Array.isArray(data.scannedDirectories) || !Array.isArray(data.ignoredFiles)
             || !data.scannedDirectories.every((p: unknown) => typeof p === 'string')
-            || !data.ignoredFiles.every((p: unknown) => typeof p === 'string')
-            || !Number.isFinite(data.lastUpdated) || !data.statistics) throw new Error(nativeT('errors:invalidLibraryData'));
+            || !data.ignoredFiles.every((p: unknown) => typeof p === 'string')) throw new Error(nativeT('errors:invalidLibraryData'));
         for (const track of data.tracks) {
             if (!track || typeof track.fileId !== 'string' || !track.fileId
                 || typeof track.filePath !== 'string' || !track.filePath) throw new Error(nativeT('errors:invalidLibraryTrack'));
@@ -202,20 +201,33 @@ export class LibraryCacheManager {
         const ids = new Set<string>();
         for (const playlist of data.playlists) {
             if (!playlist || typeof playlist.id !== 'string' || !playlist.id || ids.has(playlist.id)
-                || typeof playlist.name !== 'string' || typeof playlist.description !== 'string'
+                || typeof playlist.name !== 'string'
                 || !Array.isArray(playlist.trackIds) || !Array.isArray(playlist.manualTrackIds)
                 || ![...playlist.trackIds, ...playlist.manualTrackIds].every((id: unknown) => typeof id === 'string')
-                || !Number.isFinite(playlist.createdAt) || !Number.isFinite(playlist.updatedAt)
-                || (playlist.systemType !== undefined && (playlist.systemType !== 'favorites' || playlist.id !== FAVORITES_PLAYLIST_ID))
-                || 'tracks' in playlist || 'coverImagePath' in playlist || 'coverImage' in playlist) {
+                || (playlist.systemType !== undefined && (playlist.systemType !== 'favorites' || playlist.id !== FAVORITES_PLAYLIST_ID))) {
                 throw new Error(nativeT('errors:invalidLibraryPlaylist'));
             }
             ids.add(playlist.id);
         }
-        for (const key of ['totalTracks', 'totalSize', 'totalPlaylists', 'lastScanTime', 'scanDuration']) {
-            if (!Number.isFinite(data.statistics[key])) throw new Error(nativeT('errors:invalidLibraryStats'));
-        }
-        return data as CacheData;
+        // 描述与时间可缺省，统计从当前索引重算，不影响用户歌单加载。
+        return {
+            ...data,
+            lastUpdated: Number.isFinite(data.lastUpdated) ? data.lastUpdated : 0,
+            playlists: data.playlists.map((playlist: Playlist) => ({
+                ...playlist,
+                description: typeof playlist.description === 'string' ? playlist.description : '',
+                createdAt: Number.isFinite(playlist.createdAt) ? playlist.createdAt : 0,
+                updatedAt: Number.isFinite(playlist.updatedAt) ? playlist.updatedAt : 0
+            })),
+            statistics: {
+                ...data.statistics,
+                totalTracks: data.tracks.length,
+                totalSize: data.tracks.reduce((total: number, track: CachedTrack) => total + (Number.isFinite(track.fileSize) && track.fileSize > 0 ? track.fileSize : 0), 0),
+                totalPlaylists: data.playlists.filter((playlist: Playlist) => playlist.id !== FAVORITES_PLAYLIST_ID).length,
+                lastScanTime: Number.isFinite(data.statistics?.lastScanTime) ? data.statistics.lastScanTime : 0,
+                scanDuration: Number.isFinite(data.statistics?.scanDuration) ? data.statistics.scanDuration : 0
+            }
+        };
     }
 
     async saveCache(): Promise<void> {

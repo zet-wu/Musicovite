@@ -28,6 +28,23 @@ afterEach(async () => {
 });
 
 describe('LibraryCacheManager 持久化保护', () => {
+    it('统计和说明字段缺失或无效时仍加载当前歌单并重算统计', async () => {
+        const cachePath = await createCachePath();
+        await fs.promises.writeFile(cachePath, JSON.stringify({
+            version: 1, tracks: [{fileId: 'track', filePath: 'music.flac', fileSize: 25}],
+            playlists: [{id: 'playlist', name: '歌单', trackIds: ['track'], manualTrackIds: ['track'], extraField: true, coverImagePath: 'unused'}],
+            scannedDirectories: [], ignoredFiles: [], statistics: {totalTracks: 'bad'}
+        }));
+        const manager = new LibraryCacheManager(null, cachePath);
+        await manager.loadCache();
+        expect(manager.getPlaylistById('playlist')).toMatchObject({trackIds: ['track'], description: '', createdAt: 0, extraField: true});
+        expect(manager.getCacheStatistics()).toMatchObject({totalTracks: 1, totalSize: 25, totalPlaylists: 1});
+        await manager.saveCache();
+        const reloaded = new LibraryCacheManager(null, cachePath);
+        await reloaded.loadCache();
+        expect(reloaded.getPlaylistById('playlist').trackIds).toEqual(['track']);
+    });
+
     it('缓存加载完成前拒绝保存，避免空状态覆盖已有文件', async () => {
         const cachePath = await createCachePath();
         const original = JSON.stringify({marker: 'keep-existing-data'});

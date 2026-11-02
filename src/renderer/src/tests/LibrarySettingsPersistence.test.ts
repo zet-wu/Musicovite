@@ -19,6 +19,15 @@ async function setup() {
 }
 
 describe('音乐库设置持久化', () => {
+    it('读取时补齐可选项并在更新后保留未知字段', async () => {
+        const {file, controller} = await setup();
+        await writeFile(file, JSON.stringify({autoScanEnabled: true, customMetadata: {value: 1}}));
+        expect(await controller.getAutoScanSettings()).toMatchObject({autoScanEnabled: true, scanFrequency: 'on_startup', lastScanTime: 0});
+        await controller.set('scanFrequency', 'weekly');
+        expect(JSON.parse(await readFile(file, 'utf8'))).toMatchObject({scanFrequency: 'weekly', customMetadata: {value: 1}});
+        await expect(controller.updateAutoScanSettings({customMetadata: 2})).rejects.toThrow('未知');
+    });
+
     it('并发设置和扫描时间更新串行保存并可重启恢复', async () => {
         const {file, controller} = await setup();
         await Promise.all([

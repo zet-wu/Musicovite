@@ -10,7 +10,7 @@ const DEFAULT_SETTINGS = {
     lastScanTime: 0,
     autoPlaylistCoverFromFirstTrack: false
 };
-type Settings = typeof DEFAULT_SETTINGS;
+type Settings = typeof DEFAULT_SETTINGS & Record<string, unknown>;
 
 @Controller('settings')
 export class SettingsController extends BaseController {
@@ -26,7 +26,6 @@ export class SettingsController extends BaseController {
     private validate(value: unknown): Settings {
         const data = value as Settings;
         if (!data || typeof data !== 'object' || Array.isArray(data)
-            || Object.keys(data).some(key => !Object.hasOwn(DEFAULT_SETTINGS, key))
             || typeof data.autoScanEnabled !== 'boolean' || typeof data.autoPlaylistCoverFromFirstTrack !== 'boolean'
             || !['on_startup', 'daily', 'weekly'].includes(data.scanFrequency)
             || !Number.isFinite(data.lastScanTime) || data.lastScanTime < 0) {
@@ -38,7 +37,13 @@ export class SettingsController extends BaseController {
     private async ensureSettings(): Promise<Settings> {
         if (this.settings) return this.settings;
         try {
-            this.settings = this.validate(JSON.parse(await fs.promises.readFile(this.settingsFilePath, 'utf8')));
+            const data = JSON.parse(await fs.promises.readFile(this.settingsFilePath, 'utf8'));
+            if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error(nativeT('errors:invalidLibrarySettings'));
+            this.settings = this.validate({
+                ...DEFAULT_SETTINGS,
+                ...data,
+                lastScanTime: Number.isFinite(data.lastScanTime) && data.lastScanTime >= 0 ? data.lastScanTime : 0
+            });
         } catch (error: any) {
             if (error.code !== 'ENOENT') throw error;
             this.settings = {...DEFAULT_SETTINGS};
@@ -48,6 +53,8 @@ export class SettingsController extends BaseController {
 
     private update(values: Partial<Settings>): Promise<Settings> {
         const operation = this.updates.then(async () => {
+            // 读取时保留扩展字段，写入入口只接受当前设置项。
+            if (Object.keys(values).some(key => !Object.hasOwn(DEFAULT_SETTINGS, key))) throw new Error(nativeT('errors:unknownSetting'));
             const next = this.validate({...await this.ensureSettings(), ...values});
             const temporary = this.settingsFilePath + '.tmp';
             try {
@@ -98,7 +105,6 @@ export class SettingsController extends BaseController {
 
     @IpcHandle('settings:set')
     async set(key: string, value: unknown): Promise<boolean> {
-        if (!Object.hasOwn(DEFAULT_SETTINGS, key)) throw new Error(nativeT('errors:unknownSetting'));
         await this.update({[key]: value});
         return true;
     }

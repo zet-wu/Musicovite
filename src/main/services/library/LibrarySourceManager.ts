@@ -5,11 +5,7 @@ import * as path from 'path';
 import {app} from 'electron';
 
 export type LibrarySourceType = 'directory' | 'file';
-export type LibrarySourceOrigin =
-    | 'settings'
-    | 'scan'
-    | 'file_import'
-    | 'playlist_binding';
+export type LibrarySourceOrigin = string;
 
 export interface LibrarySourceKnownFile {
     path: string;
@@ -397,26 +393,30 @@ export class LibrarySourceManager {
             throw new Error(nativeT('errors:invalidSourceData'));
         }
         const sourceIds = new Set<string>();
-        const origins = ['settings', 'scan', 'file_import', 'playlist_binding'];
         const sources = data.sources.map((source: any): LibrarySource => {
             if (!source || typeof source.id !== 'string' || !source.id || sourceIds.has(source.id)
-                || !['directory', 'file'].includes(source.type) || typeof source.path !== 'string' || !source.path
-                || !origins.includes(source.origin) || !Number.isFinite(source.createdAt)) {
+                || !['directory', 'file'].includes(source.type) || typeof source.path !== 'string' || !source.path) {
                 throw new Error(nativeT('errors:invalidSourceRecord'));
             }
             sourceIds.add(source.id);
-            return {...source, canonicalPath: this.canonicalize(source.path), knownFiles: this.validateKnownFiles(source.knownFiles)};
+            return {
+                ...source,
+                origin: typeof source.origin === 'string' ? source.origin : 'unknown',
+                createdAt: Number.isFinite(source.createdAt) ? source.createdAt : 0,
+                canonicalPath: this.canonicalize(source.path),
+                knownFiles: this.validateKnownFiles(source.knownFiles)
+            };
         });
         const bindingIds = new Set<string>();
         const playlistBindings = data.playlistBindings.map((binding: any): PlaylistSourceBinding => {
             if (!binding || typeof binding.id !== 'string' || !binding.id || bindingIds.has(binding.id)
                 || typeof binding.playlistId !== 'string' || !binding.playlistId || !sourceIds.has(binding.sourceId)
-                || !Number.isFinite(binding.createdAt) || !Array.isArray(binding.excludedPaths)
+                || !Array.isArray(binding.excludedPaths)
                 || !binding.excludedPaths.every((value: unknown) => typeof value === 'string')) {
                 throw new Error(nativeT('errors:invalidSourceBinding'));
             }
             bindingIds.add(binding.id);
-            return {...binding, managedFiles: this.validateKnownFiles(binding.managedFiles), excludedPaths: [...binding.excludedPaths]};
+            return {...binding, createdAt: Number.isFinite(binding.createdAt) ? binding.createdAt : 0, managedFiles: this.validateKnownFiles(binding.managedFiles), excludedPaths: [...binding.excludedPaths]};
         });
         return {version: CURRENT_VERSION, sources, playlistBindings};
     }
