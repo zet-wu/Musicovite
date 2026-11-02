@@ -10,7 +10,7 @@ vi.mock('electron', () => ({
 import {SettingsController} from '../../../main/controllers/SettingsController';
 
 const directories: string[] = [];
-afterEach(async () => { await Promise.all(directories.splice(0).map(p => rm(p, {recursive: true, force: true}))); });
+afterEach(async () => { await Promise.all(directories.splice(0).map(p => rm(p, {recursive: true, force: true, maxRetries: 3, retryDelay: 50}))); });
 async function setup() {
     const dir = await mkdtemp(join(tmpdir(), 'musicovite-settings-'));
     directories.push(dir);

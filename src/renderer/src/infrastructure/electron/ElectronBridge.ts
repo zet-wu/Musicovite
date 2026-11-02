@@ -53,12 +53,13 @@ export class ElectronNamespaceAdapter<N extends ElectronNamespace> {
     }
 
     on(method: string, handler: (...args: any[]) => void): Unsubscribe {
-        const api = this.isAvailable() ? this.api as CallableNamespace : null;
-        if (!api || typeof api[method] !== 'function') {
-            return noop;
-        }
-
-        return api[method](handler) || noop;
+        // 浏览器预览没有 preload；Electron 环境中的缺失接口是契约错误。
+        if (!window.electronAPI) return noop;
+        const api = this.api as CallableNamespace;
+        if (typeof api[method] !== 'function') throw new Error('electronAPI.' + this.namespace + '.' + method + ' is not available');
+        const dispose = api[method](handler);
+        if (typeof dispose !== 'function') throw new Error('electronAPI.' + this.namespace + '.' + method + ' must return an unsubscribe function');
+        return dispose;
     }
 }
 

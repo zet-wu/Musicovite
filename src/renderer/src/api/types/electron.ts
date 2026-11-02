@@ -147,8 +147,8 @@ export interface ElectronLibraryAPI {
     getPlaylistDetail(playlistId: string): Promise<PlaylistDetailResult>;
     deletePlaylist(playlistId: string): Promise<unknown>;
     renamePlaylist(playlistId: string, newName: string, description?: string): Promise<unknown>;
-    addToPlaylist(playlistId: string, trackIds: string[]): Promise<Result>;
-    removeFromPlaylist(playlistId: string, trackIds: string[]): Promise<Result>;
+    addTracksToPlaylist(playlistId: string, trackIds: string[]): Promise<Result>;
+    removeTracksFromPlaylist(playlistId: string, trackIds: string[]): Promise<Result>;
     setTrackFavorite(trackFileId: string, favorite: boolean): Promise<Result & {favorite?: boolean}>;
     cleanupPlaylists(): Promise<unknown>;
     loadCachedTracks(): Promise<Track[]>;

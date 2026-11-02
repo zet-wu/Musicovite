@@ -103,14 +103,7 @@ export class LibraryController extends BaseController {
 
     @IpcHandle('library:loadCachedTracks')
     async loadCachedTracks(): Promise<CachedTrack[]> {
-        try {
-            const tracks = this.libraryCacheManager.getTracks();
-            console.log(`✅ 从缓存加载 ${tracks.length} 个音乐文件`);
-            return tracks;
-        } catch (error) {
-            console.error('❌ 加载缓存音乐库失败:', error);
-            return [];
-        }
+        return this.libraryCacheManager.getTracks();
     }
 
     @IpcHandle('library:validateCache')
@@ -292,6 +285,11 @@ export class LibraryController extends BaseController {
         error?: string
     }> {
         try {
+            if (typeof playlistId !== 'string' || !playlistId.trim() || !Array.isArray(trackIds)
+                || !trackIds.every(id => typeof id === 'string' && id.length > 0)) {
+                throw new Error(nativeT('errors:invalidArgumentFormat'));
+            }
+
             const results = trackIds.map(id => {
                 try {
                     this.libraryCacheManager.addTrackToPlaylist(playlistId, id);
@@ -322,6 +320,11 @@ export class LibraryController extends BaseController {
         error?: string
     }> {
         try {
+            if (typeof playlistId !== 'string' || !playlistId.trim() || !Array.isArray(trackIds)
+                || !trackIds.every(id => typeof id === 'string' && id.length > 0)) {
+                throw new Error(nativeT('errors:invalidArgumentFormat'));
+            }
+
             await this.ensureLibrarySourcesLoaded();
             const filePaths = trackIds.flatMap(id => {
                 const track = this.libraryCacheManager.getTrackByFileId(id);
@@ -711,7 +714,6 @@ export class LibraryController extends BaseController {
         }
     }
 
-    @IpcHandle('library:updateMetadata')
     async updateMetadata(filePath: string, metadata: any): Promise<{ success: boolean; updatedMetadata?: any; coverUpdated?: boolean; code?: string; details?: string }> {
         try {
             const isNetwork = this.networkFileAdapter.isNetworkPath(filePath);
@@ -753,19 +755,6 @@ export class LibraryController extends BaseController {
         }
     }
 
-    // channel aliases for backward compat
-    @IpcHandle('library:addToPlaylist')
-    async addToPlaylist(playlistId: string, trackFileIds: string | string[]): Promise<any> {
-        const trackIds = Array.isArray(trackFileIds) ? trackFileIds : [trackFileIds];
-        return this.addTracksToPlaylist(playlistId, trackIds);
-    }
-
-    @IpcHandle('library:removeFromPlaylist')
-    async removeFromPlaylist(playlistId: string, trackFileIds: string | string[]): Promise<any> {
-        const trackIds = Array.isArray(trackFileIds) ? trackFileIds : [trackFileIds];
-        return this.removeTracksFromPlaylist(playlistId, trackIds);
-    }
-
     @IpcHandle('library:setTrackFavorite')
     async setTrackFavorite(trackFileId: string, favorite: boolean): Promise<{
         success: boolean;
@@ -784,31 +773,16 @@ export class LibraryController extends BaseController {
 
     @IpcHandle('library:updateTrackMetadata')
     async updateTrackMetadata(data: any): Promise<any> {
-        // 支持两种调用方式：
-        // 1. updateTrackMetadata({ filePath, title, artist, ... })
-        // 2. updateTrackMetadata(filePath, metadata) - 向后兼容
-        if (typeof data === 'string') {
-            // 旧的调用方式：第一个参数是 filePath 字符串
-            const filePath = data;
-            const metadata = arguments[1];
-            return this.updateMetadata(filePath, metadata);
-        } else if (data && typeof data === 'object' && data.filePath) {
-            // 新的调用方式：传入包含 filePath 的对象
-            const { filePath, ...metadata } = data;
-            return this.updateMetadata(filePath, metadata);
-        } else {
-            return { success: false, error: nativeT('errors:invalidArgumentFormat') };
+        if (!data || typeof data !== 'object' || Array.isArray(data) || typeof data.filePath !== 'string' || !data.filePath) {
+            return {success: false, error: nativeT('errors:invalidArgumentFormat')};
         }
+        const {filePath, ...metadata} = data;
+        return this.updateMetadata(filePath, metadata);
     }
 
     @IpcHandle('library:getCacheStatistics')
     async getCacheStatistics(): Promise<any> {
-        try {
-            return this.libraryCacheManager.getCacheStatistics();
-        } catch (error: any) {
-            console.error('❌ 获取缓存统计失败:', error);
-            return null;
-        }
+        return this.libraryCacheManager.getCacheStatistics();
     }
 
     @IpcHandle('library:rebuildLibraryIndex')

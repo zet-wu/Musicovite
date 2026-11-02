@@ -33,5 +33,14 @@ describe('preload 领域边界', () => {
         const failure = new Error('dialog unavailable');
         invoke.mockRejectedValueOnce(failure);
         await expect(api.openFiles()).rejects.toBe(failure);
+
+        invoke.mockResolvedValue({success: true});
+        const metadata = {filePath: 'music/song.flac', title: 'Title'};
+        await api.library.updateTrackMetadata(metadata);
+        expect(invoke).toHaveBeenLastCalledWith('library:updateTrackMetadata', metadata);
+        await api.library.addTracksToPlaylist('playlist', ['track']);
+        expect(invoke).toHaveBeenLastCalledWith('library:addTracksToPlaylist', 'playlist', ['track']);
+        await api.library.removeTracksFromPlaylist('playlist', ['track']);
+        expect(invoke).toHaveBeenLastCalledWith('library:removeTracksFromPlaylist', 'playlist', ['track']);
     });
 });

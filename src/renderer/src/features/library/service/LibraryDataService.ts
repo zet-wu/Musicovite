@@ -53,11 +53,7 @@ export class LibraryDataService {
 
     async getTracksByLibrarySource(sourceId: string): Promise<Track[]> {
         this.assertNonEmptyString(sourceId, 'sourceId');
-        return await this.callGateway(
-            () => libraryGateway.getTracksByLibrarySource(sourceId),
-            'library.getTracksByLibrarySource',
-            []
-        );
+        return await libraryGateway.getTracksByLibrarySource(sourceId);
     }
 
     async loadCachedTracks(): Promise<Track[]> {
@@ -67,49 +63,29 @@ export class LibraryDataService {
     async searchLibrary(query: string): Promise<Track[]> {
         this.assertString(query, 'query');
 
-        return await this.callGateway(
-            () => libraryGateway.search(query),
-            'library.search',
-            []
-        );
+        return await libraryGateway.search(query);
     }
 
     async getTrackMetadata(filePath: string): Promise<Track | null> {
         this.assertFilePath(filePath, 'filePath');
 
-        return await this.callGateway(
-            () => libraryGateway.getTrackMetadata(filePath),
-            'library.getTrackMetadata',
-            null
-        );
+        return await libraryGateway.getTrackMetadata(filePath);
     }
 
     async getTrackCover(filePath: string): Promise<EmbeddedTrackCover | null> {
         this.assertFilePath(filePath, 'filePath');
 
-        return await this.callGateway(
-            () => libraryGateway.getTrackCover(filePath),
-            'library.getTrackCover',
-            null
-        );
+        return await libraryGateway.getTrackCover(filePath);
     }
 
     async getTrackPlaybackMetadata(filePath: string): Promise<Track | null> {
         this.assertFilePath(filePath, 'filePath');
 
-        return await this.callGateway(
-            () => libraryGateway.getTrackPlaybackMetadata(filePath),
-            'library.getTrackPlaybackMetadata',
-            null
-        );
+        return await libraryGateway.getTrackPlaybackMetadata(filePath);
     }
 
     async updateTrackMetadata(data: unknown): Promise<{success: boolean; code?: string; details?: string; updatedMetadata?: Track}> {
-        return await this.callGateway(
-            () => libraryGateway.updateTrackMetadata(data),
-            'library.updateTrackMetadata',
-            {success: false, code: 'METADATA_UPDATE_FAILED'}
-        );
+        return await libraryGateway.updateTrackMetadata(data);
     }
 
     async getCacheStatistics(): Promise<CacheStatistics | null> {
@@ -122,111 +98,58 @@ export class LibraryDataService {
     }
 
     async rebuildLibraryIndex(): Promise<LibraryIndexRebuildResult> {
-        return await this.callGateway(
-            () => libraryGateway.rebuildLibraryIndex(),
-            'library.rebuildLibraryIndex',
-            {
-                success: false,
-                state: 'failed',
-                configuredSourceCount: 0,
-                scannedSourceCount: 0,
-                directorySourceCount: 0,
-                fileSourceCount: 0,
-                configuredFolderCount: 0,
-                scannedFolderCount: 0,
-                rebuiltTrackCount: 0,
-                failedSources: [],
-                failedFolders: [],
-                error: t('messages:couldNotRebuildLibraryIndex')
-            }
-        );
+        return await libraryGateway.rebuildLibraryIndex();
     }
 
     async clearIgnoreList(): Promise<Result> {
-        return await this.callGateway(
-            () => libraryGateway.clearIgnoreList(),
-            'library.clearIgnoreList',
-            {success: false, error: t('messages:couldNotClearIgnoredTracks')}
-        );
+        return await libraryGateway.clearIgnoreList();
     }
 
     async getPlaylists(): Promise<Playlist[]> {
-        return await this.callGateway(
-            () => libraryGateway.getPlaylists(),
-            'library.getPlaylists',
-            []
-        );
+        return await libraryGateway.getPlaylists();
     }
 
     async createPlaylist(name: string, description = ''): Promise<PlaylistMutationResult> {
         this.assertNonEmptyString(name, 'name');
 
-        return await this.callGateway(
-            () => libraryGateway.createPlaylist(name, description),
-            'library.createPlaylist',
-            {success: false, error: t('messages:couldNotCreatePlaylist')}
-        );
+        return await libraryGateway.createPlaylist(name, description);
     }
 
     async deletePlaylist(playlistId: string): Promise<Result> {
         this.assertNonEmptyString(playlistId, 'playlistId');
 
-        return await this.callGateway(
-            () => libraryGateway.deletePlaylist(playlistId),
-            'library.deletePlaylist',
-            {success: false, error: t('messages:couldNotDeletePlaylist')}
-        );
+        return await libraryGateway.deletePlaylist(playlistId);
     }
 
     async renamePlaylist(playlistId: string, newName: string, description = ''): Promise<PlaylistMutationResult> {
         this.assertNonEmptyString(playlistId, 'playlistId');
         this.assertNonEmptyString(newName, 'newName');
 
-        return await this.callGateway(
-            () => libraryGateway.renamePlaylist(playlistId, newName, description),
-            'library.renamePlaylist',
-            {success: false, error: t('messages:couldNotRenamePlaylist')}
-        );
+        return await libraryGateway.renamePlaylist(playlistId, newName, description);
     }
 
     async addToPlaylist(playlistId: string, trackIds: string | string[]): Promise<Result> {
         this.assertNonEmptyString(playlistId, 'playlistId');
 
-        return await this.callGateway(
-            () => libraryGateway.addToPlaylist(playlistId, trackIds),
-            'library.addToPlaylist',
-            {success: false, error: t('messages:couldNotAddToPlaylist')}
-        );
+        return await libraryGateway.addTracksToPlaylist(playlistId, Array.isArray(trackIds) ? trackIds : [trackIds]);
     }
 
     async removeFromPlaylist(playlistId: string, trackIds: string | string[]): Promise<Result> {
         this.assertNonEmptyString(playlistId, 'playlistId');
 
-        return await this.callGateway(
-            () => libraryGateway.removeFromPlaylist(playlistId, trackIds),
-            'library.removeFromPlaylist',
-            {success: false, error: t('messages:couldNotRemoveFromPlaylist')}
-        );
+        return await libraryGateway.removeTracksFromPlaylist(playlistId, Array.isArray(trackIds) ? trackIds : [trackIds]);
     }
 
     async removeTrack(trackFileId: string): Promise<Result> {
         this.assertNonEmptyString(trackFileId, 'trackFileId');
 
-        return await this.callGateway(
-            () => libraryGateway.removeTrack(trackFileId),
-            'library.removeTrack',
-            {success: false, error: t('messages:couldNotDeleteTrack')}
-        );
+        return await libraryGateway.removeTrack(trackFileId);
     }
 
     async scanDirectory(path: string): Promise<boolean> {
         this.assertNonEmptyString(path, 'path');
 
-        return await this.callGateway(
-            () => libraryGateway.scanDirectory(path),
-            'library.scanDirectory',
-            false
-        );
+        return await libraryGateway.scanDirectory(path);
     }
 
     async importLibraryFiles(paths: string[], targetPlaylistId?: string): Promise<LibraryImportResult> {
@@ -237,20 +160,12 @@ export class LibraryDataService {
             this.assertNonEmptyString(targetPlaylistId, 'targetPlaylistId');
         }
 
-        return await this.callGateway(
-            () => libraryGateway.importLibraryFiles(paths, targetPlaylistId),
-            'library.importLibraryFiles',
-            {success: false, tracks: [], failedPaths: paths, error: t('messages:couldNotImportMusicFiles')}
-        );
+        return await libraryGateway.importLibraryFiles(paths, targetPlaylistId);
     }
 
     async getPlaylistBindings(playlistId: string): Promise<PlaylistSourceBinding[]> {
         this.assertNonEmptyString(playlistId, 'playlistId');
-        return await this.callGateway(
-            () => libraryGateway.getPlaylistBindings(playlistId),
-            'library.getPlaylistBindings',
-            []
-        );
+        return await libraryGateway.getPlaylistBindings(playlistId);
     }
 
     async getLibraryDirectoryOverviews(): Promise<LibraryDirectoryOverview[]> {
@@ -261,42 +176,26 @@ export class LibraryDataService {
         directoryPath: string
     ): Promise<Result & {source?: LibrarySource}> {
         this.assertNonEmptyString(directoryPath, 'directoryPath');
-        return await this.callGateway(
-            () => libraryGateway.registerLibraryDirectory(directoryPath),
-            'library.registerLibraryDirectory',
-            {success: false, error: t('messages:couldNotRegisterMusicFolderSource')}
-        );
+        return await libraryGateway.registerLibraryDirectory(directoryPath);
     }
 
     async removeLibraryDirectory(
         directoryPath: string
     ): Promise<Result & {removedTrackCount?: number}> {
         this.assertNonEmptyString(directoryPath, 'directoryPath');
-        return await this.callGateway(
-            () => libraryGateway.removeLibraryDirectory(directoryPath),
-            'library.removeLibraryDirectory',
-            {success: false, error: t('messages:couldNotRemoveMusicFolderSource')}
-        );
+        return await libraryGateway.removeLibraryDirectory(directoryPath);
     }
 
     async removeLibrarySource(
         sourceId: string
     ): Promise<Result & {removedTrackCount?: number}> {
         this.assertNonEmptyString(sourceId, 'sourceId');
-        return await this.callGateway(
-            () => libraryGateway.removeLibrarySource(sourceId),
-            'library.removeLibrarySource',
-            {success: false, error: t('messages:couldNotRemoveLibrarySource')}
-        );
+        return await libraryGateway.removeLibrarySource(sourceId);
     }
 
     async rescanLibrarySource(sourceId: string): Promise<Result> {
         this.assertNonEmptyString(sourceId, 'sourceId');
-        return await this.callGateway(
-            () => libraryGateway.rescanLibrarySource(sourceId),
-            'library.rescanLibrarySource',
-            {success: false, error: t('messages:couldNotRescanMusicFolder')}
-        );
+        return await libraryGateway.rescanLibrarySource(sourceId);
     }
 
     async bindDirectoryToPlaylist(
@@ -305,11 +204,7 @@ export class LibraryDataService {
     ): Promise<Result & {binding?: PlaylistSourceBinding}> {
         this.assertNonEmptyString(playlistId, 'playlistId');
         this.assertNonEmptyString(directoryPath, 'directoryPath');
-        return await this.callGateway(
-            () => libraryGateway.bindDirectoryToPlaylist(playlistId, directoryPath),
-            'library.bindDirectoryToPlaylist',
-            {success: false, error: t('messages:couldNotBindFolder')}
-        );
+        return await libraryGateway.bindDirectoryToPlaylist(playlistId, directoryPath);
     }
 
     async bindLibrarySourceToPlaylist(
@@ -318,11 +213,7 @@ export class LibraryDataService {
     ): Promise<Result & {binding?: PlaylistSourceBinding}> {
         this.assertNonEmptyString(playlistId, 'playlistId');
         this.assertNonEmptyString(sourceId, 'sourceId');
-        return await this.callGateway(
-            () => libraryGateway.bindLibrarySourceToPlaylist(playlistId, sourceId),
-            'library.bindLibrarySourceToPlaylist',
-            {success: false, error: t('messages:couldNotBindMusicFolderSource')}
-        );
+        return await libraryGateway.bindLibrarySourceToPlaylist(playlistId, sourceId);
     }
 
     onSourcesUpdated(handler: () => void): Unsubscribe {
@@ -334,129 +225,77 @@ export class LibraryDataService {
         mode: 'keep' | 'remove'
     ): Promise<Result> {
         this.assertNonEmptyString(bindingId, 'bindingId');
-        return await this.callGateway(
-            () => libraryGateway.unbindDirectoryFromPlaylist(bindingId, mode),
-            'library.unbindDirectoryFromPlaylist',
-            {success: false, error: t('messages:couldNotUnbindFolder')}
-        );
+        return await libraryGateway.unbindDirectoryFromPlaylist(bindingId, mode);
     }
 
     async rescanPlaylistBinding(bindingId: string): Promise<Result> {
         this.assertNonEmptyString(bindingId, 'bindingId');
-        return await this.callGateway(
-            () => libraryGateway.rescanPlaylistBinding(bindingId),
-            'library.rescanPlaylistBinding',
-            {success: false, error: t('messages:couldNotRescanBoundFolder')}
-        );
+        return await libraryGateway.rescanPlaylistBinding(bindingId);
     }
 
     async restorePlaylistBindingExclusions(
         bindingId: string
     ): Promise<Result & {restoredCount?: number}> {
         this.assertNonEmptyString(bindingId, 'bindingId');
-        return await this.callGateway(
-            () => libraryGateway.restorePlaylistBindingExclusions(bindingId),
-            'library.restorePlaylistBindingExclusions',
-            {success: false, error: t('messages:couldNotRestoreExcludedTracks')}
-        );
+        return await libraryGateway.restorePlaylistBindingExclusions(bindingId);
     }
 
     async scanNetworkDrive(driveId: string | number, relativePath = '/'): Promise<boolean> {
-        return await this.callGateway(
-            () => libraryGateway.scanNetworkDrive(driveId, relativePath),
-            'library.scanNetworkDrive',
-            false
-        );
+        return await libraryGateway.scanNetworkDrive(driveId, relativePath);
     }
 
     async scanSingleFile(networkPath: string): Promise<LibraryTrackMutationResult> {
         this.assertNonEmptyString(networkPath, 'networkPath');
 
-        return await this.callGateway(
-            () => libraryGateway.scanSingleFile(networkPath),
-            'library.scanSingleFile',
-            {success: false, error: t('messages:couldNotScanFile')}
-        );
+        return await libraryGateway.scanSingleFile(networkPath);
     }
 
     async addTrackToLibrary(audioFile: Partial<Track> | unknown): Promise<LibraryTrackMutationResult> {
-        return await this.callGateway(
-            () => libraryGateway.addTrackToLibrary(audioFile),
-            'library.addTrackToLibrary',
-            {success: false, error: t('messages:couldNotAddTrackToLibrary')}
-        );
+        return await libraryGateway.addTrackToLibrary(audioFile);
     }
 
     async getTracksByDrive(driveId: string): Promise<Track[]> {
         this.assertNonEmptyString(driveId, 'driveId');
 
-        return await this.callGateway(
-            () => libraryGateway.getTracksByDrive(driveId),
-            'library.getTracksByDrive',
-            []
-        );
+        return await libraryGateway.getTracksByDrive(driveId);
     }
 
     async removeTracksByDrive(driveId: string): Promise<Result> {
         this.assertNonEmptyString(driveId, 'driveId');
 
-        return await this.callGateway(
-            () => libraryGateway.removeTracksByDrive(driveId),
-            'library.removeTracksByDrive',
-            {success: false, error: t('messages:couldNotRemoveNetworkDriveTracks')}
-        );
+        return await libraryGateway.removeTracksByDrive(driveId);
     }
 
     async getPlaylistDetail(playlistId: string): Promise<PlaylistDetailResult> {
         this.assertNonEmptyString(playlistId, 'playlistId');
 
-        return await this.callGateway(
-            () => libraryGateway.getPlaylistDetail(playlistId),
-            'library.getPlaylistDetail',
-            {success: false, error: t('messages:couldNotRetrievePlaylistDetails')}
-        );
+        return await libraryGateway.getPlaylistDetail(playlistId);
     }
 
     async updatePlaylistCover(playlistId: string, imagePath: string): Promise<PlaylistCoverDataResult> {
         this.assertNonEmptyString(playlistId, 'playlistId');
         this.assertFilePath(imagePath, 'imagePath');
 
-        return await this.callGateway(
-            () => libraryGateway.updatePlaylistCover(playlistId, imagePath),
-            'library.updatePlaylistCover',
-            {success: false, error: t('messages:couldNotUpdatePlaylistArtwork')}
-        );
+        return await libraryGateway.updatePlaylistCover(playlistId, imagePath);
     }
 
     async setPlaylistCoverFromTrack(playlistId: string, trackId: string): Promise<PlaylistCoverDataResult> {
         this.assertNonEmptyString(playlistId, 'playlistId');
         this.assertNonEmptyString(trackId, 'trackId');
 
-        return await this.callGateway(
-            () => libraryGateway.setPlaylistCoverFromTrack(playlistId, trackId),
-            'library.setPlaylistCoverFromTrack',
-            {success: false, error: t('messages:couldNotSetPlaylistArtworkFromTrack')}
-        );
+        return await libraryGateway.setPlaylistCoverFromTrack(playlistId, trackId);
     }
 
     async getPlaylistCover(playlistId: string): Promise<PlaylistCoverDataResult> {
         this.assertNonEmptyString(playlistId, 'playlistId');
 
-        return await this.callGateway(
-            () => libraryGateway.getPlaylistCover(playlistId),
-            'library.getPlaylistCover',
-            {success: false, error: t('messages:couldNotRetrievePlaylistArtwork')}
-        );
+        return await libraryGateway.getPlaylistCover(playlistId);
     }
 
     async removePlaylistCover(playlistId: string): Promise<Result> {
         this.assertNonEmptyString(playlistId, 'playlistId');
 
-        return await this.callGateway(
-            () => libraryGateway.removePlaylistCover(playlistId),
-            'library.removePlaylistCover',
-            {success: false, error: t('messages:couldNotRemovePlaylistArtwork')}
-        );
+        return await libraryGateway.removePlaylistCover(playlistId);
     }
 
     async getTracksByAlbum(albumId: string): Promise<Track[]> {
@@ -512,33 +351,6 @@ export class LibraryDataService {
             .slice(0, limit);
     }
 
-    private async callGateway<T>(
-        operation: () => Promise<T>,
-        operationName: string
-    ): Promise<T>;
-    private async callGateway<T>(
-        operation: () => Promise<T>,
-        operationName: string,
-        fallbackValue: T
-    ): Promise<T>;
-    private async callGateway<T>(
-        operation: () => Promise<T>,
-        operationName: string,
-        fallbackValue?: T
-    ): Promise<T> {
-        try {
-            return await operation();
-        } catch (error) {
-            this.logError(t('dynamic:operationFailed', {operation: operationName}), error);
-
-            if (arguments.length >= 3) {
-                return fallbackValue as T;
-            }
-
-            throw error;
-        }
-    }
-
     private assertString(value: unknown, paramName: string): asserts value is string {
         if (typeof value !== 'string') {
             throw new LibraryInputError(paramName, 'string', value);
@@ -565,9 +377,6 @@ export class LibraryDataService {
         }
     }
 
-    private logError(message: string, error: unknown): void {
-        console.error(`❌ LibraryDataService: ${message}`, error);
-    }
 }
 
 export const libraryDataService = new LibraryDataService();

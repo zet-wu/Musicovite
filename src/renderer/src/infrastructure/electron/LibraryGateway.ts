@@ -146,8 +146,8 @@ class LibraryGateway extends ElectronNamespaceAdapter<'library'> {
         return this.call('renamePlaylist', playlistId, newName, description);
     }
 
-    addToPlaylist(playlistId: string, trackIds: string | string[]): Promise<Result> {
-        return this.call('addToPlaylist', playlistId, trackIds);
+    addTracksToPlaylist(playlistId: string, trackIds: string[]): Promise<Result> {
+        return this.call('addTracksToPlaylist', playlistId, trackIds);
     }
 
     addTrackToLibrary(audioFile: Partial<Track> | unknown): Promise<{success: boolean; track?: Track; error?: string; isNew?: boolean}> {
@@ -170,8 +170,8 @@ class LibraryGateway extends ElectronNamespaceAdapter<'library'> {
         return this.call('scanSingleFile', networkPath);
     }
 
-    removeFromPlaylist(playlistId: string, trackIds: string | string[]): Promise<Result> {
-        return this.call('removeFromPlaylist', playlistId, trackIds);
+    removeTracksFromPlaylist(playlistId: string, trackIds: string[]): Promise<Result> {
+        return this.call('removeTracksFromPlaylist', playlistId, trackIds);
     }
 
     setTrackFavorite(trackFileId: string, favorite: boolean): Promise<Result & {favorite?: boolean}> {

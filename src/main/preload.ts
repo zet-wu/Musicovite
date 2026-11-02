@@ -241,15 +241,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
         getTrackMetadata: (filePath: string) => ipcRenderer.invoke('library:getTrackMetadata', filePath),
         getTrackCover: (filePath: string) => ipcRenderer.invoke('library:getTrackCover', filePath),
         getTrackPlaybackMetadata: (filePath: string) => ipcRenderer.invoke('library:getTrackPlaybackMetadata', filePath),
-        updateTrackMetadata: (trackId: string, metadata: any) => ipcRenderer.invoke('library:updateTrackMetadata', trackId, metadata),
+        updateTrackMetadata: (data: {filePath: string; [key: string]: unknown}) => ipcRenderer.invoke('library:updateTrackMetadata', data),
 
         // Playlists
         createPlaylist: (name: string, description: string) => ipcRenderer.invoke('library:createPlaylist', name, description),
         getPlaylistDetail: (playlistId: string) => ipcRenderer.invoke('library:getPlaylistDetail', playlistId),
         deletePlaylist: (playlistId: string) => ipcRenderer.invoke('library:deletePlaylist', playlistId),
         renamePlaylist: (playlistId: string, newName: string, description = '') => ipcRenderer.invoke('library:renamePlaylist', playlistId, newName, description),
-        addToPlaylist: (playlistId: string, trackIds: string[]) => ipcRenderer.invoke('library:addToPlaylist', playlistId, trackIds),
-        removeFromPlaylist: (playlistId: string, trackIds: string[]) => ipcRenderer.invoke('library:removeFromPlaylist', playlistId, trackIds),
+        addTracksToPlaylist: (playlistId: string, trackIds: string[]) => ipcRenderer.invoke('library:addTracksToPlaylist', playlistId, trackIds),
+        removeTracksFromPlaylist: (playlistId: string, trackIds: string[]) => ipcRenderer.invoke('library:removeTracksFromPlaylist', playlistId, trackIds),
         setTrackFavorite: (trackFileId: string, favorite: boolean) => ipcRenderer.invoke('library:setTrackFavorite', trackFileId, favorite),
         cleanupPlaylists: () => ipcRenderer.invoke('library:cleanupPlaylists'),
 

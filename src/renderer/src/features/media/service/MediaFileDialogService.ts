@@ -22,7 +22,7 @@ export type SaveFileResult = {
 
 export class MediaFileDialogService {
     async openDirectory(): Promise<string | null> {
-        return await this.wrapFileOperation(() => dialogGateway.openDirectory(), null);
+        return await dialogGateway.openDirectory();
     }
 
     async openDirectoryDialog(): Promise<string | null> {
@@ -30,11 +30,11 @@ export class MediaFileDialogService {
     }
 
     async openDirectories(): Promise<string[]> {
-        return await this.wrapFileOperation(() => dialogGateway.openDirectories(), []);
+        return await dialogGateway.openDirectories();
     }
 
     async openFiles(): Promise<string[]> {
-        return await this.wrapFileOperation(() => dialogGateway.openFiles(), []);
+        return await dialogGateway.openFiles();
     }
 
     async selectMusicFolder(): Promise<DirectoryResult> {
@@ -64,34 +64,17 @@ export class MediaFileDialogService {
     }
 
     async showOpenDialog(options: Record<string, unknown>): Promise<OpenDialogResult> {
-        return await this.wrapFileOperation(
-            () => dialogGateway.showOpenDialog(options),
-            {canceled: true, filePaths: []}
-        );
+        return await dialogGateway.showOpenDialog(options);
     }
 
     async openFile(options: Record<string, unknown>): Promise<OpenFileResult> {
-        return await this.wrapFileOperation(
-            () => dialogGateway.openFile(options),
-            {success: false, filePaths: [], canceled: true}
-        );
+        return await dialogGateway.openFile(options);
     }
 
     async saveFile(options: Record<string, unknown>): Promise<SaveFileResult> {
-        return await this.wrapFileOperation(
-            () => dialogGateway.saveFile(options),
-            {success: false, canceled: true}
-        );
+        return await dialogGateway.saveFile(options);
     }
 
-    private async wrapFileOperation<T>(operation: () => Promise<T>, fallback: T): Promise<T> {
-        try {
-            return await operation();
-        } catch (error) {
-            console.error('❌ MediaFileDialogService: 文件对话框操作失败', error);
-            return fallback;
-        }
-    }
 }
 
 function getErrorMessage(error: unknown): string {
