@@ -20,4 +20,4 @@ import '@extensions/api/index.js';
 
 import './app';
 
-console.log('✅ MusicBox 应用已通过 Vite 加载完成');
+console.log('✅ Musicovite 应用已通过 Vite 加载完成');

@@ -1,5 +1,5 @@
 {
-  "name": "musicbox",
+  "name": "musicovite",
   "version": "0.3.3",
   "description": "A visually stunning, plugin-based, and highly customizable local music player.",
   "main": "dist/main/main.js",
@@ -7,7 +7,7 @@
     "name": "asxez",
     "email": "2973918177@qq.com"
   },
-  "homepage": "https://github.com/asxez/MusicBox",
+  "homepage": "https://github.com/zet-wu/MusicBox",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -28,7 +28,7 @@
     "build:win:arm64": "npm run build:python && npm run build:renderer && npm run build:ts && electron-builder --win --arm64",
     "build:mac": "npm run build:python && npm run build:renderer && npm run build:ts && electron-builder --mac",
     "build:linux": "npm run build:python && npm run build:renderer && npm run build:ts && electron-builder --linux",
-    "build:icons": "electron-icon-builder --input=./docs/images/logo.png --output=build --flatten",
+    "build:icons": "node scripts/export-icons.cjs",
     "build:python": "node scripts/build-python-module.js",
     "clean": "rimraf dist && cd src/renderer && npm run clean",
     "prebuild:ts": "node scripts/generate-i18n.mjs",
@@ -36,10 +36,12 @@
     "check:i18n": "node scripts/generate-i18n.mjs"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
     "@types/node": "^22",
     "cross-env": "^10.1.0",
     "electron": "41.2.1",
     "electron-builder": "^26.8.1",
+    "icon-gen": "2.1.0",
     "rimraf": "^4.1.2",
     "ts-node": "^10.9.2"
   },

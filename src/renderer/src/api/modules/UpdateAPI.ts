@@ -35,7 +35,7 @@ export class UpdateAPI extends BaseAPI {
             const versionEle = document.querySelector('#app-version-info');
             if (versionEle) {
                 const currentVersion = await this.getCurrentVersion();
-                versionEle.textContent = `MusicBox v${currentVersion}`;
+                versionEle.textContent = `Musicovite v${currentVersion}`;
                 this.log(`当前版本: v${currentVersion}`);
             }
         } catch (error) {

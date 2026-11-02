@@ -6,6 +6,7 @@
 import {app, BrowserWindow, screen} from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
+import {brandingPath} from './ProductIdentity';
 
 /**
  * 窗口配置接口
@@ -118,6 +119,8 @@ export class WindowManager {
         const mainBounds = this.getMainWindowBounds(windowConfig);
 
         this.mainWindow = new BrowserWindow({
+            title: 'Musicovite',
+            icon: brandingPath('png', '256.png'),
             x: mainBounds.x,
             y: mainBounds.y,
             width: mainBounds.width,

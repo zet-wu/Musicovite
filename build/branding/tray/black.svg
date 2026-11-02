@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 27.9.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="图层_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 1024 1024" style="enable-background:new 0 0 1024 1024;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#335EEA;}
+	.st1{fill-rule:evenodd;clip-rule:evenodd;fill:url(#rear-plate-path_00000020389572170725247780000002346736466460594597_);}
+	.st2{fill-rule:evenodd;clip-rule:evenodd;fill:url(#front-plate-path_00000097494827362063859580000016955541752920410268_);}
+</style>
+
+<!-- 保留原稿倾斜与高差；两片各向内移动 12，整体等比缩小至 94%，轮廓中心对齐 (512,512)。 -->
+<g id="logo-mark" transform="translate(23.529 13.8) scale(0.94)">
+	<g id="rear-plate" transform="translate(382 486)">
+
+
+
+			<path id="rear-plate-path" fill="#000000" opacity="0.62" fill-rule="evenodd" d="
+			M52.2-285.6l203.3,173.8l-60.4,347.6L-68.6,409.6l-203.3-173.8l60.4-347.6L52.2-285.6z M44.7575,62.0000 C39.5757,91.8234 11.5308,116.0000 -17.8825,116.0000 C-47.2958,116.0000 -66.9393,91.8234 -61.7575,62.0000 C-56.5757,32.1766 -28.5308,8.0000 0.8825,8.0000 C30.2958,8.0000 49.9393,32.1766 44.7575,62.0000 Z"/>
+	</g>
+	<g id="front-plate" transform="translate(642 538)">
+
+
+
+			<path id="front-plate-path" fill="#000000" opacity="1" fill-rule="evenodd" d="
+			M83.9-373.6l203.3,173.8l-60.4,347.6L-36.8,321.6l-203.3-173.8l60.4-347.6L83.9-373.6z M76.5575,-26.0000 C71.3757,3.8234 43.3308,28.0000 13.9175,28.0000 C-15.4958,28.0000 -35.1393,3.8234 -29.9575,-26.0000 C-24.7757,-55.8234 3.2692,-80.0000 32.6825,-80.0000 C62.0958,-80.0000 81.7393,-55.8234 76.5575,-26.0000 Z"/>
+	</g>
+</g>
+</svg>

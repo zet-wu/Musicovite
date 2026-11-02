@@ -1,6 +1,6 @@
 # MusicBox 架构说明
 
-本文描述 MusicBox 当前代码结构和主要运行链路。主进程采用 controller/service 分层，渲染进程使用 app/features/ui/infrastructure/shared 结构，由 composition root 组合各模块。
+本文描述 Musicovite 当前代码结构和主要运行链路。主进程采用 controller/service 分层，渲染进程使用 app/features/ui/infrastructure/shared 结构，由 composition root 组合各模块。
 
 ## 总览
 

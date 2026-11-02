@@ -7,6 +7,7 @@ import * as path from 'path';
 import {app, Tray, Menu, nativeImage} from 'electron';
 import {BaseController, Controller, IpcHandle} from '../decorators/IpcHandler';
 import {WindowManager} from '../core/WindowManager';
+import {brandingPath} from '../core/ProductIdentity';
 
 interface TraySettings {
     enabled: boolean;
@@ -29,23 +30,14 @@ export class TrayController extends BaseController {
     }
 
     private async createTrayIcon(): Promise<Electron.NativeImage> {
-        const appPath = app.getAppPath();
-        const iconPaths = [
-            path.join(__dirname, '../../../src/renderer/public/assets/images/favicon.ico'),
-            path.join(appPath, 'src/renderer/public/favicon.ico'),
-            path.join(appPath, 'src/renderer/src/assets/images/favicon.ico'),
-            path.join(appPath, 'public/favicon.ico'),
-            path.join(appPath, 'assets/favicon.ico')
-        ];
-        for (const iconPath of iconPaths) {
-            try {
-                await fs.promises.access(iconPath);
-                const icon = nativeImage.createFromPath(iconPath);
-                if (!icon.isEmpty()) return icon.resize({width: 16, height: 16});
-            } catch {
-            }
-        }
-        return nativeImage.createEmpty();
+        const iconPath = process.platform === 'darwin'
+            ? brandingPath('tray', 'mac', 'musicoviteTemplate.png')
+            : process.platform === 'win32' ? brandingPath('tray', 'musicovite-tray.ico') : brandingPath('tray', 'color', '24.png');
+        await fs.promises.access(iconPath);
+        const icon = nativeImage.createFromPath(iconPath);
+        if (icon.isEmpty()) throw new Error('无法加载托盘图标: ' + iconPath);
+        if (process.platform === 'darwin') icon.setTemplateImage(true);
+        return icon;
     }
 
     private updateTrayMenu(): void {
@@ -76,7 +68,7 @@ export class TrayController extends BaseController {
         if (this.tray) return;
         const icon = await this.createTrayIcon();
         this.tray = new Tray(icon);
-        this.tray.setToolTip('MusicBox');
+        this.tray.setToolTip('Musicovite');
         this.updateTrayMenu();
         this.tray.on('click', () => {
             const win = this.windowManager.getMainWindow();

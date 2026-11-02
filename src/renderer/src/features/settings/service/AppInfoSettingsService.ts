@@ -1,7 +1,7 @@
 import {systemShellService, updateService} from "@/features/appShell/service";
 
 class AppInfoSettingsService {
-    private readonly repositoryUrl = 'https://github.com/asxez/MusicBox';
+    private readonly repositoryUrl = 'https://github.com/zet-wu/Musicovite';
 
     async updateVersionInfo(versionElementId = 'app-version-info'): Promise<void> {
         const versionElement = document.getElementById(versionElementId);
@@ -10,7 +10,7 @@ class AppInfoSettingsService {
         }
 
         const version = await updateService.getCurrentVersion();
-        versionElement.textContent = `MusicBox v${version || 'unknown'}`;
+        versionElement.textContent = `Musicovite v${version || 'unknown'}`;
     }
 
     async openRepository(): Promise<{success: boolean; error?: string}> {
