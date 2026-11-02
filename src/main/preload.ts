@@ -345,9 +345,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
         getDirectoryStructure: (driveId: string, dirPath: string) => ipcRenderer.invoke('network-drive:getDirectoryStructure', driveId, dirPath),
 
         // 监听网络磁盘事件
-        onConnected: (callback: (...args: any[]) => void) => ipcRenderer.on('network-drive:connected', callback),
-        onDisconnected: (callback: (...args: any[]) => void) => ipcRenderer.on('network-drive:disconnected', callback),
-        onError: (callback: (...args: any[]) => void) => ipcRenderer.on('network-drive:error', callback),
+        onConnected: (callback: (...args: any[]) => void) => {
+            ipcRenderer.on('network-drive:connected', callback);
+            return () => ipcRenderer.removeListener('network-drive:connected', callback);
+        },
+        onDisconnected: (callback: (...args: any[]) => void) => {
+            ipcRenderer.on('network-drive:disconnected', callback);
+            return () => ipcRenderer.removeListener('network-drive:disconnected', callback);
+        },
+        onError: (callback: (...args: any[]) => void) => {
+            ipcRenderer.on('network-drive:error', callback);
+            return () => ipcRenderer.removeListener('network-drive:error', callback);
+        },
 
         removeListener: (event: string, callback: (...args: any[]) => void) => ipcRenderer.removeListener(`network-drive:${event}`, callback)
     },

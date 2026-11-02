@@ -90,6 +90,8 @@ npm run build
 
 ## Renderer 检查
 
+涉及启动、preload 或订阅接口的改动，完成 `npm run build:renderer` 和 `npm run build:ts` 后运行 `npm run test:startup`。该检查使用临时 profile 和隐藏窗口加载真实主进程、preload 与 renderer，验证应用完成初始化并进入首页；日志保存在 `tmp/startup-smoke/`，不使用用户数据。
+
 渲染进程 lint 会先执行架构边界检查，再执行 ESLint：
 
 ```bash
