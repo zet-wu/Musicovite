@@ -7,35 +7,26 @@
 
 // 导出 API 实例
 import {
-    coverAPI,
     fileAPI,
-    libraryAPI,
     networkAPI,
     trayAPI,
     updateAPI,
     userDataAPI,
-    windowAPI
 } from '@api/modules';
 
 export {
-    coverAPI,
     fileAPI,
-    libraryAPI,
     networkAPI,
     trayAPI,
     updateAPI,
     userDataAPI,
-    windowAPI
 };
 
 export const MusicBoxAPI = {
     file: fileAPI,
     userdata: userDataAPI,
     tray: trayAPI,
-    window: windowAPI,
-    library: libraryAPI,
     network: networkAPI,
-    cover: coverAPI,
     update: updateAPI
 } as const;
 

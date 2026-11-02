@@ -62,29 +62,15 @@ export class LibraryBridge {
     }
 
     async loadCachedTracks(): Promise<Track[]> {
-        try {
-            const tracks = await libraryDataService.loadCachedTracks();
-            if (tracks && tracks.length > 0) {
-                return tracks;
-            }
-            return [];
-        } catch (error) {
-            console.error('❌ 加载缓存音乐库失败:', error);
-            return [];
-        }
+        return libraryDataService.loadCachedTracks();
     }
 
     async validateCache(): Promise<CacheValidationResult | null> {
+        const progressListener = libraryGateway.onCacheValidationProgress((progress: ScanProgress) => {
+            this.emit('cacheValidationProgress', progress);
+        });
         try {
-            const progressListener = libraryGateway.onCacheValidationProgress((progress: ScanProgress) => {
-                this.emit('cacheValidationProgress', progress);
-            });
-
             const result = await libraryGateway.validateCache();
-
-            if (progressListener) {
-                progressListener();
-            }
 
             if (result) {
                 console.log(`✅ 缓存验证完成 - 有效: ${result.valid}, 无效: ${result.invalid}, 已修改: ${result.modified}`);
@@ -101,6 +87,8 @@ export class LibraryBridge {
             console.error('❌ 缓存验证失败:', error);
             this.emit('cacheValidationError', error instanceof Error ? error.message : String(error));
             return null;
+        } finally {
+            progressListener();
         }
     }
 

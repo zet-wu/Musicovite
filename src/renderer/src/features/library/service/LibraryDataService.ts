@@ -48,11 +48,7 @@ class LibraryInputError extends Error {
 
 export class LibraryDataService {
     async getTracks(options: GetTracksOptions = {}): Promise<Track[]> {
-        return await this.callGateway(
-            () => libraryGateway.getTracks(options),
-            'library.getTracks',
-            []
-        );
+        return libraryGateway.getTracks(options);
     }
 
     async getTracksByLibrarySource(sourceId: string): Promise<Track[]> {
@@ -65,11 +61,7 @@ export class LibraryDataService {
     }
 
     async loadCachedTracks(): Promise<Track[]> {
-        return await this.callGateway(
-            () => libraryGateway.loadCachedTracks(),
-            'library.loadCachedTracks',
-            []
-        );
+        return libraryGateway.loadCachedTracks();
     }
 
     async searchLibrary(query: string): Promise<Track[]> {
@@ -121,27 +113,12 @@ export class LibraryDataService {
     }
 
     async getCacheStatistics(): Promise<CacheStatistics | null> {
-        try {
-            const stats = await this.callGateway(
-                () => libraryGateway.getCacheStatistics(),
-                'library.getCacheStatistics'
-            );
-
-            return stats || null;
-        } catch (error) {
-            this.logError(t('messages:couldNotGetCacheStatistics'), error);
-            return null;
-        }
+        return libraryGateway.getCacheStatistics();
     }
 
     async hasCachedLibrary(): Promise<boolean> {
-        try {
-            const stats = await this.getCacheStatistics();
-            return stats !== null && stats.totalTracks > 0;
-        } catch (error) {
-            this.logError(t('messages:couldNotCheckCacheStatus'), error);
-            return false;
-        }
+        const stats = await this.getCacheStatistics();
+        return stats !== null && stats.totalTracks > 0;
     }
 
     async rebuildLibraryIndex(): Promise<LibraryIndexRebuildResult> {

@@ -1,6 +1,8 @@
 # 渲染进程架构
 
-本文聚焦 `src/renderer/`。渲染进程已经从早期 `src/js` 和全局 `app.js` 组织方式迁移到 Vite + TypeScript + feature 分层结构。旧的 `core/`、`services/` 目录仍存在，但只作为兼容转发层。
+本文聚焦 `src/renderer/`。渲染进程采用 Vite + TypeScript + feature 分层结构，直接从所属模块导入实现。
+
+`createMusicBoxApp` 在构造应用前调用 `bindApplicationRuntime`，依次连接应用事件总线、播放运行时适配器并同步初始播放状态。API 模块的导入只提供接口，应用启动由 bootstrap 负责。音乐库读取异常由调用端处理，缓存验证的进度订阅在操作结束时释放。
 
 ## 入口与构建
 

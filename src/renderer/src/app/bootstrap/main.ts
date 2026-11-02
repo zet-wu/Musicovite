@@ -3,7 +3,6 @@
  */
 
 import '@utils/index.js';
-import '@api/api';
 
 import '@utils/md5';
 import '@utils/shortcuts/ShortcutConfig';

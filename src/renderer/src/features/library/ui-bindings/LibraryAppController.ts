@@ -116,6 +116,8 @@ export class LibraryAppController {
             await app.syncDesktopLyricsButtonState();
         } catch (error) {
             app.showError(t('messages:couldNotLoadMusicLibrary'));
+        } finally {
+            app.hideCacheLoadingStatus();
         }
     }
 
