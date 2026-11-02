@@ -1,3 +1,5 @@
+import {bindLocalizedText, htmlT, t, th} from '@/shared/i18n';
+
 /**
  * 插件管理模态框组件
  */
@@ -190,19 +192,19 @@ class PluginManagerModal extends Component {
                         <h3 class="plugin-name">
                             ${this.escapeHtml(extension.name || extension.id)}
                         </h3>
-                        ${isBuiltin ? '<span class="plugin-badge plugin-badge-builtin">内置</span>' : ''}
-                        ${isActive ? '<span class="plugin-badge plugin-badge-active">已激活</span>' : '<span class="plugin-badge plugin-badge-inactive">未激活</span>'}
-                        ${!isEnabled ? '<span class="plugin-badge plugin-badge-disabled">已禁用</span>' : ''}
+                        ${isBuiltin ? `<span class="plugin-badge plugin-badge-builtin">${htmlT('extensions:builtin')}</span>` : ''}
+                        ${isActive ? `<span class="plugin-badge plugin-badge-active">${htmlT('extensions:active')}</span>` : `<span class="plugin-badge plugin-badge-inactive">${htmlT('extensions:inactive')}</span>`}
+                        ${!isEnabled ? `<span class="plugin-badge plugin-badge-disabled">${htmlT('extensions:disabled')}</span>` : ''}
                     </div>
                     <p class="plugin-description">
-                        ${this.escapeHtml(extension.description || '无描述')}
+                        ${this.escapeHtml(extension.description || t('messages:noDescription'))}
                     </p>
                     <div class="plugin-meta">
                         <span class="plugin-meta-item">
                             <svg class="icon" viewBox="0 0 24 24">
                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
                             </svg>
-                            版本 ${this.escapeHtml(extension.version || '未知')}
+                            ${htmlT('extensions:version')} ${this.escapeHtml(extension.version || t('messages:unknown'))}
                         </span>
                         ${extension.author ? `
                             <span class="plugin-meta-item">
@@ -217,24 +219,20 @@ class PluginManagerModal extends Component {
                 <div class="plugin-actions">
                     ${canDisable ? `
                         ${isEnabled ? `
-                            <button class="btn-secondary" data-action="disable" data-id="${this.escapeAttribute(extension.id)}">
-                                禁用
-                            </button>
+                            <button class="btn-secondary" data-action="disable" data-id="${this.escapeAttribute(extension.id)}" data-i18n="messages:disable">${th('messages:disable')}</button>
                         ` : `
-                            <button class="btn-primary" data-action="enable" data-id="${this.escapeAttribute(extension.id)}">
-                                启用
-                            </button>
+                            <button class="btn-primary" data-action="enable" data-id="${this.escapeAttribute(extension.id)}" data-i18n="messages:enable">${th('messages:enable')}</button>
                         `}
                     ` : ''}
                     ${!isBuiltin ? `
-                        <button class="btn-danger" data-action="uninstall" data-id="${this.escapeAttribute(extension.id)}">
-                            卸载
-                        </button>
+                        <button class="btn-danger" data-action="uninstall" data-id="${this.escapeAttribute(extension.id)}" data-i18n="messages:uninstall">${th('messages:uninstall')}</button>
                     ` : ''}
                 </div>
             </div>
         `;
 
+        bindLocalizedText(card.querySelector('.plugin-name')!, () => extension.name || extension.id);
+        bindLocalizedText(card.querySelector('.plugin-description')!, () => extension.description || t('messages:noDescription'));
         return card;
     }
 
@@ -273,7 +271,7 @@ class PluginManagerModal extends Component {
     async handleInstallExtension(): Promise<void> {
         try {
             if (!pluginManagerService.isAvailable()) {
-                this.showNotification('扩展服务未初始化', 'error');
+                this.showNotification(t('messages:extensionServiceIsNotInitialized'), 'error');
                 return;
             }
 
@@ -283,7 +281,7 @@ class PluginManagerModal extends Component {
             await this.loadPluginList();
         } catch (error) {
             console.error('❌ PluginManagerModal: 安装扩展失败:', error);
-            this.showNotification(`安装失败: ${this.getErrorMessage(error)}`, 'error');
+            this.showNotification(t('dynamic:installFailed', {details: this.getErrorMessage(error)}), 'error');
         }
     }
 
@@ -293,7 +291,7 @@ class PluginManagerModal extends Component {
     async handleEnableExtension(extensionId: string, _extensionName: string): Promise<void> {
         try {
             if (!pluginManagerService.isAvailable()) {
-                this.showNotification('扩展服务未初始化', 'error');
+                this.showNotification(t('messages:extensionServiceIsNotInitialized'), 'error');
                 return;
             }
 
@@ -301,7 +299,7 @@ class PluginManagerModal extends Component {
             await this.loadPluginList();
         } catch (error) {
             console.error('❌ PluginManagerModal: 启用扩展失败:', error);
-            this.showNotification(`启用失败: ${this.getErrorMessage(error)}`, 'error');
+            this.showNotification(t('dynamic:enableFailed', {details: this.getErrorMessage(error)}), 'error');
         }
     }
 
@@ -311,7 +309,7 @@ class PluginManagerModal extends Component {
     async handleDisableExtension(extensionId: string, _extensionName: string): Promise<void> {
         try {
             if (!pluginManagerService.isAvailable()) {
-                this.showNotification('扩展服务未初始化', 'error');
+                this.showNotification(t('messages:extensionServiceIsNotInitialized'), 'error');
                 return;
             }
 
@@ -319,7 +317,7 @@ class PluginManagerModal extends Component {
             await this.loadPluginList();
         } catch (error) {
             console.error('❌ PluginManagerModal: 禁用扩展失败:', error);
-            this.showNotification(`禁用失败: ${this.getErrorMessage(error)}`, 'error');
+            this.showNotification(t('dynamic:disableFailed', {details: this.getErrorMessage(error)}), 'error');
         }
     }
 
@@ -329,14 +327,14 @@ class PluginManagerModal extends Component {
     async handleUninstallExtension(extensionId: string, extensionName: string): Promise<void> {
         try {
             if (!pluginManagerService.isAvailable()) {
-                this.showNotification('扩展服务未初始化', 'error');
+                this.showNotification(t('messages:extensionServiceIsNotInitialized'), 'error');
                 return;
             }
 
             const confirmOptions: ConfirmOptions = {
-                title: '卸载扩展',
-                message: `确定要卸载扩展 "${extensionName}" 吗？\n\n卸载后需要重启应用才能完全移除。`,
-                confirmText: '卸载',
+                title: t('messages:uninstallExtension'),
+                message: t('dynamic:uninstallExtensionConfirm', {name: extensionName}),
+                confirmText: t('messages:uninstall'),
                 type: 'warning'
             };
             const confirmed = await appConfirmationService.confirm(confirmOptions);
@@ -349,7 +347,7 @@ class PluginManagerModal extends Component {
             await this.loadPluginList();
         } catch (error) {
             console.error('❌ PluginManagerModal: 卸载扩展失败:', error);
-            this.showNotification(`卸载失败: ${this.getErrorMessage(error)}`, 'error');
+            this.showNotification(t('dynamic:uninstallFailed', {details: this.getErrorMessage(error)}), 'error');
         }
     }
 
@@ -384,6 +382,7 @@ class PluginManagerModal extends Component {
     }
 
     getErrorMessage(error: unknown): string {
+        if (String(error).includes('EXTENSION_UNSUPPORTED_API_VERSION')) return t('extensions:unsupported');
         return error instanceof Error ? error.message : String(error);
     }
 }

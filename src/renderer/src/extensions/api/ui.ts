@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * UI API - 用户界面 API
  * 提供通知、对话框、状态栏、进度提示等 UI 交互功能
@@ -123,7 +124,7 @@ class FloatingPanelManagerClass {
         closeButton.type = 'button';
         closeButton.className = 'extension-floating-panel-close';
         closeButton.textContent = 'x';
-        closeButton.setAttribute('aria-label', '关闭');
+        closeButton.setAttribute('aria-label', t('app:close'));
         closeButton.addEventListener('click', (event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -984,9 +985,9 @@ export function createUIAPI(_context: ExtensionContext): UIAPI {
             Validator.assertObject(options, 'options');
 
             return ErrorUtils.wrapAsync(async () => {
-                const title = options.title || '确认';
-                const confirmText = options.confirmText || '确定';
-                const cancelText = options.cancelText || '取消';
+                const title = options.title || t('app:confirmAction');
+                const confirmText = options.confirmText || t('app:confirm');
+                const cancelText = options.cancelText || t('app:cancel');
                 const type = options.type === 'warning' || options.type === 'danger' || options.type === 'default'
                     ? options.type
                     : 'default';
@@ -1005,7 +1006,7 @@ export function createUIAPI(_context: ExtensionContext): UIAPI {
             Validator.assertObject(options, 'options');
 
             return ErrorUtils.wrapAsync(async () => {
-                const prompt = options.prompt || '请输入';
+                const prompt = options.prompt || t('audit:enterValue');
                 const defaultValue = options.value || '';
                 // const placeholder = options.placeholder || '';
 

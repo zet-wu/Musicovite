@@ -43,5 +43,6 @@
     "shortcuts",
     "demo",
     "example"
-  ]
+  ],
+  "apiVersion": 1
 }

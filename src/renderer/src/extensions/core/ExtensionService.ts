@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * ExtensionService - 扩展服务
  * 参考 VSCode 的 ExtensionService,提供扩展管理的核心功能
@@ -258,7 +259,7 @@ class ExtensionService extends Disposable {
                     if (manifest.contributes && manifest.contributes.configuration) {
                         this._configurationManager.registerConfiguration(
                             descriptor.id,
-                            manifest.contributes.configuration
+                            descriptor.contributes.configuration
                         );
                     }
 
@@ -316,7 +317,7 @@ class ExtensionService extends Disposable {
 
             const index = await response.json() as BuiltinExtensionIndex;
             if (!index || !Array.isArray(index.extensions)) {
-                throw new Error('内置扩展索引格式无效');
+                throw new Error(t('audit:invalidBuiltinIndex'));
             }
 
             const dirs = index.extensions
@@ -370,6 +371,7 @@ class ExtensionService extends Disposable {
     }
 
     private async _loadExtension(manifest: ExtensionManifest): Promise<void> {
+        if (manifest.apiVersion !== 1) throw new Error('EXTENSION_UNSUPPORTED_API_VERSION');
         try {
             const descriptor = new ExtensionDescriptor(manifest);
             this._registry.registerExtension(descriptor);
@@ -380,7 +382,7 @@ class ExtensionService extends Disposable {
             if (manifest.contributes && manifest.contributes.configuration) {
                 this._configurationManager.registerConfiguration(
                     descriptor.id,
-                    manifest.contributes.configuration
+                    descriptor.contributes.configuration
                 );
             }
         } catch (error) {
@@ -475,12 +477,13 @@ class ExtensionService extends Disposable {
 
     async installExtension(manifest: ExtensionManifest): Promise<string> {
         try {
+            if (manifest.apiVersion !== 1) throw new Error('EXTENSION_UNSUPPORTED_API_VERSION');
             if (!manifest.id || !manifest.name || !manifest.version) {
-                throw new Error('扩展清单不完整');
+                throw new Error(t('audit:incompleteManifest'));
             }
 
             if (this._registry.getExtension(manifest.id)) {
-                throw new Error(`扩展 ${manifest.id} 已安装`);
+                throw new Error(t('audit:extensionInstalled', {id: manifest.id}));
             }
 
             const extensionsConfig = cacheManager.getLocalCache('extensions-config') || {};
@@ -507,7 +510,7 @@ class ExtensionService extends Disposable {
         try {
             const descriptor = this._registry.getExtension(extensionId);
             if (!descriptor) {
-                throw new Error(`未找到扩展: ${extensionId}`);
+                throw new Error(t('audit:extensionNotFound', {id: extensionId}));
             }
 
             await this._activator!.deactivateExtension(extensionId);
@@ -603,11 +606,11 @@ class ExtensionService extends Disposable {
 
             const descriptor = this._registry.getExtension(extensionId);
             if (!descriptor) {
-                throw new Error(`未找到扩展: ${extensionId}`);
+                throw new Error(t('audit:extensionNotFound', {id: extensionId}));
             }
 
             if (descriptor.isBuiltin) {
-                throw new Error('内置扩展不能卸载');
+                throw new Error(t('audit:cannotUninstallBuiltin'));
             }
 
             await this._activator!.deactivateExtension(extensionId);
@@ -643,7 +646,7 @@ class ExtensionService extends Disposable {
 
             const descriptor = this._registry.getExtension(extensionId);
             if (!descriptor) {
-                throw new Error(`未找到扩展: ${extensionId}`);
+                throw new Error(t('audit:extensionNotFound', {id: extensionId}));
             }
 
             console.log(`   当前状态: enabled=${descriptor.enabled}, isBuiltin=${descriptor.isBuiltin}`);
@@ -686,13 +689,13 @@ class ExtensionService extends Disposable {
 
             const descriptor = this._registry.getExtension(extensionId);
             if (!descriptor) {
-                throw new Error(`未找到扩展: ${extensionId}`);
+                throw new Error(t('audit:extensionNotFound', {id: extensionId}));
             }
 
             console.log(`   当前状态: enabled=${descriptor.enabled}, isBuiltin=${descriptor.isBuiltin}, canDisable=${descriptor.canDisable}`);
 
             if (descriptor.isBuiltin && !descriptor.canDisable) {
-                throw new Error('该内置扩展不允许被禁用');
+                throw new Error(t('audit:cannotDisableBuiltin'));
             }
 
             descriptor.enabled = false;
@@ -765,7 +768,7 @@ class ExtensionService extends Disposable {
             const result = await extensionsController.getInstalled();
 
             if (!result.success) {
-                throw new Error(result.error || '获取扩展列表失败');
+                throw new Error(result.error || t('audit:extensionListFailed'));
             }
 
             return result.extensions || [];

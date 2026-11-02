@@ -7,8 +7,14 @@
   "main": "extension.js",
   "module": "advancedExampleExtension",
   "canDisable": true,
-  "categories": ["Other"],
-  "keywords": ["example", "demo", "advanced"],
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "example",
+    "demo",
+    "advanced"
+  ],
   "activationEvents": [
     "onStartUp",
     "onCommand:advancedExample.hello"
@@ -76,10 +82,17 @@
         },
         "advancedExample.features": {
           "type": "array",
-          "default": ["notifications", "stats"],
+          "default": [
+            "notifications",
+            "stats"
+          ],
           "items": {
             "type": "string",
-            "enum": ["notifications", "stats", "network"]
+            "enum": [
+              "notifications",
+              "stats",
+              "network"
+            ]
           },
           "description": "启用的功能"
         }
@@ -109,5 +122,6 @@
   "bugs": {
     "url": "https://github.com/example/advanced-extension/issues"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "apiVersion": 1
 }

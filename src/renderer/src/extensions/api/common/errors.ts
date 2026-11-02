@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * 扩展 API 错误定义
  * 提供统一的错误类型和错误处理机制
@@ -28,7 +29,7 @@ export class ValidationError extends ExtensionAPIError {
     actualValue: any;
 
     constructor(paramName: string, expectedType: string, actualValue: any) {
-        const message = `参数 "${paramName}" 验证失败: 期望 ${expectedType}, 实际收到 ${typeof actualValue}`;
+        const message = t('audit:parameterInvalid', {name: paramName, expected: expectedType, actual: typeof actualValue});
         super(message, 'VALIDATION_ERROR');
         this.paramName = paramName;
         this.expectedType = expectedType;
@@ -42,7 +43,7 @@ export class ValidationError extends ExtensionAPIError {
 export class NotAvailableError extends ExtensionAPIError {
     feature: string;
 
-    constructor(feature: string, reason = '功能未实现或不可用') {
+    constructor(feature: string, reason = t('audit:featureUnavailable')) {
         super(`${feature}: ${reason}`, 'NOT_AVAILABLE');
         this.feature = feature;
     }
@@ -56,7 +57,7 @@ export class NotFoundError extends ExtensionAPIError {
     resourceId: string;
 
     constructor(resourceType: string, resourceId: string) {
-        super(`${resourceType} "${resourceId}" 未找到`, 'NOT_FOUND');
+        super(t('audit:resourceNotFound', {type: resourceType, id: resourceId}), 'NOT_FOUND');
         this.resourceType = resourceType;
         this.resourceId = resourceId;
     }
@@ -68,8 +69,8 @@ export class NotFoundError extends ExtensionAPIError {
 export class PermissionError extends ExtensionAPIError {
     action: string;
 
-    constructor(action: string, reason = '权限不足') {
-        super(`无法执行 "${action}": ${reason}`, 'PERMISSION_DENIED');
+    constructor(action: string, reason = t('audit:permissionDenied')) {
+        super(t('audit:actionDenied', {action: action, reason: reason}), 'PERMISSION_DENIED');
         this.action = action;
     }
 }
@@ -82,7 +83,7 @@ export class TimeoutError extends ExtensionAPIError {
     timeout: number;
 
     constructor(operation: string, timeout: number) {
-        super(`操作 "${operation}" 超时 (${timeout}ms)`, 'TIMEOUT');
+        super(t('audit:operationTimeout', {operation: operation, timeout: timeout}), 'TIMEOUT');
         this.operation = operation;
         this.timeout = timeout;
     }
@@ -96,7 +97,7 @@ export class ConflictError extends ExtensionAPIError {
     resourceId: string;
 
     constructor(resourceType: string, resourceId: string) {
-        super(`${resourceType} "${resourceId}" 已存在`, 'CONFLICT');
+        super(t('audit:resourceExists', {type: resourceType, id: resourceId}), 'CONFLICT');
         this.resourceType = resourceType;
         this.resourceId = resourceId;
     }
@@ -112,7 +113,7 @@ export class StateError extends ExtensionAPIError {
 
     constructor(operation: string, currentState: string, expectedState: string) {
         super(
-            `无法在状态 "${currentState}" 下执行 "${operation}", 期望状态: ${expectedState}`,
+            t('audit:stateMismatch', {current: currentState, operation: operation, expected: expectedState}),
             'INVALID_STATE'
         );
         this.operation = operation;

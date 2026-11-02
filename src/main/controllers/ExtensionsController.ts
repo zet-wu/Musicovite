@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // 扩展管理控制器
 
 import {dialog} from 'electron';
@@ -21,10 +22,10 @@ export class ExtensionsController extends BaseController {
         try {
             const win = this.windowManager.getMainWindow();
             const result: any = await dialog.showOpenDialog(win as any, {
-                title: '选择扩展包',
+                title: nativeT('errors:chooseExtensionPackage'),
                 filters: [
-                    {name: '扩展包', extensions: ['zip']},
-                    {name: '所有文件', extensions: ['*']}
+                    {name: nativeT('errors:extensionPackage'), extensions: ['zip']},
+                    {name: nativeT('errors:allFiles'), extensions: ['*']}
                 ],
                 properties: ['openFile']
             });
@@ -39,7 +40,7 @@ export class ExtensionsController extends BaseController {
     @IpcHandle('extensions:installFromFile')
     async installFromFile(filePath: string): Promise<{ success: boolean; extension?: any; error?: string }> {
         try {
-            if (!filePath) throw new Error('文件路径参数为空');
+            if (!filePath) throw new Error(nativeT('errors:filePathIsEmpty'));
             const extensionInfo = await this.extensionInstaller.installFromZip(filePath);
             return {success: true, extension: extensionInfo};
         } catch (error: any) {

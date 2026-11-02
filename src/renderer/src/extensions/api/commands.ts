@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * Commands API - 命令 API
  * 提供命令注册、执行、管理等功能
@@ -62,11 +63,11 @@ export function createCommandsAPI(context: ExtensionContext): CommandsAPI {
                 const commandInfo = globalCommandRegistry.get(commandId);
 
                 if (!commandInfo) {
-                    throw new NotFoundError('命令', commandId);
+                    throw new NotFoundError(t('audit:commandType'), commandId);
                 }
 
                 if (!commandInfo.enabled) {
-                    throw new Error(`命令 ${commandId} 已禁用`);
+                    throw new Error(t('audit:commandDisabled', {id: commandId}));
                 }
 
                 console.log(`🎯 执行命令: ${commandId}`, args);

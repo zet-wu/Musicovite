@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {extensionsService} from './ExtensionsService';
 import type {ExtensionDescriptor} from "@extensions/core/ExtensionsRegistry";
 
@@ -53,7 +54,7 @@ export class PluginManagerService {
     private requireExtensionService(): PluginExtensionServiceBridge {
         const extensionService = this.getExtensionService();
         if (!extensionService) {
-            throw new Error('扩展服务未初始化');
+            throw new Error(t('messages:extensionServiceIsNotInitialized'));
         }
 
         return extensionService;

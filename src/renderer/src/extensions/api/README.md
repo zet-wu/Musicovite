@@ -420,7 +420,7 @@ const userDataPath = await api.system.getUserDataPath();
 const tempPath = await api.system.getTempPath();
 
 // 获取语言
-const language = api.system.getLanguage();
+const language = api.system.getSystemLanguage();
 
 // 检查开发模式
 const isDev = api.system.isDevelopment();

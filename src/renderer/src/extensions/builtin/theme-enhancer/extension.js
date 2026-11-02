@@ -1,3 +1,92 @@
+// 插件私有词库，不注册到宿主全局命名空间。
+const translations = {
+  "zh-CN": {
+    "title": "主题增强",
+    "light": "浅色",
+    "dark": "深色",
+    "blue": "蓝色",
+    "purple": "紫色",
+    "green": "绿色",
+    "custom": "自定义",
+    "defaultTheme": "默认主题",
+    "startupTheme": "应用启动时使用的主题",
+    "preview": "主题预览",
+    "previewDescription": "选择一个预设主题并立即应用",
+    "resetTheme": "重置主题",
+    "resetDescription": "将主题重置为默认的浅色主题",
+    "reset": "重置",
+    "resetDone": "主题已重置",
+    "customPending": "自定义主题功能开发中...",
+    "exported": "主题已导出到存储",
+    "exportFailed": "导出主题失败",
+    "imported": "主题已导入",
+    "notExported": "没有找到导出的主题",
+    "importFailed": "导入主题失败",
+    "resetLight": "主题已重置为浅色主题",
+    "customApplied": "自定义主题已应用",
+    "unknown": "未知主题: {{name}}",
+    "switched": "已切换到{{name}}主题"
+  },
+  "zh-TW": {
+    "title": "主題增強",
+    "light": "淺色",
+    "dark": "深色",
+    "blue": "藍色",
+    "purple": "紫色",
+    "green": "綠色",
+    "custom": "自定義",
+    "defaultTheme": "預設主題",
+    "startupTheme": "應用啟動時使用的主題",
+    "preview": "主題預覽",
+    "previewDescription": "選擇一個預設主題並立即應用",
+    "resetTheme": "重置主題",
+    "resetDescription": "將主題重置為預設的淺色主題",
+    "reset": "重置",
+    "resetDone": "主題已重置",
+    "customPending": "自定義主題功能開發中...",
+    "exported": "主題已匯出到儲存",
+    "exportFailed": "匯出主題失敗",
+    "imported": "主題已匯入",
+    "notExported": "沒有找到匯出的主題",
+    "importFailed": "匯入主題失敗",
+    "resetLight": "主題已重置為淺色主題",
+    "customApplied": "自定義主題已應用",
+    "unknown": "未知主題: {{name}}",
+    "switched": "已切換到{{name}}主題"
+  },
+  "en": {
+    "title": "Theme Enhancer",
+    "light": "Light",
+    "dark": "Dark",
+    "blue": "Blue",
+    "purple": "Purple",
+    "green": "Green",
+    "custom": "Custom",
+    "defaultTheme": "Default theme",
+    "startupTheme": "Theme used when the application starts",
+    "preview": "Theme preview",
+    "previewDescription": "Choose a preset theme to apply immediately",
+    "resetTheme": "Reset theme",
+    "resetDescription": "Reset to the default light theme",
+    "reset": "Reset",
+    "resetDone": "Theme reset",
+    "customPending": "Custom theme editing is under development...",
+    "exported": "Theme exported to storage",
+    "exportFailed": "Could not export theme",
+    "imported": "Theme imported",
+    "notExported": "No exported theme found",
+    "importFailed": "Could not import theme",
+    "resetLight": "Theme reset to light",
+    "customApplied": "Custom theme applied",
+    "unknown": "Unknown theme: {{name}}",
+    "switched": "Switched to {{name}} theme"
+  }
+};
+let locale = 'zh-CN';
+let isActive = false;
+const translate = (key, params = {}) => (translations[locale]?.[key] || translations['zh-CN'][key] || key).replace(/{{(\w+)}}/g, (_, name) => String(params[name] ?? ''));
+let settingsDisposables = [];
+let localeRefresh = Promise.resolve();
 /**
  * 主题增强插件
  * 提供多种预设主题和自定义主题功能
@@ -13,7 +102,7 @@ let floatingThemePanelDisposable = null;
 
 const PRESET_THEMES = {
     light: {
-        name: '浅色',
+        get name() { return translate('light'); },
         colors: {
             'color-primary': '#335eea',
             'color-primary-rgb': '51, 94, 234',
@@ -26,7 +115,7 @@ const PRESET_THEMES = {
         }
     },
     dark: {
-        name: '深色',
+        get name() { return translate('dark'); },
         colors: {
             'color-primary': '#335eea',
             'color-primary-rgb': '51, 94, 234',
@@ -39,7 +128,7 @@ const PRESET_THEMES = {
         }
     },
     blue: {
-        name: '蓝色',
+        get name() { return translate('blue'); },
         colors: {
             'color-primary': '#0ea5e9',
             'color-primary-rgb': '14, 165, 233',
@@ -52,7 +141,7 @@ const PRESET_THEMES = {
         }
     },
     purple: {
-        name: '紫色',
+        get name() { return translate('purple'); },
         colors: {
             'color-primary': '#a855f7',
             'color-primary-rgb': '168, 85, 247',
@@ -65,7 +154,7 @@ const PRESET_THEMES = {
         }
     },
     green: {
-        name: '绿色',
+        get name() { return translate('green'); },
         colors: {
             'color-primary': '#10b981',
             'color-primary-rgb': '16, 185, 129',
@@ -84,8 +173,22 @@ const PRESET_THEMES = {
  * @param {Object} context - 扩展上下文
  */
 async function activate(context) {
+    isActive = true;
     const api = getExtensionAPI(context);
 
+    locale = (await api.system.getAppLocale()).resolvedLocale;
+    const localeDisposable = await api.system.onAppLocaleChanged(state => {
+        locale = state.resolvedLocale;
+        localeRefresh = localeRefresh.then(async () => {
+            if (!isActive) return;
+            await registerSettingsContributions(context, api);
+            await refreshFloatingThemePanel(api);
+        }).catch(error => console.error('❌ 插件语言刷新失败:', error));
+    });
+    context.subscriptions.add(localeDisposable);
+    context.subscriptions.add({dispose: async () => {
+        for (const disposable of settingsDisposables.splice(0)) await disposable.dispose();
+    }});
     config = await loadConfiguration(api.settings);
 
     await registerSettingsContributions(context, api);
@@ -115,6 +218,9 @@ async function activate(context) {
  * 停用扩展
  */
 async function deactivate() {
+    isActive = false;
+    await localeRefresh;
+    for (const disposable of settingsDisposables.splice(0)) await disposable.dispose();
     await disposeFloatingThemePanel();
     console.log('主题增强已停用');
 }
@@ -133,10 +239,11 @@ async function loadConfiguration(settings) {
  * 注册设置页
  */
 async function registerSettingsContributions(context, api) {
-    const sectionDisposable = await api.ui.registerSettingsSection('themeEnhancer', '主题增强', {
+    for (const disposable of settingsDisposables.splice(0)) await disposable.dispose();
+    const sectionDisposable = await api.ui.registerSettingsSection('themeEnhancer', translate('title'), {
         order: 50
     });
-    context.subscriptions.add(sectionDisposable);
+    settingsDisposables.push(sectionDisposable);
 
     const themeOptions = Object.entries(PRESET_THEMES).map(([value, theme]) => ({
         value,
@@ -160,8 +267,8 @@ async function registerSettingsContributions(context, api) {
             {
                 id: 'currentTheme',
                 type: 'select',
-                label: '默认主题',
-                description: '应用启动时使用的主题',
+                label: translate('defaultTheme'),
+                description: translate('startupTheme'),
                 value: config.currentTheme,
                 options: themeOptions,
                 async onChange(value) {
@@ -171,8 +278,8 @@ async function registerSettingsContributions(context, api) {
             {
                 id: 'themePreview',
                 type: 'choiceGrid',
-                label: '主题预览',
-                description: '选择一个预设主题并立即应用',
+                label: translate('preview'),
+                description: translate('previewDescription'),
                 value: currentTheme,
                 choices: themeChoices,
                 async onChange(value) {
@@ -182,18 +289,18 @@ async function registerSettingsContributions(context, api) {
             {
                 id: 'resetTheme',
                 type: 'button',
-                label: '重置主题',
-                description: '将主题重置为默认的浅色主题',
-                buttonText: '重置',
+                label: translate('resetTheme'),
+                description: translate('resetDescription'),
+                buttonText: translate('reset'),
                 secondary: true,
                 async onClick() {
                     await applyTheme('light', api);
-                    await api.ui.showNotification('主题已重置', 'success');
+                    await api.ui.showNotification(translate('resetDone'), 'success');
                 }
             }
         ]
     });
-    context.subscriptions.add(pageDisposable);
+    settingsDisposables.push(pageDisposable);
 }
 
 /**
@@ -216,9 +323,9 @@ async function refreshFloatingThemePanel(api) {
 
     floatingThemePanelDisposable = await api.ui.registerFloatingPanel({
         id: 'themeEnhancer.themePanel',
-        title: '主题增强',
+        title: translate('title'),
         buttonLabel: '🎨',
-        buttonTitle: '主题增强',
+        buttonTitle: translate('title'),
         panelTitle: '选择主题',
         order: 50,
         selectionMode: 'single',
@@ -256,7 +363,7 @@ async function disposeFloatingThemePanel() {
  */
 async function registerCommands(context, api) {
     const customizeCmd = await api.commands.registerCommand('themeEnhancer.customizeTheme', async () => {
-        await api.ui.showNotification('自定义主题功能开发中...', 'info');
+        await api.ui.showNotification(translate('customPending'), 'info');
     });
     context.subscriptions.add(customizeCmd);
 
@@ -268,10 +375,10 @@ async function registerCommands(context, api) {
             };
             const json = JSON.stringify(themeData, null, 2);
             await api.storage.update('exported-theme', json);
-            await api.ui.showNotification('主题已导出到存储', 'success');
+            await api.ui.showNotification(translate('exported'), 'success');
         } catch (error) {
             console.error('❌ 导出主题失败:', error);
-            await api.ui.showNotification('导出主题失败', 'error');
+            await api.ui.showNotification(translate('exportFailed'), 'error');
         }
     });
     context.subscriptions.add(exportCmd);
@@ -282,20 +389,20 @@ async function registerCommands(context, api) {
             if (json) {
                 const themeData = JSON.parse(json);
                 await applyCustomTheme(themeData.colors, api);
-                await api.ui.showNotification('主题已导入', 'success');
+                await api.ui.showNotification(translate('imported'), 'success');
             } else {
-                await api.ui.showNotification('没有找到导出的主题', 'warning');
+                await api.ui.showNotification(translate('notExported'), 'warning');
             }
         } catch (error) {
             console.error('❌ 导入主题失败:', error);
-            await api.ui.showNotification('导入主题失败', 'error');
+            await api.ui.showNotification(translate('importFailed'), 'error');
         }
     });
     context.subscriptions.add(importCmd);
 
     const resetCmd = await api.commands.registerCommand('themeEnhancer.resetTheme', async () => {
         await applyTheme('light', api);
-        await api.ui.showNotification('主题已重置为浅色主题', 'success');
+        await api.ui.showNotification(translate('resetLight'), 'success');
     });
     context.subscriptions.add(resetCmd);
 }
@@ -338,7 +445,7 @@ async function restoreTheme(api) {
  */
 async function applyTheme(themeName, api, showNotification = true) {
     if (!PRESET_THEMES[themeName]) {
-        await api.ui.showNotification(`未知主题: ${themeName}`, 'error');
+        await api.ui.showNotification(translate('unknown', {name: themeName}), 'error');
         return;
     }
 
@@ -358,7 +465,7 @@ async function applyTheme(themeName, api, showNotification = true) {
     await api.settings.set('themeEnhancer.currentTheme', themeName);
 
     if (showNotification) {
-        await api.ui.showNotification(`已切换到${theme.name}主题`, 'success');
+        await api.ui.showNotification(translate('switched', {name: theme.name}), 'success');
     }
 
     await refreshFloatingThemePanel(api);
@@ -380,7 +487,7 @@ async function applyCustomTheme(colors, api) {
     await api.storage.update('themeEnhancer.customColors', colors);
     await api.settings.set('themeEnhancer.customColors', colors);
     await api.settings.set('themeEnhancer.currentTheme', 'custom');
-    await api.ui.showNotification('自定义主题已应用', 'success');
+    await api.ui.showNotification(translate('customApplied'), 'success');
 }
 
 window.themeEnhancerExtension = {

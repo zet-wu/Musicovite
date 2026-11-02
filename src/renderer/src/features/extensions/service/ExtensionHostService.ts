@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {cacheManager} from "@/shared/cache";
 import {libraryDataService} from "@/features/library/service/LibraryDataService";
 import {playbackUiStateService} from "@/features/playback/service/PlaybackUiStateService";
@@ -111,7 +112,7 @@ export class ExtensionHostService {
             if (!albumsMap.has(track.album)) {
                 albumsMap.set(track.album, {
                     name: track.album,
-                    artist: track.artist || '未知艺术家',
+                    artist: track.artist || t('app:unknownArtist'),
                     cover: track.cover || null,
                     tracks: []
                 });
@@ -127,7 +128,7 @@ export class ExtensionHostService {
         const artistsMap = new Map<string, ExtensionArtist>();
 
         this.getLibraryTracks().forEach((track) => {
-            const artistName = track.artist || '未知艺术家';
+            const artistName = track.artist || t('app:unknownArtist');
             if (!artistsMap.has(artistName)) {
                 artistsMap.set(artistName, {
                     name: artistName,
@@ -161,7 +162,7 @@ export class ExtensionHostService {
     async loadAndPlayFile(filePath: string): Promise<void> {
         const app = this.requireApp();
         if (typeof app.loadAndPlayFile !== 'function') {
-            throw new Error('app 未初始化');
+            throw new Error(t('audit:appUnavailable'));
         }
 
         await app.loadAndPlayFile(filePath);

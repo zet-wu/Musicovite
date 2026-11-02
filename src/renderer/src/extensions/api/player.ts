@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * Player API - 播放器控制 API
  * 提供音乐播放控制、播放列表管理、播放状态查询等功能
@@ -58,7 +59,7 @@ export function createPlayerAPI(_context: ExtensionContext): PlayerAPI {
                 try {
                     await extensionHostService.loadAndPlayFile(filePath);
                 } catch (_error) {
-                    throw new NotAvailableError('player.playTrack', 'app 未初始化');
+                    throw new NotAvailableError('player.playTrack', t('audit:appUnavailable'));
                 }
             }, 'player.playTrack');
         },

@@ -1,3 +1,5 @@
+import {getLocaleState, onLocaleChanged} from '@/shared/i18n';
+import {toDisposable} from '@extensions/core/Lifecycle';
 /**
  * System API - 系统 API
  * 提供系统信息和环境变量访问功能
@@ -58,10 +60,17 @@ export function createSystemAPI(_context: ExtensionContext): SystemAPI {
             }, 'system.getTempPath');
         },
 
-        getLanguage(): string {
+        getSystemLanguage(): string {
             return ErrorUtils.wrapSync(() => {
                 return navigator.language || 'en-US';
-            }, 'system.getLanguage');
+            }, 'system.getSystemLanguage');
+        },
+
+        getAppLocale() { return getLocaleState(); },
+        onAppLocaleChanged(callback) {
+            const disposable = toDisposable(onLocaleChanged(() => callback(getLocaleState())));
+            _context.subscriptions.add(disposable);
+            return disposable;
         },
 
         getEnv(key: string): string | undefined {

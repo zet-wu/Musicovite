@@ -301,7 +301,7 @@ async function testSystemAPI(context) {
         const userDataPath = await system.getUserDataPath();
         console.log('用户数据路径:', userDataPath);
 
-        const language = await system.getLanguage();
+        const language = await system.getSystemLanguage();
         console.log('语言:', language);
 
         console.log('✅ System API 测试通过');

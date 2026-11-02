@@ -1,3 +1,4 @@
+import {getLocale} from '@/shared/i18n';
 /**
  * ExtensionsRegistry - 扩展注册表
  * 参考 VSCode 的扩展注册机制，管理扩展点和贡献点
@@ -67,6 +68,8 @@ export class ExtensionPoint<T = any> {
 }
 
 export interface ExtensionManifest {
+    apiVersion: 1;
+    localization?: Partial<Record<'zh-CN' | 'zh-TW' | 'en', Record<string, string>>>;
     id: string;
     name: string;
     version: string;
@@ -92,14 +95,39 @@ export interface ExtensionManifest {
 
 export class ExtensionDescriptor {
     readonly id: string;
-    readonly name: string;
+    private manifest: ExtensionManifest;
+    get name(): string { return this.localized('name', this.manifest.name); }
     readonly version: string;
-    readonly description: string;
+    get description(): string { return this.localized('description', this.manifest.description || ''); }
+    private localized(key: string, fallback: string): string {
+        return this.manifest.localization?.[getLocale()]?.[key]?.trim() || this.manifest.localization?.['zh-CN']?.[key]?.trim() || fallback;
+    }
     readonly author: string;
     readonly main?: string;
     readonly module?: string;
     readonly activationEvents: string[];
-    readonly contributes: Record<string, any>;
+    get contributes(): Record<string, any> {
+        const contributions = this.manifest.contributes || {};
+        const configuration = contributions.configuration;
+        return {
+            ...contributions,
+            ...(contributions.commands ? {commands: contributions.commands.map((command: {command: string; title: string}) => ({
+                ...command, title: this.localized(`command.${command.command}`, command.title)
+            }))} : {}),
+            ...(configuration ? {configuration: {
+                ...configuration,
+                title: this.localized('configuration.title', configuration.title || ''),
+                properties: Object.fromEntries(Object.entries(configuration.properties || {}).map(([key, value]) => {
+                    const property = value as Record<string, any>;
+                    return [key, {...property,
+                        description: this.localized(`configuration.${key}.description`, property.description || ''),
+                        ...(Array.isArray(property.enumDescriptions) ? {enumDescriptions: property.enumDescriptions.map((description: string, index: number) =>
+                            this.localized(`configuration.${key}.${property.enum[index]}`, description))} : {})
+                    }];
+                }))
+            }} : {})
+        };
+    }
     readonly engines: Record<string, string>;
     readonly categories: string[];
     readonly keywords: string[];
@@ -114,14 +142,13 @@ export class ExtensionDescriptor {
 
     constructor(manifest: ExtensionManifest) {
         this.id = manifest.id;
-        this.name = manifest.name;
+        this.manifest = manifest;
         this.version = manifest.version;
-        this.description = manifest.description || '';
+
         this.author = manifest.author || '';
         this.main = manifest.main;
         this.module = manifest.module;
         this.activationEvents = manifest.activationEvents || [];
-        this.contributes = manifest.contributes || {};
         this.engines = manifest.engines || {};
         this.categories = manifest.categories || [];
         this.keywords = manifest.keywords || [];

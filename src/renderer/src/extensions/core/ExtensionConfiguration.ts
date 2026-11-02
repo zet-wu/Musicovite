@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * ExtensionConfiguration - 扩展配置系统
  * 提供配置管理、验证和持久化功能
@@ -72,7 +73,7 @@ export class ConfigurationValidator {
             const expectedTypes = Array.isArray(schema.type) ? schema.type : [schema.type];
 
             if (!expectedTypes.includes(actualType)) {
-                errors.push(`类型错误: 期望 ${expectedTypes.join(' 或 ')}, 实际 ${actualType}`);
+                errors.push(t('audit:configType', {expected: expectedTypes.join(', '), actual: actualType}));
                 return {valid: false, errors};
             }
         }
@@ -80,48 +81,48 @@ export class ConfigurationValidator {
         // 字符串验证
         if (schema.type === 'string') {
             if (schema.minLength !== undefined && value.length < schema.minLength) {
-                errors.push(`字符串长度不能小于 ${schema.minLength}`);
+                errors.push(t('audit:stringMinLength', {limit: schema.minLength}));
             }
             if (schema.maxLength !== undefined && value.length > schema.maxLength) {
-                errors.push(`字符串长度不能大于 ${schema.maxLength}`);
+                errors.push(t('audit:stringMaxLength', {limit: schema.maxLength}));
             }
             if (schema.pattern && !new RegExp(schema.pattern).test(value)) {
-                errors.push(`字符串不匹配模式 ${schema.pattern}`);
+                errors.push(t('audit:stringPattern', {pattern: schema.pattern}));
             }
             if (schema.enum && !schema.enum.includes(value)) {
-                errors.push(`值必须是以下之一: ${schema.enum.join(', ')}`);
+                errors.push(t('audit:allowedValues', {values: schema.enum.join(', ')}));
             }
         }
 
         // 数字验证
         if (schema.type === 'number' || schema.type === 'integer') {
             if (schema.minimum !== undefined && value < schema.minimum) {
-                errors.push(`数值不能小于 ${schema.minimum}`);
+                errors.push(t('audit:numberMinimum', {limit: schema.minimum}));
             }
             if (schema.maximum !== undefined && value > schema.maximum) {
-                errors.push(`数值不能大于 ${schema.maximum}`);
+                errors.push(t('audit:numberMaximum', {limit: schema.maximum}));
             }
             if (schema.type === 'integer' && !Number.isInteger(value)) {
-                errors.push(`值必须是整数`);
+                errors.push(t('audit:integerRequired'));
             }
         }
 
         // 数组验证
         if (schema.type === 'array') {
             if (schema.minItems !== undefined && value.length < schema.minItems) {
-                errors.push(`数组长度不能小于 ${schema.minItems}`);
+                errors.push(t('audit:arrayMinLength', {limit: schema.minItems}));
             }
             if (schema.maxItems !== undefined && value.length > schema.maxItems) {
-                errors.push(`数组长度不能大于 ${schema.maxItems}`);
+                errors.push(t('audit:arrayMaxLength', {limit: schema.maxItems}));
             }
             if (schema.uniqueItems && new Set(value).size !== value.length) {
-                errors.push(`数组元素必须唯一`);
+                errors.push(t('audit:uniqueItemsRequired'));
             }
             if (schema.items) {
                 for (let i = 0; i < value.length; i++) {
                     const itemResult = this.validate(value[i], schema.items);
                     if (!itemResult.valid) {
-                        errors.push(`数组元素 [${i}]: ${itemResult.errors.join(', ')}`);
+                        errors.push(t('audit:arrayItem', {index: i, details: itemResult.errors.join(', ')}));
                     }
                 }
             }
@@ -133,7 +134,7 @@ export class ConfigurationValidator {
                 if (value[key] !== undefined) {
                     const propResult = this.validate(value[key], propSchema);
                     if (!propResult.valid) {
-                        errors.push(`属性 ${key}: ${propResult.errors.join(', ')}`);
+                        errors.push(t('audit:propertyError', {key: key, details: propResult.errors.join(', ')}));
                     }
                 }
             }
@@ -142,7 +143,7 @@ export class ConfigurationValidator {
             if (schema.required && Array.isArray(schema.required)) {
                 for (const requiredKey of schema.required) {
                     if (value[requiredKey] === undefined) {
-                        errors.push(`缺少必需属性: ${requiredKey}`);
+                        errors.push(t('audit:requiredProperty', {key: requiredKey}));
                     }
                 }
             }
@@ -247,7 +248,7 @@ export class ConfigurationManager extends Disposable {
     ): Promise<void> {
         const schema = this._configurations.get(extensionId);
         if (!schema || !schema.properties || !schema.properties[key]) {
-            throw new Error(`配置项 ${key} 不存在`);
+            throw new Error(t('audit:unknownSetting', {key: key}));
         }
 
         // 验证配置值
@@ -255,7 +256,7 @@ export class ConfigurationManager extends Disposable {
         const validation = ConfigurationValidator.validate(value, propSchema);
 
         if (!validation.valid) {
-            throw new Error(`配置验证失败: ${validation.errors.join(', ')}`);
+            throw new Error(t('audit:configInvalid', {details: validation.errors.join(', ')}));
         }
 
         // 检查作用域
@@ -298,7 +299,7 @@ export class ConfigurationManager extends Disposable {
     ): Promise<void> {
         const schema = this._configurations.get(extensionId);
         if (!schema || !schema.properties) {
-            throw new Error(`扩展 ${extensionId} 没有注册配置`);
+            throw new Error(t('audit:configNotRegistered', {id: extensionId}));
         }
 
         // 验证所有更新
@@ -306,7 +307,7 @@ export class ConfigurationManager extends Disposable {
         for (const [key, value] of Object.entries(updates)) {
             const propSchema = schema.properties[key];
             if (!propSchema) {
-                validationErrors.push(`配置项 ${key} 不存在`);
+                validationErrors.push(t('audit:unknownSetting', {key: key}));
                 continue;
             }
 
@@ -317,7 +318,7 @@ export class ConfigurationManager extends Disposable {
         }
 
         if (validationErrors.length > 0) {
-            throw new Error(`配置验证失败:\n${validationErrors.join('\n')}`);
+            throw new Error(t('audit:configInvalid', {details: validationErrors.join('\n')}));
         }
 
         // 应用所有更新

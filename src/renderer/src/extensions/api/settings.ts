@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * Settings API - 设置 API
  * 提供应用设置的读取和修改功能
@@ -37,7 +38,7 @@ export function createSettingsAPI(_context: ExtensionContext): SettingsAPI {
                 try {
                     localStorage.setItem(`setting_${key}`, JSON.stringify(value));
                 } catch (error) {
-                    throw new NotAvailableError('settings.set', `无法保存设置: ${(error as Error).message}`);
+                    throw new NotAvailableError('settings.set', t('audit:saveSettingFailed', {key: (error as Error).message}));
                 }
             }, 'settings.set');
         },
@@ -49,7 +50,7 @@ export function createSettingsAPI(_context: ExtensionContext): SettingsAPI {
                 try {
                     localStorage.removeItem(`setting_${key}`);
                 } catch (error) {
-                    throw new NotAvailableError('settings.delete', `无法删除设置: ${(error as Error).message}`);
+                    throw new NotAvailableError('settings.delete', t('audit:deleteSettingFailed', {key: (error as Error).message}));
                 }
             }, 'settings.delete');
         },

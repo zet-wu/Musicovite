@@ -1,3 +1,5 @@
+import type {LocaleState} from '@/shared/i18n';
+import type {IDisposable} from '@extensions/core/Lifecycle';
 export interface SystemAPI {
     /**
      * 获取应用版本
@@ -32,7 +34,9 @@ export interface SystemAPI {
     /**
      * 获取系统语言
      */
-    getLanguage(): string;
+    getSystemLanguage(): string;
+    getAppLocale(): LocaleState;
+    onAppLocaleChanged(callback: (state: LocaleState) => void): IDisposable;
 
     /**
      * 获取环境变量

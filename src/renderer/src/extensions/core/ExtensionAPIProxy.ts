@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * ExtensionAPIProxy - 扩展 API 代理
  * 为扩展 API 添加权限检查和访问控制
@@ -120,7 +121,9 @@ const API_PERMISSION_MAP: Record<string, string> = {
     'system.getAppPath': Permissions.SYSTEM_INFO,
     'system.getUserDataPath': Permissions.SYSTEM_INFO,
     'system.getTempPath': Permissions.SYSTEM_INFO,
-    'system.getLanguage': Permissions.SYSTEM_INFO,
+    'system.getSystemLanguage': Permissions.SYSTEM_INFO,
+    'system.getAppLocale': Permissions.SYSTEM_INFO,
+    'system.onAppLocaleChanged': Permissions.SYSTEM_INFO,
     'system.getEnv': Permissions.SYSTEM_INFO,
     'system.showItemInFolder': Permissions.FILESYSTEM_READ,
     'system.execute': Permissions.SYSTEM_EXECUTE,
@@ -223,7 +226,7 @@ export function createAPIProxy<T extends object>(
                                 .then(granted => {
                                     if (!granted) {
                                         throw new Error(
-                                            `扩展 ${extensionId} 没有权限调用 ${apiPath},需要权限: ${requiredPermission}`
+                                            t('audit:apiPermissionDenied', {id: extensionId, api: apiPath, permission: requiredPermission})
                                         );
                                     }
                                     // 权限已授予,执行原始函数
@@ -423,7 +426,7 @@ export function createLoggingAPIProxy<T extends object>(
                                 );
                                 if (!granted) {
                                     throw new Error(
-                                        `扩展 ${extensionId} 没有权限调用 ${apiPath},需要权限: ${requiredPermission}`
+                                        t('audit:apiPermissionDenied', {id: extensionId, api: apiPath, permission: requiredPermission})
                                     );
                                 }
                             }

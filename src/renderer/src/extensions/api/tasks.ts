@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * Tasks API - 任务 API
  * 提供后台任务的创建和管理功能
@@ -109,7 +110,7 @@ export class Task extends Disposable {
      */
     async execute(): Promise<any> {
         if (this.state !== TaskState.PENDING) {
-            throw new Error(`任务 ${this.id} 已经执行过`);
+            throw new Error(t('audit:taskAlreadyRun', {name: this.id}));
         }
 
         this._setState(TaskState.RUNNING);

@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {createExtensionAPI, type ExtensionAPI} from '@extensions/api';
 import {DisposableStore, IDisposable, toDisposable} from '@extensions/core/Lifecycle';
 import type {PermissionManager} from '@extensions/core/ExtensionPermissions';
@@ -106,7 +107,9 @@ const EXTERNAL_PLUGIN_ALLOWED_API = new Set<string>([
     'system.getAppPath',
     'system.getUserDataPath',
     'system.getTempPath',
-    'system.getLanguage',
+    'system.getSystemLanguage',
+    'system.getAppLocale',
+    'system.onAppLocaleChanged',
     'system.getEnv',
     'system.showItemInFolder',
     'system.getClipboardText',
@@ -159,7 +162,7 @@ export class SandboxedExtensionApiHost {
 
     async call(apiPath: string, args: unknown[]): Promise<unknown> {
         if (EXTERNAL_PLUGIN_BLOCKED_API.has(apiPath)) {
-            throw new Error(`外部插件暂不支持 ${apiPath}，请使用显式 contribution 协议`);
+            throw new Error(t('audit:unsupportedExternalApi', {api: apiPath}));
         }
 
         if (apiPath === 'sandbox.dispose') {
@@ -168,7 +171,7 @@ export class SandboxedExtensionApiHost {
         }
 
         if (!EXTERNAL_PLUGIN_ALLOWED_API.has(apiPath)) {
-            throw new Error(`外部插件不能调用未授权 API: ${apiPath}`);
+            throw new Error(t('audit:unauthorizedApi', {api: apiPath}));
         }
 
         const fn = this.resolveApiFunction(apiPath);

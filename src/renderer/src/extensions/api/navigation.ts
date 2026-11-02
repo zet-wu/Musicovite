@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * Navigation API - 导航 API
  * 提供应用内导航功能
@@ -23,7 +24,7 @@ export function createNavigationAPI(_context: ExtensionContext): NavigationAPI {
                 try {
                     extensionHostService.navigateToView(viewId);
                 } catch (_error) {
-                    throw new NotAvailableError('navigation.navigateTo', '导航组件不可用');
+                    throw new NotAvailableError('navigation.navigateTo', t('audit:navigationUnavailable'));
                 }
             }, 'navigation.navigateTo');
         },

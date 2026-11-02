@@ -19,7 +19,8 @@
     "settings.read",
     "settings.write",
     "commands.register",
-    "commands.execute"
+    "commands.execute",
+    "system.info"
   ],
   "contributes": {
     "commands": [
@@ -50,7 +51,14 @@
         "themeEnhancer.currentTheme": {
           "type": "string",
           "default": "light",
-          "enum": ["light", "dark", "blue", "purple", "green", "custom"],
+          "enum": [
+            "light",
+            "dark",
+            "blue",
+            "purple",
+            "green",
+            "custom"
+          ],
           "enumDescriptions": [
             "浅色主题",
             "深色主题",
@@ -70,7 +78,7 @@
     }
   },
   "engines": {
-    "musicbox": "^0.2.2"
+    "musicbox": "^0.3.3"
   },
   "categories": [
     "Themes",
@@ -82,5 +90,62 @@
     "外观",
     "颜色",
     "自定义"
-  ]
+  ],
+  "apiVersion": 1,
+  "localization": {
+    "zh-CN": {
+      "name": "主题增强",
+      "description": "提供多种预设主题和自定义主题功能，让您的音乐播放器更加个性化",
+      "command.themeEnhancer.setTheme": "主题增强: 切换主题",
+      "command.themeEnhancer.customizeTheme": "主题增强: 自定义主题",
+      "command.themeEnhancer.exportTheme": "主题增强: 导出主题",
+      "command.themeEnhancer.importTheme": "主题增强: 导入主题",
+      "command.themeEnhancer.resetTheme": "主题增强: 重置主题",
+      "configuration.title": "主题增强设置",
+      "configuration.themeEnhancer.currentTheme.description": "当前使用的主题",
+      "configuration.themeEnhancer.customColors.description": "自定义主题颜色配置",
+      "configuration.themeEnhancer.currentTheme.light": "浅色主题",
+      "configuration.themeEnhancer.currentTheme.dark": "深色主题",
+      "configuration.themeEnhancer.currentTheme.blue": "蓝色主题",
+      "configuration.themeEnhancer.currentTheme.purple": "紫色主题",
+      "configuration.themeEnhancer.currentTheme.green": "绿色主题",
+      "configuration.themeEnhancer.currentTheme.custom": "自定义主题"
+    },
+    "zh-TW": {
+      "name": "佈景主題增強",
+      "description": "提供多種預設佈景主題與自訂功能，打造個人化的音樂播放器",
+      "command.themeEnhancer.setTheme": "主題增強: 切換主題",
+      "command.themeEnhancer.customizeTheme": "主題增強: 自定義主題",
+      "command.themeEnhancer.exportTheme": "主題增強: 匯出主題",
+      "command.themeEnhancer.importTheme": "主題增強: 匯入主題",
+      "command.themeEnhancer.resetTheme": "主題增強: 重置主題",
+      "configuration.title": "主題增強設定",
+      "configuration.themeEnhancer.currentTheme.description": "當前使用的主題",
+      "configuration.themeEnhancer.customColors.description": "自訂主題顏色配置",
+      "configuration.themeEnhancer.currentTheme.light": "淺色主題",
+      "configuration.themeEnhancer.currentTheme.dark": "深色主題",
+      "configuration.themeEnhancer.currentTheme.blue": "藍色主題",
+      "configuration.themeEnhancer.currentTheme.purple": "紫色主題",
+      "configuration.themeEnhancer.currentTheme.green": "綠色主題",
+      "configuration.themeEnhancer.currentTheme.custom": "自訂主題"
+    },
+    "en": {
+      "name": "Theme Enhancer",
+      "description": "Personalize your music player with preset and custom themes.",
+      "command.themeEnhancer.setTheme": "Theme Enhancer: Switch theme",
+      "command.themeEnhancer.customizeTheme": "Theme Enhancer: Customize theme",
+      "command.themeEnhancer.exportTheme": "Theme Enhancer: Export theme",
+      "command.themeEnhancer.importTheme": "Theme Enhancer: Import theme",
+      "command.themeEnhancer.resetTheme": "Theme Enhancer: Reset theme",
+      "configuration.title": "Theme Enhancer settings",
+      "configuration.themeEnhancer.currentTheme.description": "Current theme",
+      "configuration.themeEnhancer.customColors.description": "Custom theme colors",
+      "configuration.themeEnhancer.currentTheme.light": "Light theme",
+      "configuration.themeEnhancer.currentTheme.dark": "Dark theme",
+      "configuration.themeEnhancer.currentTheme.blue": "Blue theme",
+      "configuration.themeEnhancer.currentTheme.purple": "Purple theme",
+      "configuration.themeEnhancer.currentTheme.green": "Green theme",
+      "configuration.themeEnhancer.currentTheme.custom": "Custom theme"
+    }
+  }
 }

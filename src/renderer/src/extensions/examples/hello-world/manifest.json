@@ -33,5 +33,6 @@
     "hello",
     "world",
     "example"
-  ]
+  ],
+  "apiVersion": 1
 }

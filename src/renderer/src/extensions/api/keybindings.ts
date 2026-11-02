@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * Keybindings API - 快捷键 API
  * 提供快捷键注册、管理、执行等功能
@@ -239,7 +240,7 @@ export function createKeybindingsAPI(context: ExtensionContext): KeybindingsAPI 
                 const keybindingInfo = registry.get(normalizedKey);
 
                 if (!keybindingInfo) {
-                    throw new NotFoundError('快捷键', keybinding);
+                    throw new NotFoundError(t('audit:shortcutType'), keybinding);
                 }
 
                 console.log(`🎯 触发快捷键: ${keybinding} (${scope})`);
@@ -318,7 +319,7 @@ async function registerKeybindingInternal(
             // 保存插件全局快捷键配置
             extensionGlobalShortcutsConfig.set(shortcutId, {
                 id: shortcutId,
-                name: options.name || options.description || '插件快捷键',
+                name: options.name || options.description || t('audit:pluginShortcut'),
                 description: options.description || options.name || '',
                 key: normalizedKey,
                 enabled: true

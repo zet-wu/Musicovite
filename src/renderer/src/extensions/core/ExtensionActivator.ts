@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * ExtensionActivator - 扩展激活器
  * 参考 VSCode 的扩展激活机制，管理扩展的生命周期
@@ -340,7 +341,7 @@ export class ExtensionActivator extends Disposable {
         const result = await extensionsController.readExtensionFile(descriptor.id, filePath);
 
         if (!result.success) {
-            throw new Error(result.error || '读取扩展文件失败');
+            throw new Error(result.error || t('audit:extensionReadFailed'));
         }
 
         return result.content || '';
@@ -526,7 +527,7 @@ export class ExtensionActivator extends Disposable {
 
                     const result = await extensionsController.updateStorage(extensionId, scope, key, value);
                     if (!result.success) {
-                        throw new Error(result.error || '扩展存储写入失败');
+                        throw new Error(result.error || t('audit:extensionStorageFailed'));
                     }
                 } catch (error) {
                     if (hadPreviousValue) {
@@ -546,7 +547,7 @@ export class ExtensionActivator extends Disposable {
     }
 
     private _isAllowedStorageKey(key: string): boolean {
-        return key !== '__proto__' && key !== 'prototype' && key !== 'constructor';
+        return key !== t('[object Object]') && key !== 'prototype' && key !== t('function Object() { [native code] }');
     }
 
     getActivatedExtension(extensionId: string): ActivatedExtension | undefined {

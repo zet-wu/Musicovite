@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * ExtensionPermissions - 扩展权限管理系统
  * 控制扩展对 API 的访问权限
@@ -75,27 +76,27 @@ export const SensitivePermissions = new Set<string>([
  * 权限描述
  */
 export const PermissionDescriptions: Record<string, string> = {
-    [Permissions.PLAYER_READ]: '读取播放器状态',
-    [Permissions.PLAYER_CONTROL]: '控制播放器（播放、暂停、跳转等）',
-    [Permissions.PLAYER_QUEUE]: '管理播放队列',
-    [Permissions.LIBRARY_READ]: '读取音乐库',
-    [Permissions.LIBRARY_WRITE]: '修改音乐库（添加、编辑）',
-    [Permissions.LIBRARY_DELETE]: '删除音乐库内容',
-    [Permissions.UI_NOTIFICATION]: '显示通知',
-    [Permissions.UI_DIALOG]: '显示对话框',
-    [Permissions.UI_STATUSBAR]: '修改状态栏',
-    [Permissions.UI_WEBVIEW]: '创建 Webview 面板',
-    [Permissions.STORAGE_READ]: '读取扩展存储',
-    [Permissions.STORAGE_WRITE]: '写入扩展存储',
-    [Permissions.NETWORK_REQUEST]: '发起网络请求',
-    [Permissions.NETWORK_WEBSOCKET]: '创建 WebSocket 连接',
-    [Permissions.FILESYSTEM_READ]: '读取文件系统',
-    [Permissions.FILESYSTEM_WRITE]: '写入文件系统',
-    [Permissions.SYSTEM_INFO]: '获取系统信息',
-    [Permissions.SYSTEM_EXECUTE]: '执行系统命令',
-    [Permissions.SYSTEM_CLIPBOARD]: '访问剪贴板',
-    [Permissions.SETTINGS_READ]: '读取设置',
-    [Permissions.SETTINGS_WRITE]: '修改设置'
+    get [Permissions.PLAYER_READ]() { return t('extensions:permissionPLAYER_READ'); },
+    get [Permissions.PLAYER_CONTROL]() { return t('extensions:permissionPLAYER_CONTROL'); },
+    get [Permissions.PLAYER_QUEUE]() { return t('extensions:permissionPLAYER_QUEUE'); },
+    get [Permissions.LIBRARY_READ]() { return t('extensions:permissionLIBRARY_READ'); },
+    get [Permissions.LIBRARY_WRITE]() { return t('extensions:permissionLIBRARY_WRITE'); },
+    get [Permissions.LIBRARY_DELETE]() { return t('extensions:permissionLIBRARY_DELETE'); },
+    get [Permissions.UI_NOTIFICATION]() { return t('extensions:permissionUI_NOTIFICATION'); },
+    get [Permissions.UI_DIALOG]() { return t('extensions:permissionUI_DIALOG'); },
+    get [Permissions.UI_STATUSBAR]() { return t('extensions:permissionUI_STATUSBAR'); },
+    get [Permissions.UI_WEBVIEW]() { return t('extensions:permissionUI_WEBVIEW'); },
+    get [Permissions.STORAGE_READ]() { return t('extensions:permissionSTORAGE_READ'); },
+    get [Permissions.STORAGE_WRITE]() { return t('extensions:permissionSTORAGE_WRITE'); },
+    get [Permissions.NETWORK_REQUEST]() { return t('extensions:permissionNETWORK_REQUEST'); },
+    get [Permissions.NETWORK_WEBSOCKET]() { return t('extensions:permissionNETWORK_WEBSOCKET'); },
+    get [Permissions.FILESYSTEM_READ]() { return t('extensions:permissionFILESYSTEM_READ'); },
+    get [Permissions.FILESYSTEM_WRITE]() { return t('extensions:permissionFILESYSTEM_WRITE'); },
+    get [Permissions.SYSTEM_INFO]() { return t('extensions:permissionSYSTEM_INFO'); },
+    get [Permissions.SYSTEM_EXECUTE]() { return t('extensions:permissionSYSTEM_EXECUTE'); },
+    get [Permissions.SYSTEM_CLIPBOARD]() { return t('extensions:permissionSYSTEM_CLIPBOARD'); },
+    get [Permissions.SETTINGS_READ]() { return t('extensions:permissionSETTINGS_READ'); },
+    get [Permissions.SETTINGS_WRITE]() { return t('extensions:permissionSETTINGS_WRITE'); }
 };
 
 export interface PermissionInfo {
@@ -329,12 +330,12 @@ export class PermissionManager extends Disposable {
         console.warn(`⚠️ PermissionManager: 需要用户授权 ${extensionId} 的权限 ${permission}`);
 
         const description = PermissionDescriptions[permission] || permission;
-        const message = `扩展 "${extensionId}" 请求权限:${description}\n\n是否允许?`;
+        const message = t('extensions:permissionMessage', {extension: extensionId, permission: description});
         return await app.confirm({
-            title: '扩展权限请求',
+            title: t('extensions:permissionTitle'),
             message: message,
-            confirmText: '允许',
-            cancelText: '拒绝'
+            confirmText: t('extensions:allow'),
+            cancelText: t('extensions:deny')
         });
     }
 
