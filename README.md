@@ -1,56 +1,181 @@
-# Musicovite
+<br />
+<p align="center">
+  <img src="build/branding/musicovite.svg" alt="Musicovite Logo" width="156" height="156">
+  <h1 align="center" style="font-weight: 600">🎵 Musicovite</h1>
+  <p align="center">
+    高颜值、插件化、可深度定制的本地音乐播放器
+    <br />
+    <br />
+    <a href="#-安装"><strong>📦下载安装</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="#-开发"><strong>🛠️开发指南</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="#-相关截图"><strong>📌相关截图</strong></a>
+    <br />
+  </p>
+</p>
 
-![Musicovite](build/branding/musicovite.svg)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](#-安装)
+[![Electron](https://img.shields.io/badge/Electron-41.2.1-47848f.svg)](https://electronjs.org/)
+[![Node](https://img.shields.io/badge/Node-%3E%3D22-green.svg)](https://nodejs.org/)
 
-Musicovite 是基于 Electron、TypeScript 与 Rust 的本地音乐播放器，是 [MusicBox](https://github.com/asxez/MusicBox) 的独立下游。
+---
 
-- 音乐库目录与文件来源、歌单、收藏、最近播放及元数据编辑。
-- TTML/逐字歌词、桌面歌词、播放队列与均衡器。
-- 首页沿用欢迎区、波形画布和音乐导入布局；实际播放信号平滑显示，隐藏时停止取样与绘制。
-- Windows WASAPI shared/exclusive 音频引擎；Windows、macOS 和 Linux 的 Web Audio 路径。
-- 简体中文、繁体中文（台湾用词）、英语，以及权限受控的沙箱插件。
+## 📖 项目简介
 
-## 下载与反馈
+- **Musicovite**是一款专注于本地音乐播放的 Electron 桌面应用，是 [MusicBox](https://github.com/asxez/MusicBox) 的下游项目，在上游项目基础上进行了大幅重构和功能完善，采用现代化的技术栈和精美的用户界面设计。
 
-[发行版本](https://github.com/zet-wu/MusicBox/releases) · [问题反馈](https://github.com/zet-wu/MusicBox/issues) · [贡献代码](https://github.com/zet-wu/MusicBox/pulls)
+## ✨ 特性
 
-## 数据目录
+- 💻️ 支持 Windows / macOS / Linux
+- 🌐 支持简体中文 / 繁體中文 / English
+- ✅ 支持flac, mp3, wav, ogg, m4a, aac, wma等多种音乐格式
+- 🔧 强大的插件系统
+- 🎶 支持 WASAPI 音频独占模式
+- 📄 使用 AMLL core 支持 TTML 格式歌词，支持逐字、翻译、注音、对唱等高级功能
+- ☁️ 支持从 AMLL、网易、QQ、酷狗在线获取歌词，兼容 YRC、KRC、QRC 等格式
+- 🤏 支持迷你播放器
+- 📔 支持在线获取歌曲封面和歌词
+- ⌨️ 支持自定义局内/全局快捷键
+- 🎈 浅色/深色主题切换
+- 🎼 支持图形/参量均衡器，搭配专业级预设
+- 📃 支持桌面显示歌词
+- 📔 支持识别内嵌封面和内嵌歌词
+- 👁️ 支持自由的页面显示开关
+- 💾 支持挂载 SMB/WebDAV 等网络磁盘
+- 🖋️ 支持编辑歌曲元数据
+- ▶️ 支持无间隙播放，为连续的专辑歌曲提供更好的播放体验
+- 🛠️ 更多特性开发中
 
-开发版与安装版均使用独立的 Musicovite profile：Windows 为 Electron appData 下的 Musicovite，macOS 为 Application Support/Musicovite，Linux 为用户配置目录下的 Musicovite。Chromium 存储和应用配置使用同一 profile。
+## 📃 文档
+- [总体架构](docs/Architecture.md)：进程模型、IPC、主进程、渲染进程、音频、插件、安全边界
+- [渲染进程架构](docs/RendererArchitecture.md)：重构后的渲染进程架构
+- [开发指南](docs/Development.md)：环境准备、常用命令、检查项、打包和排障
+- [插件系统指南](src/renderer/src/extensions/docs/PluginSystemGuide.md)：插件结构、manifest、激活事件和生命周期
+- [Extension API](src/renderer/src/extensions/api/README.md)：播放器、音乐库、UI、存储、命令、快捷键等插件 API
 
-首次启动请重新添加音乐目录或文件。旧 MusicBox 的歌单、收藏、预设、歌词绑定、网络盘、插件及日记资料保留在原目录；媒体文件、标签和外置歌词保持原状。
+## 📦 安装
 
-## 开发
+### 预编译版本
 
-需要 Node.js 22+、npm，以及仓库根目录的 Python 3.8+ 虚拟环境。Windows WASAPI 构建另需 rustup 稳定工具链、MSVC C++ 工具和 Windows SDK。
+前往 [Releases](https://github.com/zet-wu/Musicovite/releases) 页面下载适合你系统的安装包。
 
-```sh
-git clone https://github.com/zet-wu/MusicBox.git
-cd MusicBox
+### 从源码构建
+
+#### 环境要求
+
+- Node.js >= 22
+- Python >= 3.8（依赖必须安装在仓库根目录的 `.venv` 虚拟环境中）
+- Rust toolchain with Cargo，推荐使用支持 Rust 2024 edition 的稳定版本；当前 Rust WASAPI 模块仅在 Windows 构建和使用
+
+从源码构建 Musicovite，请按照以下步骤操作：
+
+#### 1. 克隆仓库
+
+```bash
+git clone https://github.com/zet-wu/Musicovite.git
+cd Musicovite
+```
+
+#### 2. 创建 Python 虚拟环境
+
+Windows PowerShell：
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+macOS/Linux：
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+后续开发和构建命令均应在已激活 `.venv` 的终端中执行。
+
+#### 3. 安装 Node.js 和 Rust 相关依赖
+
+```bash
 npm install
 npm run install:renderer
 npm run install:rs
 ```
 
-Windows 可运行 `npm run dev`。macOS/Linux 使用 Web Audio 路径：
+#### 4. 开发模式运行
 
-```sh
+Windows 可运行完整开发流程（包含 WASAPI 原生模块）：
+
+```bash
+npm run dev
+```
+
+当前 `npm run dev` 和 `npm run dev:main` 含有 Windows 专用步骤。macOS/Linux 开发时使用 Web Audio 回退路径：
+
+```bash
 npm run build:renderer
 npm run build:ts
 npx electron dist/main/main.js --expose-gc
 ```
 
-图标源稿与平台资源位于 `build/branding/`，执行 `npm run build:icons` 重新导出。
+#### 5. 构建应用
 
-## 文档
+安装包在对应的目标操作系统上构建：
 
-- [开发与构建](docs/Development.md)
-- [应用架构](docs/Architecture.md)
-- [渲染进程](docs/RendererArchitecture.md)
-- [歌词架构](docs/LyricsArchitecture.md)
-- [插件协议](src/renderer/src/extensions/docs/PluginSystemGuide.md)
-- [多语言开发](docs/i18n-development.md)
+```bash
+# Windows
+npm run build:rs
+npm run build:win
 
-## 许可
+# macOS
+npm run build:mac
 
-项目遵循 [MIT](LICENSE) 许可，保留上游作者署名。第三方依赖按各自许可分发；打包保留依赖许可文件。
+# Linux
+npm run build:linux
+```
+
+## 🛠️ 开发
+
+### 项目架构
+
+见[Musicovite 架构文档](docs/Architecture.md)
+
+## 🤝 贡献
+
+我们欢迎所有形式的贡献！无论是报告 bug、提出功能建议、提交代码，或者说提交你开发的插件！
+
+注意：日志输出请务必以相关 emoji 图标开头！（日志过多，便于快速查看）
+
+## 📄 许可证
+
+本项目基于 [MIT License](LICENSE) 开源协议。
+
+## 🙏 致谢
+
+**以下排名不分先后**
+
+- 上游项目 [MusicBox](https://github.com/asxez/MusicBox) 的作者 [asxez](https://github.com/asxez)，他优秀的美学设计为 MusicBox 以及本项目奠定了良好的基础
+- 所有为项目做出贡献的开发者们
+- [AMLL TTML 歌词站](https://amlldb.bikonoo.com/) 提供的 TTML 歌词接口
+
+## 📌 相关截图
+
+![Musicovite 应用截图](docs/images/1.png)
+![Musicovite 应用截图](docs/images/2.png)
+![Musicovite 应用截图](docs/images/3.png)
+![Musicovite 应用截图](docs/images/4.png)
+![Musicovite 应用截图](docs/images/5.png)
+![Musicovite 应用截图](docs/images/6.png)
+![Musicovite 应用截图](docs/images/7.png)
+![Musicovite 应用截图](docs/images/8.png)
+![Musicovite 应用截图](docs/images/9.png)
+![Musicovite 应用截图](docs/images/10.png)
+---
+
+<p align="center">
+  <strong>如果你喜欢这个项目，请给它一个 ⭐️</strong>
+</p>
