@@ -303,18 +303,6 @@ export class PlaybackQueue {
         this.setPlayMode(snapshot.playMode);
     }
 
-    clearHistory(): void {
-        // 兼容旧调用；显式队列的上一曲由可见顺序决定。
-    }
-
-    pushHistory(_index: number): void {
-        // 兼容旧调用；显式队列不维护隐藏播放历史。
-    }
-
-    removeLastHistoryIndexIfMatches(_index: number): void {
-        // 兼容旧调用；显式队列不维护隐藏播放历史。
-    }
-
     setPlayMode(mode: unknown): boolean {
         const validModes: PlayMode[] = ['sequence', 'shuffle', 'repeat-one'];
         if (!validModes.includes(mode as PlayMode)) {

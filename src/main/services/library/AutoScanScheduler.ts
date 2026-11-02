@@ -2,10 +2,6 @@
  * 自动扫描调度器
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import {app} from 'electron';
-
 type ScanHandler = () => Promise<void>;
 
 interface ScanSettings {
@@ -21,22 +17,10 @@ export class AutoScanScheduler {
     private settings: ScanSettings | null = null;
     private scanHandler: ScanHandler | null = null;
     private settingsLoader: (() => Promise<ScanSettings>) | null = null;
-    private settingsFilePath: string;
+    private saveLastScanTime!: (timestamp: number) => Promise<unknown>;
 
-    constructor(settingsFilePath?: string) {
-        if (settingsFilePath) {
-            this.settingsFilePath = settingsFilePath;
-            return;
-        }
-        try {
-            const userDataPath = app.getPath('userData');
-            this.settingsFilePath = path.join(userDataPath, 'music-folders-settings.json');
-        } catch {
-            this.settingsFilePath = path.join(process.cwd(), 'music-folders-settings.json');
-        }
-    }
-
-    initialize(scanHandler: ScanHandler, settingsLoader: () => Promise<ScanSettings>): void {
+    initialize(scanHandler: ScanHandler, settingsLoader: () => Promise<ScanSettings>, saveLastScanTime: (timestamp: number) => Promise<unknown>): void {
+        this.saveLastScanTime = saveLastScanTime;
         this.scanHandler = scanHandler;
         this.settingsLoader = settingsLoader;
     }
@@ -128,21 +112,8 @@ export class AutoScanScheduler {
     }
 
     private async updateLastScanTime(timestamp: number): Promise<void> {
+        await this.saveLastScanTime(timestamp);
         if (this.settings) this.settings.lastScanTime = timestamp;
-        if (!this.settingsFilePath) return;
-
-        try {
-            let existing: any = {};
-            try {
-                const data = await fs.promises.readFile(this.settingsFilePath, 'utf8');
-                existing = JSON.parse(data);
-            } catch {
-            }
-            existing.lastScanTime = timestamp;
-            await fs.promises.writeFile(this.settingsFilePath, JSON.stringify(existing, null, 2), 'utf8');
-        } catch (error: any) {
-            console.error('❌ AutoScanScheduler: 保存上次扫描时间失败:', error.message);
-        }
     }
 
     async triggerManualScan(): Promise<void> {

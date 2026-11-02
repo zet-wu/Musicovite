@@ -14,12 +14,12 @@ import {registerAudioStreamProtocol} from '../services/audio/AudioStreamProtocol
 import {LyricsPersistenceService} from '../services/lyrics/LyricsPersistenceService';
 
 interface LibraryScanner {
-    migratePlaylistCovers(): Promise<void>;
     scanDirectories(directoryPaths: string[]): Promise<{scannedFolderCount: number; failedFolders: string[]}>;
     scanAllLibrarySources(): Promise<{failedSources: string[]}>;
 }
 
 interface MusicFolderSettingsProvider {
+    updateLastScanTime(timestamp: number): Promise<{success: boolean}>;
     getAutoScanSettings(): Promise<{
         sourceCount?: number;
         autoScanEnabled: boolean;
@@ -183,7 +183,7 @@ export class Application {
                 }
             };
 
-            scheduler.initialize(scanHandler, settingsLoader);
+            scheduler.initialize(scanHandler, settingsLoader, (timestamp: number) => this.musicFolderSettingsProvider!.updateLastScanTime(timestamp));
             await scheduler.start();
         } catch (error) {
             console.warn('⚠️ 自动扫描调度器启动失败:', error);
@@ -294,12 +294,8 @@ export class Application {
         try {
             // 缓存已在启动控制器注册前加载，这里只初始化其余重服务。
             const libraryCacheManager = await this.container.get<any>('libraryCacheManager');
-            await this.libraryScanner?.migratePlaylistCovers();
             const librarySourceManager = await this.container.get<any>('librarySourceManager');
             await librarySourceManager.load();
-            if (libraryCacheManager.needsPlaylistMembershipMigration()) {
-                await libraryCacheManager.saveCache();
-            }
             console.log('✅ 音乐库缓存加载完成');
 
             this.windowManager.sendToMainWindow('library:updated', libraryCacheManager.getAllTracks());

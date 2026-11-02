@@ -151,101 +151,20 @@ export class PlaybackAppController {
     async restorePlaybackState(): Promise<void> {
         try {
             const settings = (cacheManager.getLocalCache('musicbox-settings') || {}) as MusicBoxSettings;
-            const playbackState = cacheManager.getLocalCache('playback-state') as PlaybackStateSnapshot | null;
-
-            if (settings.rememberPosition && playbackState) {
-                const {currentTrack, position, playlist, currentIndex, playMode} = playbackState;
-
-                if (playMode) {
-                    this.integrations.setPlayMode(playMode);
+            const state = cacheManager.getLocalCache('playback-state') as PlaybackStateSnapshot | null;
+            if (settings.rememberPosition && state) {
+                if (!state.queue || !Array.isArray(state.queue.entries)) {
+                    throw new Error('保存的播放状态缺少当前队列快照');
                 }
-
-                if (playbackState.queue) {
-                    const restored = await this.integrations.restorePlaybackQueue(playbackState.queue);
-                    const queueTrack = playbackState.queue.entries.find(
-                        (entry) => entry.queueId === playbackState.queue?.currentQueueId
-                    )?.track;
-                    if (restored && queueTrack?.filePath) {
-                        const loadResult = await this.integrations.loadTrack(queueTrack.filePath);
-                        if (loadResult) {
-                            if (position > 0) {
-                                await this.integrations.setPosition(position);
-                            }
-                            if (settings.autoplay) {
-                                setTimeout(async () => {
-                                    await this.integrations.play();
-                                }, 1000);
-                            }
-                        }
-                        return;
-                    }
-                }
-
-                if (playlist && playlist.length > 0) {
-                    const validTracks: Track[] = [];
-                    let validCurrentIndex = -1;
-
-                    for (let i = 0; i < playlist.length; i++) {
-                        const track = playlist[i];
-                        if (track && track.filePath) {
-                            validTracks.push(track);
-                            if (i === currentIndex) {
-                                validCurrentIndex = validTracks.length - 1;
-                            }
-                        }
-                    }
-
-                    if (validTracks.length > 0) {
-                        if (!playbackState.queue) {
-                            await this.integrations.setPlaylist(validTracks, validCurrentIndex);
-                        }
-
-                        if (validCurrentIndex >= 0 && validTracks[validCurrentIndex]) {
-                            const trackToLoad = validTracks[validCurrentIndex];
-                            const loadResult = await this.integrations.loadTrack(trackToLoad.filePath);
-                            if (loadResult) {
-                                if (position > 0) {
-                                    const setPositionResult = await this.integrations.setPosition(position);
-                                    console.log('App: setPosition 结果:', setPositionResult);
-                                }
-
-                                if (settings.autoplay) {
-                                    setTimeout(async () => {
-                                        await this.integrations.play();
-                                    }, 1000);
-                                }
-                            }
-                        }
-                    } else {
-                        console.warn('⚠️ App: 播放列表中没有有效歌曲');
-                        if (settings.autoplay) {
-                            await this.autoplayFirstTrack();
-                        }
-                    }
-                } else if (currentTrack) {
-                    console.log('💾 App: 恢复单个歌曲（兼容模式）:', currentTrack.title);
-                    const loadResult = await this.integrations.loadTrack(currentTrack.filePath);
-                    if (loadResult) {
-                        if (position > 0) {
-                            await this.integrations.setPosition(position);
-                        }
-                        if (settings.autoplay) {
-                            setTimeout(async () => {
-                                await this.integrations.play();
-                            }, 1000);
-                        }
-                    }
-                } else {
-                    console.warn('⚠️ App: 没有保存的播放信息');
-                    if (settings.autoplay) {
-                        await this.autoplayFirstTrack();
-                    }
-                }
+                const restored = await this.integrations.restorePlaybackQueue(state.queue);
+                if (!restored) throw new Error('无法恢复播放队列');
+                const track = state.queue.entries.find(entry => entry.queueId === state.queue?.currentQueueId)?.track;
+                if (!track) return;
+                if (!await this.integrations.loadTrack(track.filePath)) throw new Error('无法加载队列当前歌曲');
+                if (state.position > 0) await this.integrations.setPosition(state.position);
+                if (settings.autoplay) await this.integrations.play();
             } else if (settings.autoplay) {
-                console.log('▶️ App: 仅启用自动播放，播放第一首歌曲');
                 await this.autoplayFirstTrack();
-            } else {
-                console.log('ℹ️ App: 未启用自动播放或记住播放位置');
             }
         } catch (error) {
             console.error('❌ App: 恢复播放状态失败:', error);

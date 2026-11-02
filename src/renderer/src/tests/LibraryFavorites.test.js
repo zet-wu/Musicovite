@@ -113,22 +113,6 @@ describe('LibraryCacheManager 系统收藏', () => {
         });
     });
 
-    it('将旧歌单成员迁移为手动成员', () => {
-        const cache = manager.validateCacheData({
-            playlists: [{
-                id: 'legacy-playlist',
-                name: '旧歌单',
-                description: '',
-                trackIds: ['legacy-favorite'],
-                createdAt: 1,
-                updatedAt: 1
-            }]
-        });
-
-        expect(cache.playlists[0].manualTrackIds).toEqual(['legacy-favorite']);
-        expect(manager.needsPlaylistMembershipMigration()).toBe(true);
-    });
-
     it('区分手动成员与物化成员，并在来源删除时清除引用', () => {
         const playlist = manager.createPlaylist('绑定测试');
         manager.addTrackToPlaylist(playlist.id, 'legacy-favorite');

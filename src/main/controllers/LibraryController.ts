@@ -1060,34 +1060,6 @@ export class LibraryController extends BaseController {
         }
     }
 
-    async migratePlaylistCovers(): Promise<void> {
-        let changed = false;
-        for (const playlist of this.libraryCacheManager.getUserPlaylistsForCoverMigration()) {
-            const legacyPath = playlist.coverImage || playlist.coverImagePath;
-            if (playlist.coverFileName || !legacyPath) {
-                if (playlist.coverImage !== undefined || playlist.coverImagePath !== undefined) {
-                    delete playlist.coverImage;
-                    delete playlist.coverImagePath;
-                    changed = true;
-                }
-                continue;
-            }
-
-            try {
-                const snapshot = await this.playlistCoverStorage.importFile(playlist.id, legacyPath);
-                playlist.coverFileName = snapshot.fileName;
-                console.log(`✅ 已迁移歌单封面快照: ${playlist.name}`);
-            } catch (error) {
-                console.warn(`⚠️ 歌单封面迁移失败，已清空: ${playlist.name}`, error);
-            }
-            delete playlist.coverImage;
-            delete playlist.coverImagePath;
-            playlist.updatedAt = Date.now();
-            changed = true;
-        }
-        if (changed) await this.libraryCacheManager.saveCache();
-    }
-
     private async maybeSetAutomaticPlaylistCover(
         playlistId: string,
         addedTrackIds: string[]
@@ -1144,9 +1116,6 @@ export class LibraryController extends BaseController {
             console.warn(
                 `🧹 已清理 ${removedOrphanBindings.length} 条孤儿歌单绑定，涉及 ${orphanPlaylistCount} 个已丢失歌单`
             );
-        }
-        if (this.libraryCacheManager.needsPlaylistMembershipMigration()) {
-            await this.libraryCacheManager.saveCache();
         }
     }
 

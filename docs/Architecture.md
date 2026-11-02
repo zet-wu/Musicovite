@@ -192,7 +192,9 @@ MusicBox 当前有两类播放实现：
 
 文件夹侧和歌单侧分别使用面向各自上下文的绑定弹窗，但共享同一套绑定、恢复排除和解绑业务语义。文件夹卡片还可复用标准创建歌单弹窗，以文件夹名预填标题；歌单创建成功后调用已有来源绑定命令，由绑定同步生成派生成员。若绑定失败，已创建歌单会保留并向用户报告部分失败，不执行跨缓存文件的自动回滚。设置页只保留自动扫描计划及进入文件夹页面的跳转入口。
 
-收藏以 `music-library-cache.json` 中固定的系统歌单 `system:favorites` 持久化，不包含在用户歌单枚举中；歌曲的 `favorite` 状态由该歌单派生。Renderer 通过 `FavoriteService` 串行修改状态，并订阅 preload 转发的收藏变化事件，使播放器与歌曲页面保持同步。
+音乐库文件 `music-library-cache.json` 使用版本 1，保存当前 `trackIds/manualTrackIds` 歌单成员和封面快照文件名。加载入口验证版本和结构，失败保持原文件并阻止保存；成功保存保留上一版备份。收藏由固定系统歌单 `system:favorites` 持久化，不包含在用户歌单枚举中；歌曲的 `favorite` 状态由该歌单派生。Renderer 通过 `FavoriteService` 串行修改状态，并订阅收藏变化事件。
+
+播放恢复使用保存的 queue 快照确定成员、当前项和模式。音乐库设置由 SettingsController 串行校验和保存，自动扫描调度器通过设置控制器更新扫描时间。损坏设置文件不会被默认设置覆盖。
 
 元数据读取主要依赖 `music-metadata` 等 Node 侧库；写入和复杂处理由 `metadata_editor.py` helper 支持，完整打包时通过 `npm run build:python` 生成平台可执行文件。
 
