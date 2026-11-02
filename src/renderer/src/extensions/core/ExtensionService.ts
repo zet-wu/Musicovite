@@ -372,7 +372,7 @@ class ExtensionService extends Disposable {
 
     private async _loadExtension(manifest: ExtensionManifest): Promise<void> {
         if (manifest.apiVersion !== 2) throw new Error('EXTENSION_UNSUPPORTED_API_VERSION');
-        if (typeof manifest.module !== 'string' || !/^[a-zA-Z_$][\w$]*$/.test(manifest.module)) throw new Error(t('errors:invalidPluginModule'));
+        if (typeof manifest.module !== 'string' || !manifest.module.trim()) throw new Error(t('errors:invalidPluginModule'));
         try {
             const descriptor = new ExtensionDescriptor(manifest);
             this._registry.registerExtension(descriptor);
@@ -479,7 +479,7 @@ class ExtensionService extends Disposable {
     async installExtension(manifest: ExtensionManifest): Promise<string> {
         try {
             if (manifest.apiVersion !== 2) throw new Error('EXTENSION_UNSUPPORTED_API_VERSION');
-            if (typeof manifest.module !== 'string' || !/^[a-zA-Z_$][\w$]*$/.test(manifest.module)) throw new Error(t('errors:invalidPluginModule'));
+            if (typeof manifest.module !== 'string' || !manifest.module.trim()) throw new Error(t('errors:invalidPluginModule'));
             if (!manifest.id || !manifest.name || !manifest.version) {
                 throw new Error(t('audit:incompleteManifest'));
             }

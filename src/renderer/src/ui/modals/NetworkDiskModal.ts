@@ -351,20 +351,26 @@ class NetworkDiskModal extends Component {
             });
         }
 
-        // 监听网络磁盘事件
-        this.networkDriveUnsubscribers.push(networkDriveManagementService.onConnected(async (driveId, config) => {
-            await this.refreshMountedDrivesList();
-            this.emit('driveConnected', driveId, config);
-        }));
+        try {
+            // 监听网络磁盘事件
+            this.networkDriveUnsubscribers.push(networkDriveManagementService.onConnected(async (driveId, config) => {
+                await this.refreshMountedDrivesList();
+                this.emit('driveConnected', driveId, config);
+            }));
 
-        this.networkDriveUnsubscribers.push(networkDriveManagementService.onDisconnected(async (driveId, config) => {
-            await this.refreshMountedDrivesList();
-            this.emit('driveDisconnected', driveId, config);
-        }));
+            this.networkDriveUnsubscribers.push(networkDriveManagementService.onDisconnected(async (driveId, config) => {
+                await this.refreshMountedDrivesList();
+                this.emit('driveDisconnected', driveId, config);
+            }));
 
-        this.networkDriveUnsubscribers.push(networkDriveManagementService.onError((_driveId, error) => {
-            this.showNotification(t('dynamic:driveError', {details: error}), 'error');
-        }));
+            this.networkDriveUnsubscribers.push(networkDriveManagementService.onError((_driveId, error) => {
+                this.showNotification(t('dynamic:driveError', {details: error}), 'error');
+            }));
+        } catch (error) {
+            this.networkDriveUnsubscribers.splice(0).forEach(dispose => dispose());
+            console.warn('⚠️ NetworkDiskModal: 网络磁盘事件订阅失败', error);
+            this.showNotification(t('dynamic:driveError', {details: this.getErrorMessage(error)}), 'error');
+        }
 
         // 初始加载磁盘列表
         this.refreshMountedDrivesList();

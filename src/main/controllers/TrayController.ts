@@ -131,6 +131,7 @@ export class TrayController extends BaseController {
 
     @IpcHandle('tray:getSettings')
     getSettings(): TraySettings {
-        return this.settings;
+        // 图标或托盘创建失败时，窗口不能继续使用“关闭到托盘”。
+        return {...this.settings, enabled: this.settings.enabled && this.tray !== null};
     }
 }

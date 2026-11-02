@@ -249,7 +249,7 @@ export class ExtensionInstaller {
 
     private _validateManifest(manifest: any): void {
         if (manifest.apiVersion !== 2) throw new Error('EXTENSION_UNSUPPORTED_API_VERSION');
-        if (typeof manifest.module !== 'string' || !/^[a-zA-Z_$][\w$]*$/.test(manifest.module)) throw new Error(nativeT('errors:invalidPluginModule'));
+        if (typeof manifest.module !== 'string' || !manifest.module.trim()) throw new Error(nativeT('errors:invalidPluginModule'));
         for (const field of ['id', 'name', 'version', 'main']) {
             if (!manifest[field]) throw new Error(`manifest.json 缺少必需字段: ${field}`);
         }

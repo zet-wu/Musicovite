@@ -16,6 +16,14 @@ function runtime() {
 }
 
 describe('沙箱插件当前模块协议', () => {
+    it('按 manifest 的非标识符属性名找到并激活模块', async () => {
+        const sandbox = runtime();
+        await sandbox.send({type: 'sandbox:init', requestId: 'init', context: {extension: {}}, moduleVarName: '我的插件-module', code: "window['我的插件-module'] = {activate() {return {ready: true};}};"});
+        expect(sandbox.postMessage.mock.calls.at(-1)?.[0]).toMatchObject({success: true});
+        await sandbox.send({type: 'sandbox:activate', requestId: 'activate'});
+        expect(sandbox.postMessage.mock.calls.at(-1)?.[0]).toMatchObject({success: true});
+    });
+
     it.each([
         {moduleVarName: undefined, code: 'window.plugin = {activate() {}};'},
         {moduleVarName: 'plugin', code: 'window.plugin = {default: class {}};'},

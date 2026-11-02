@@ -188,14 +188,25 @@ class Navigation extends Component {
             });
         });
 
-        // 监听网络磁盘事件
-        this.removeNetworkDriveConnectedListener = navigationDataService.onNetworkDriveConnected(async () => {
-            await this.loadNetworkDrives();
-        });
+        this.setupNetworkDriveListeners();
+    }
 
-        this.removeNetworkDriveDisconnectedListener = navigationDataService.onNetworkDriveDisconnected(async () => {
-            await this.loadNetworkDrives();
-        });
+    setupNetworkDriveListeners(): void {
+        try {
+            this.removeNetworkDriveConnectedListener = navigationDataService.onNetworkDriveConnected(async () => {
+                await this.loadNetworkDrives();
+            });
+
+            this.removeNetworkDriveDisconnectedListener = navigationDataService.onNetworkDriveDisconnected(async () => {
+                await this.loadNetworkDrives();
+            });
+        } catch (error) {
+            this.removeNetworkDriveConnectedListener?.();
+            this.removeNetworkDriveDisconnectedListener?.();
+            this.removeNetworkDriveConnectedListener = null;
+            this.removeNetworkDriveDisconnectedListener = null;
+            console.warn('⚠️ Navigation: 网络磁盘事件不可用，其他导航功能继续工作', error);
+        }
     }
 
     updateThemeIcon(): void {

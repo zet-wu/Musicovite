@@ -104,7 +104,7 @@ MusicBox 的新插件系统参考了 VSCode 的扩展系统架构，提供了强
 }
 ```
 
-当前协议为 `apiVersion: 2`。manifest 的 `module` 必须是有效标识符，对应入口脚本中的 `window[module]` 对象。对象必须导出 `activate(context)`，可以导出 `deactivate()`；宿主在停用结束时释放订阅，即使插件的停用函数失败也会执行释放。安装和加载入口校验协议版本。语言、权限、存储和其他公开能力通过 `context.api` 提供。
+当前协议为 `apiVersion: 2`。manifest 的 `module` 必须是非空字符串属性名，对应入口脚本中的 `window[module]` 对象。对象必须导出 `activate(context)`，可以导出 `deactivate()`；宿主在停用结束时释放订阅，即使插件的停用函数失败也会执行释放。安装和加载入口校验协议版本。语言、权限、存储和其他公开能力通过 `context.api` 提供。
 
 ### 主入口文件 (extension.js)
 

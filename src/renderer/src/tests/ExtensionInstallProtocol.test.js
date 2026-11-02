@@ -27,6 +27,11 @@ it('安装当前协议并保持模块声明', async () => {
     expect(manifest).toMatchObject({apiVersion: 2, module: 'testExtension'});
 });
 
+it('模块属性名允许连字符和 Unicode', async () => {
+    const result = await install({module: '我的插件-module'});
+    expect(result.module).toBe('我的插件-module');
+});
+
 it.each([{apiVersion: 1}, {apiVersion: 3}, {module: ''}])('拒绝不支持的协议或缺失模块：%s', async overrides => {
     await expect(install(overrides)).rejects.toThrow();
 });

@@ -28,7 +28,7 @@ Musicovite 是 Electron 本地音乐播放器。主进程管理文件、设备�
 
 BrowserWindow 启用 contextIsolation、webSecurity，关闭 nodeIntegration。调用链为 UI → feature → gateway → preload → main controller。文件访问由主进程领域服务和路径安全工具处理；DialogGateway 专用于文件/目录选择，MediaGateway 提供媒体读取。
 
-音乐库歌单增删 IPC 使用 `addTracksToPlaylist/removeTracksFromPlaylist(playlistId, trackIds[])`。元数据更新使用 `updateTrackMetadata({filePath, ...metadata})`。外部参数在入口校验；内部调用依赖类型和领域约束，读取异常传播到有能力展示或恢复的层。用户取消文件选择是正常空结果，对话框故障是异常。
+音乐库歌单增删 IPC 使用 `addTracksToPlaylist/removeTracksFromPlaylist(playlistId, trackIds[])`。元数据更新使用 `updateTrackMetadata({filePath, ...metadata})`。外部参数在入口校验；内部调用依赖类型和领域约束，读取异常传播到有能力展示或恢复的层。用户取消文件选择是正常空结果，对话框故障是异常。网络事件订阅失败由网络界面局部处理并释放已注册监听；托盘不可用时关闭窗口保持正常退出行为。
 
 `createMusicBoxApp` 显式绑定应用事件总线、播放适配器并同步初始状态，再构造应用。AppCompositionRoot 注入 feature 与 UI 所需端口。订阅、计时器和临时资源随其所属生命周期释放。
 
@@ -52,7 +52,7 @@ AudioEngineManager 组合 Web Audio 与 WASAPI，并管理引擎切换状态。W
 
 ## 插件
 
-插件使用 `apiVersion: 2`，manifest 明确声明 `module`，入口对象导出 `activate(context)` 和可选 `deactivate()`。安装与加载校验版本和模块声明。插件在 sandbox host 中通过权限代理访问 `context.api`；安装路径、存储作用域、请求域名及订阅释放由各责任层管理。
+插件使用 `apiVersion: 2`，manifest 以非空字符串属性名声明 `module`，入口对象导出 `activate(context)` 和可选 `deactivate()`。安装与加载校验版本和模块声明。插件在 sandbox host 中通过权限代理访问 `context.api`；安装路径、存储作用域、请求域名及订阅释放由各责任层管理。
 
 宿主 `appReady` 通知只携带 `{isInitialized}`。内置 theme-enhancer 与四个示例遵循同一协议；应用语言变更通过正式 system API 订阅。详见 [插件指南](../src/renderer/src/extensions/docs/PluginSystemGuide.md)。
 
