@@ -24,7 +24,7 @@ export interface UpdateCheckResult {
 }
 
 class UpdateService {
-    private readonly githubRepo = 'zet-wu/MusicBox';
+    private readonly githubRepo = 'zet-wu/Musicovite';
     private readonly githubApiUrl = `https://api.github.com/repos/${this.githubRepo}/releases/latest`;
     private readonly releasesUrl = `https://github.com/${this.githubRepo}/releases`;
 

@@ -27,7 +27,7 @@ describe('UpdateService', () => {
         await updateService.getLatestRelease();
 
         expect(fetchMock).toHaveBeenCalledWith(
-            'https://api.github.com/repos/zet-wu/MusicBox/releases/latest'
+            'https://api.github.com/repos/zet-wu/Musicovite/releases/latest'
         );
     });
 });
