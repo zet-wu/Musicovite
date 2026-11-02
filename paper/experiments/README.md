@@ -1,8 +1,7 @@
-# MusicBox Benchmark Experiment Protocol
+# Musicovite Benchmark Protocol
 
-This directory contains the benchmark configurations, automation scripts, raw
-data, and derived outputs used to evaluate the MusicBox Electron/Rust boundary
-audio architecture. The protocol is designed for **reproducible measurement**
+This directory contains reusable benchmark configurations. Automation lives in
+`scripts/benchmarks/`; raw data and derived outputs are written to `tmp/benchmarks/`. The protocol is designed for **reproducible measurement**
 rather than confirming a preferred outcome, and supports single-device runs as
 well as multi-device cross-validation experiments.
 
@@ -333,13 +332,13 @@ If you need to re-run them manually:
 
 ```bash
 node scripts/benchmarks/check-benchmark-logs.js \
-  --raw-dir paper/experiments/runs/<batch>/raw \
-  --out-dir paper/experiments/runs/<batch>/tables
+  --raw-dir tmp/benchmarks/runs/<batch>/raw \
+  --out-dir tmp/benchmarks/runs/<batch>/tables
 
 # With --device-name:
 node scripts/benchmarks/check-benchmark-logs.js \
-  --raw-dir paper/experiments/runs/<batch>/<device>/raw \
-  --out-dir paper/experiments/runs/<batch>/<device>/tables
+  --raw-dir tmp/benchmarks/runs/<batch>/<device>/raw \
+  --out-dir tmp/benchmarks/runs/<batch>/<device>/tables
 ```
 
 Scans all `console.log`, `stdout.log`, and `stderr.log` files for fatal patterns
@@ -351,8 +350,8 @@ degradation, retry, warning). Generates `benchmark-log-check.csv` and
 
 ```bash
 node scripts/benchmarks/summarize-benchmark-results.js \
-  --raw-dir paper/experiments/runs/<batch>/raw \
-  --out-dir paper/experiments/runs/<batch>/tables
+  --raw-dir tmp/benchmarks/runs/<batch>/raw \
+  --out-dir tmp/benchmarks/runs/<batch>/tables
 ```
 
 Generates:
@@ -369,8 +368,8 @@ Generates:
 
 ```bash
 node scripts/benchmarks/generate-benchmark-figures.js \
-  --table-dir paper/experiments/runs/<batch>/tables \
-  --out-dir paper/experiments/runs/<batch>/figures
+  --table-dir tmp/benchmarks/runs/<batch>/tables \
+  --out-dir tmp/benchmarks/runs/<batch>/figures
 ```
 
 Reads `benchmark-conditions.csv` and produces publication-quality SVG bar charts
@@ -380,7 +379,7 @@ and line charts (see Section "Generated Figures" below).
 
 ```bash
 node scripts/benchmarks/write-benchmark-quality-report.js \
-  --experiment-dir paper/experiments/runs/<batch>
+  --experiment-dir tmp/benchmarks/runs/<batch>
 ```
 
 Generates `quality-report.md` with:
@@ -396,8 +395,8 @@ Generates `quality-report.md` with:
 
 ```bash
 node scripts/benchmarks/statistical-tests.js \
-  --table-dir paper/experiments/runs/<batch>/tables \
-  --out-dir paper/experiments/runs/<batch>/tables \
+  --table-dir tmp/benchmarks/runs/<batch>/tables \
+  --out-dir tmp/benchmarks/runs/<batch>/tables \
   --alpha 0.05
 ```
 
@@ -425,12 +424,12 @@ under `runs/` and finds batches matching the experiment name:
 ```bash
 # Aggregate a specific experiment across all devices
 node scripts/benchmarks/aggregate-multi-device.js \
-  --runs-dir paper/experiments/runs \
+  --runs-dir tmp/benchmarks/runs \
   --experiment-name paper-main-matrix
 
 # Aggregate all experiments across all devices
 node scripts/benchmarks/aggregate-multi-device.js \
-  --runs-dir paper/experiments/runs
+  --runs-dir tmp/benchmarks/runs
 ```
 
 This script:
@@ -676,12 +675,12 @@ for config in \
   long-stability \
   idle-baseline; do
   node scripts/benchmarks/aggregate-multi-device.js \
-    --runs-dir paper/experiments/runs \
+    --runs-dir tmp/benchmarks/runs \
     --experiment-name "$config"
 done
 
 # 6. Run statistical tests per device batch
-for batch_dir in paper/experiments/runs/*/*/; do
+for batch_dir in tmp/benchmarks/runs/*/*/; do
   node scripts/benchmarks/statistical-tests.js \
     --table-dir "${batch_dir}tables" --out-dir "${batch_dir}tables"
 done

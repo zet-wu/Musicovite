@@ -8,7 +8,7 @@ const {spawn} = require('child_process');
 const {detectAudioDeviceName} = require('./audio-device');
 
 const ROOT = path.resolve(__dirname, '..', '..');
-const DEFAULT_OUT_DIR = path.join(ROOT, 'paper', 'experiments', 'raw');
+const DEFAULT_OUT_DIR = path.join(ROOT, 'tmp', 'benchmarks', 'raw');
 
 function slugify(value, fallback = 'run') {
     const slug = String(value || '')

@@ -8,13 +8,13 @@ const os = require('os');
 const {detectAudioDeviceName} = require('./audio-device');
 
 const ROOT = path.resolve(__dirname, '..', '..');
-const DEFAULT_CONFIG = path.join(ROOT, 'paper', 'experiments', 'benchmark-matrix.example.json');
+const DEFAULT_CONFIG = path.join(ROOT, 'paper', 'experiments', 'benchmark-matrix.sanity.json');
 const RUNNER = path.join(ROOT, 'scripts', 'benchmarks', 'run-electron-benchmark.js');
 const LOG_CHECKER = path.join(ROOT, 'scripts', 'benchmarks', 'check-benchmark-logs.js');
 const SUMMARIZER = path.join(ROOT, 'scripts', 'benchmarks', 'summarize-benchmark-results.js');
 const FIGURE_GENERATOR = path.join(ROOT, 'scripts', 'benchmarks', 'generate-benchmark-figures.js');
 const QUALITY_REPORTER = path.join(ROOT, 'scripts', 'benchmarks', 'write-benchmark-quality-report.js');
-const DEFAULT_RUNS_DIR = path.join(ROOT, 'paper', 'experiments', 'runs');
+const DEFAULT_RUNS_DIR = path.join(ROOT, 'tmp', 'benchmarks', 'runs');
 
 function pickValue(...values) {
     for (const value of values) {

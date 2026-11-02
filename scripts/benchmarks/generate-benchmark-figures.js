@@ -4,8 +4,8 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
-const DEFAULT_TABLE_DIR = path.join(ROOT, 'paper', 'experiments', 'tables');
-const DEFAULT_FIG_DIR = path.join(ROOT, 'paper', 'experiments', 'figures');
+const DEFAULT_TABLE_DIR = path.join(ROOT, 'tmp', 'benchmarks', 'tables');
+const DEFAULT_FIG_DIR = path.join(ROOT, 'tmp', 'benchmarks', 'figures');
 
 const IPC_PAYLOAD_COLUMNS = [
     {key: 'ipc0MeanMs_mean', label: '0 B'},

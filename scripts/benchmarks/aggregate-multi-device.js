@@ -5,7 +5,7 @@ const path = require('path');
 const {spawnSync} = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..', '..');
-const DEFAULT_RUNS_DIR = path.join(ROOT, 'paper', 'experiments', 'runs');
+const DEFAULT_RUNS_DIR = path.join(ROOT, 'tmp', 'benchmarks', 'runs');
 
 function parseArgs(argv) {
     const args = {

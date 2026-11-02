@@ -16,7 +16,7 @@ function parseArgs(argv) {
         if (arg === '--experiment-dir') args.experimentDir = path.resolve(argv[++i]);
         else if (arg === '--out') args.out = path.resolve(argv[++i]);
         else if (arg === '--help' || arg === '-h') {
-            console.log('Usage: node scripts/benchmarks/write-benchmark-quality-report.js --experiment-dir paper/experiments/runs/<batch> [--out report.md]');
+            console.log('Usage: node scripts/benchmarks/write-benchmark-quality-report.js --experiment-dir tmp/benchmarks/runs/<batch> [--out report.md]');
             process.exit(0);
         }
     }

@@ -4,8 +4,8 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
-const DEFAULT_RAW_DIR = path.join(ROOT, 'paper', 'experiments', 'raw');
-const DEFAULT_TABLE_DIR = path.join(ROOT, 'paper', 'experiments', 'tables');
+const DEFAULT_RAW_DIR = path.join(ROOT, 'tmp', 'benchmarks', 'raw');
+const DEFAULT_TABLE_DIR = path.join(ROOT, 'tmp', 'benchmarks', 'tables');
 
 function parseArgs(argv) {
     const args = {
