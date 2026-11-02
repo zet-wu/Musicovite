@@ -6,7 +6,6 @@ import {app, BrowserWindow} from 'electron';
 import {BaseController, Controller, IpcHandle} from '../decorators/IpcHandler';
 
 const DEFAULT_SETTINGS = {
-    musicFolders: [] as string[],
     autoScanEnabled: false,
     scanFrequency: 'on_startup' as string,
     lastScanTime: 0,
@@ -50,34 +49,9 @@ export class SettingsController extends BaseController {
         return this.settings!;
     }
 
-    @IpcHandle('settings:getMusicFolders')
-    async getMusicFolders(): Promise<string[]> {
-        const s = await this.ensureSettings();
-        return s.musicFolders || [];
-    }
-
     async isAutoPlaylistCoverEnabled(): Promise<boolean> {
         const s = await this.ensureSettings();
         return s.autoPlaylistCoverFromFirstTrack === true;
-    }
-
-    @IpcHandle('settings:addMusicFolder')
-    async addMusicFolder(folderPath: string): Promise<{ success: boolean; settings?: Settings }> {
-        const s = await this.ensureSettings();
-        if (!s.musicFolders) s.musicFolders = [];
-        if (!s.musicFolders.includes(folderPath)) {
-            s.musicFolders.push(folderPath);
-            await this.saveSettings(s);
-        }
-        return {success: true, settings: s};
-    }
-
-    @IpcHandle('settings:removeMusicFolder')
-    async removeMusicFolder(folderPath: string): Promise<{ success: boolean; settings?: Settings }> {
-        const s = await this.ensureSettings();
-        s.musicFolders = (s.musicFolders || []).filter(f => f !== folderPath);
-        await this.saveSettings(s);
-        return {success: true, settings: s};
     }
 
     @IpcHandle('settings:getAutoScanSettings')

@@ -20,9 +20,7 @@ interface LibraryScanner {
 }
 
 interface MusicFolderSettingsProvider {
-    getMusicFolders(): Promise<string[]>;
     getAutoScanSettings(): Promise<{
-        musicFolders: string[];
         sourceCount?: number;
         autoScanEnabled: boolean;
         scanFrequency: string;
@@ -164,7 +162,6 @@ export class Application {
             const scheduler = await this.container.get<any>('autoScanScheduler');
             const settingsLoader = async () => {
                 const settings = await this.musicFolderSettingsProvider?.getAutoScanSettings() || {
-                    musicFolders: [],
                     autoScanEnabled: false,
                     scanFrequency: 'on_startup',
                     lastScanTime: 0
@@ -299,13 +296,8 @@ export class Application {
             const libraryCacheManager = await this.container.get<any>('libraryCacheManager');
             await this.libraryScanner?.migratePlaylistCovers();
             const librarySourceManager = await this.container.get<any>('librarySourceManager');
-            const musicFolders = await this.musicFolderSettingsProvider?.getMusicFolders() || [];
-            const sourceLoadResult = await librarySourceManager.loadAndMigrate({
-                musicFolders,
-                scannedDirectories: libraryCacheManager.getScannedDirectories(),
-                tracks: libraryCacheManager.getAllTracks()
-            });
-            if (sourceLoadResult.migrated || libraryCacheManager.needsPlaylistMembershipMigration()) {
+            await librarySourceManager.load();
+            if (libraryCacheManager.needsPlaylistMembershipMigration()) {
                 await libraryCacheManager.saveCache();
             }
             console.log('✅ 音乐库缓存加载完成');
@@ -406,9 +398,8 @@ export class Application {
             libraryCacheManager, metadataHandler, networkDriveManager,
             networkFileAdapter, this.windowManager, embeddedCoverService,
             playlistCoverStorage,
-            parseMetadata, () => settingsController.getMusicFolders(),
+            parseMetadata,
             librarySourceManager,
-            (folderPath: string) => settingsController.removeMusicFolder(folderPath),
             () => settingsController.isAutoPlaylistCoverEnabled(),
             audioController.state
         );

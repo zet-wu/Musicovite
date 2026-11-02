@@ -91,9 +91,7 @@ export class LibraryController extends BaseController {
         private embeddedCoverService: EmbeddedCoverService,
         private playlistCoverStorage: PlaylistCoverStorage,
         private parseMetadata: (filePath: string, adapter?: any, opts?: any) => Promise<TrackMetadata>,
-        private loadMusicFolders: () => Promise<string[]>,
         private librarySourceManager: LibrarySourceManager,
-        private removeMusicFolder: (folderPath: string) => Promise<any>,
         private loadAutoPlaylistCoverSetting: () => Promise<boolean>,
         audioEngineState: any
     ) {
@@ -1135,11 +1133,7 @@ export class LibraryController extends BaseController {
     }
 
     private async ensureLibrarySourcesLoaded(): Promise<void> {
-        const result = await this.librarySourceManager.loadAndMigrate({
-            musicFolders: await this.loadMusicFolders(),
-            scannedDirectories: this.libraryCacheManager.getScannedDirectories(),
-            tracks: this.libraryCacheManager.getAllTracks()
-        });
+        await this.librarySourceManager.load();
         const removedOrphanBindings = await this.librarySourceManager.removeOrphanedPlaylistBindings(
             this.libraryCacheManager.getAllPlaylists().map(playlist => playlist.id)
         );
@@ -1151,7 +1145,7 @@ export class LibraryController extends BaseController {
                 `🧹 已清理 ${removedOrphanBindings.length} 条孤儿歌单绑定，涉及 ${orphanPlaylistCount} 个已丢失歌单`
             );
         }
-        if (result.migrated || this.libraryCacheManager.needsPlaylistMembershipMigration()) {
+        if (this.libraryCacheManager.needsPlaylistMembershipMigration()) {
             await this.libraryCacheManager.saveCache();
         }
     }
@@ -1504,11 +1498,6 @@ export class LibraryController extends BaseController {
                 .map(binding => binding.playlistId);
 
             await this.librarySourceManager.removeSource(sourceId);
-            if (source.type === 'directory') {
-                await this.removeMusicFolder(source.path).catch(error => {
-                    console.warn('⚠️ 移除兼容音乐文件夹设置失败:', error);
-                });
-            }
             const removedTrackCount = this.libraryCacheManager.removeTracksFromIndex(uniqueTrackIds);
             for (const playlistId of Array.from(new Set(affectedPlaylistIds))) {
                 this.recomputePlaylistMembership(playlistId);

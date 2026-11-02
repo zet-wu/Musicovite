@@ -41,7 +41,7 @@ describe('歌单绑定有效性', () => {
 
     it('批量删除孤儿绑定并保留当前歌单绑定', async () => {
         const manager = await createManager();
-        await manager.loadAndMigrate({musicFolders: [], scannedDirectories: [], tracks: []});
+        await manager.load();
         const {source} = await manager.ensureSource('directory', 'C:/Music', 'settings');
         const {binding: active} = await manager.createPlaylistBinding('playlist-new', source.id);
         const {binding: orphan} = await manager.createPlaylistBinding('playlist-lost', source.id);
@@ -52,70 +52,34 @@ describe('歌单绑定有效性', () => {
         expect(manager.getPlaylistBindings().map(binding => binding.id)).toEqual([active.id]);
 
         const reloaded = new LibrarySourceManager(manager.sourceFilePath);
-        await reloaded.loadAndMigrate({musicFolders: [], scannedDirectories: [], tracks: []});
+        await reloaded.load();
         expect(reloaded.getPlaylistBindings().map(binding => binding.id)).toEqual([active.id]);
     });
 });
 
-describe('LibrarySourceManager 旧数据迁移', () => {
-    it('合并目录来源，并把目录外歌曲迁移为精确文件来源', async () => {
+describe('LibrarySourceManager 当前格式', () => {
+    it('首次创建空来源，已登记来源可重启恢复', async () => {
         const manager = await createManager();
-        const musicDirectory = path.resolve('test-files', 'library');
-        const insidePath = path.join(musicDirectory, 'inside.flac');
-        const outsidePath = path.resolve('test-files', 'playlist-only.flac');
-
-        const result = await manager.loadAndMigrate({
-            musicFolders: [musicDirectory],
-            scannedDirectories: [musicDirectory],
-            tracks: [
-                {fileId: 'inside', filePath: insidePath},
-                {fileId: 'outside', filePath: outsidePath}
-            ]
-        });
-
-        expect(result).toMatchObject({
-            migrated: true,
-            sourceCount: 2,
-            directorySourceCount: 1,
-            fileSourceCount: 1
-        });
-        expect(manager.getSources().find(source => source.type === 'file')).toMatchObject({
-            path: outsidePath,
-            knownFiles: [{
-                path: outsidePath,
-                trackId: 'outside'
-            }]
-        });
+        expect(await manager.load()).toMatchObject({state: 'created', sourceCount: 0});
+        const originalPath = path.resolve('test-files', 'original.flac');
+        await manager.ensureSource('file', originalPath, 'file_import');
+        const reloaded = new LibrarySourceManager(manager.sourceFilePath);
+        expect(await reloaded.load()).toMatchObject({state: 'loaded', sourceCount: 1});
+        expect(reloaded.getSources()[0].path).toBe(originalPath);
     });
 
-    it('已有来源文件存在时不重复执行迁移', async () => {
+    it.each(['{broken', '{"version":99}', '{"version":1,"sources":[{}],"playlistBindings":[]}'])('加载失败保留原文件：%s', async raw => {
         const manager = await createManager();
-        const originalPath = path.resolve('test-files', 'original.flac');
-        await manager.loadAndMigrate({
-            musicFolders: [],
-            scannedDirectories: [],
-            tracks: [{fileId: 'original', filePath: originalPath}]
-        });
-
-        const reloaded = new LibrarySourceManager(manager.sourceFilePath);
-        const result = await reloaded.loadAndMigrate({
-            musicFolders: [],
-            scannedDirectories: [],
-            tracks: [{fileId: 'ignored', filePath: path.resolve('test-files', 'ignored.flac')}]
-        });
-
-        expect(result.migrated).toBe(false);
-        expect(reloaded.getSources()).toHaveLength(1);
-        expect(reloaded.getSources()[0].path).toBe(originalPath);
+        await fs.promises.writeFile(manager.sourceFilePath, raw);
+        await expect(manager.load()).rejects.toThrow();
+        await expect(manager.save()).rejects.toThrow('尚未加载');
+        expect(await fs.promises.readFile(manager.sourceFilePath, 'utf8')).toBe(raw);
+        await expect(manager.ensureSource('directory', 'music', 'settings')).rejects.toThrow('尚未加载');
     });
 
     it('幂等登记来源，并以完整扫描结果替换已知文件', async () => {
         const manager = await createManager();
-        await manager.loadAndMigrate({
-            musicFolders: [],
-            scannedDirectories: [],
-            tracks: []
-        });
+        await manager.load();
         const directory = path.resolve('test-files', 'library');
         const first = await manager.ensureSource('directory', directory, 'scan');
         const second = await manager.ensureSource('directory', directory, 'playlist_binding');
@@ -145,7 +109,7 @@ describe('LibrarySourceManager 旧数据迁移', () => {
 
     it('同步绑定成员、记录排除项并支持恢复', async () => {
         const manager = await createManager();
-        await manager.loadAndMigrate({musicFolders: [], scannedDirectories: [], tracks: []});
+        await manager.load();
         const directory = path.resolve('test-files', 'bound');
         const filePath = path.join(directory, 'bound.flac');
         const {source} = await manager.ensureSource('directory', directory, 'playlist_binding');
@@ -170,7 +134,7 @@ describe('LibrarySourceManager 旧数据迁移', () => {
 
     it('移除来源时一并移除绑定，并能识别重叠来源', async () => {
         const manager = await createManager();
-        await manager.loadAndMigrate({musicFolders: [], scannedDirectories: [], tracks: []});
+        await manager.load();
         const parentDirectory = path.resolve('test-files', 'overlap');
         const childDirectory = path.join(parentDirectory, 'child');
         const filePath = path.join(childDirectory, 'track.flac');

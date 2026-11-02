@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {settingsShellService} from '../features/appShell/service/SettingsShellService';
+
 import {libraryDataService} from '../features/library/service/LibraryDataService';
 import {MusicFolderSettingsService} from '../features/settings/service/MusicFolderSettingsService';
 
@@ -8,11 +8,8 @@ describe('MusicFolderSettingsService 来源一致性', () => {
         vi.restoreAllMocks();
     });
 
-    it('添加设置文件夹时同步登记持续来源', async () => {
-        vi.spyOn(settingsShellService, 'addMusicFolder').mockResolvedValue({
-            success: true,
-            settings: {musicFolders: ['C:\\Music']}
-        });
+    it('添加文件夹只登记来源并从来源读取列表', async () => {
+        vi.spyOn(libraryDataService, 'getLibraryDirectoryOverviews').mockResolvedValue([{id: 'source', path: 'C:\\Music', origin: 'settings', createdAt: 0, trackCount: 0, bindings: []}]);
         const register = vi.spyOn(libraryDataService, 'registerLibraryDirectory')
             .mockResolvedValue({success: true});
         const service = new MusicFolderSettingsService();
@@ -26,7 +23,7 @@ describe('MusicFolderSettingsService 来源一致性', () => {
     it('移除设置文件夹时通过来源 API 立即清理索引', async () => {
         const remove = vi.spyOn(libraryDataService, 'removeLibraryDirectory')
             .mockResolvedValue({success: true, removedTrackCount: 2});
-        vi.spyOn(settingsShellService, 'getMusicFolders').mockResolvedValue([]);
+        vi.spyOn(libraryDataService, 'getLibraryDirectoryOverviews').mockResolvedValue([]);
         const service = new MusicFolderSettingsService();
 
         const result = await service.removeMusicFolder('C:\\Music');

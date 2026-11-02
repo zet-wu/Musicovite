@@ -1,4 +1,3 @@
-import {t} from '@/shared/i18n';
 import {settingsShellService} from "@/features/appShell/service/SettingsShellService";
 import {libraryDataService} from "@/features/library/service/LibraryDataService";
 
@@ -30,7 +29,8 @@ export interface MusicFoldersUpdateResult {
 
 export class MusicFolderSettingsService {
     async getMusicFolders(): Promise<string[]> {
-        return settingsShellService.getMusicFolders();
+        const sources = await libraryDataService.getLibraryDirectoryOverviews();
+        return sources.map(source => source.path);
     }
 
     async getAutoScanSettings(): Promise<AutoScanSettingsView> {
@@ -48,19 +48,8 @@ export class MusicFolderSettingsService {
     }
 
     async addMusicFolder(folderPath: string): Promise<MusicFoldersUpdateResult> {
-        const result = await settingsShellService.addMusicFolder(folderPath) as SettingsUpdateResult;
-        if (result.success) {
-            const sourceResult = await libraryDataService.registerLibraryDirectory(folderPath);
-            if (!sourceResult.success) {
-                await settingsShellService.removeMusicFolder(folderPath);
-                return {
-                    success: false,
-                    folders: await this.getMusicFolders(),
-                    error: sourceResult.error || t('messages:couldNotRegisterMusicFolderSource')
-                };
-            }
-        }
-        return this.normalizeFoldersResult(result);
+        const result = await libraryDataService.registerLibraryDirectory(folderPath);
+        return {success: result.success, folders: await this.getMusicFolders(), error: result.error};
     }
 
     async removeMusicFolder(folderPath: string): Promise<MusicFoldersUpdateResult> {
@@ -74,15 +63,13 @@ export class MusicFolderSettingsService {
 
     async updateAutoScanEnabled(enabled: boolean): Promise<SettingsUpdateResult> {
         return settingsShellService.updateAutoScanSettings({
-            autoScanEnabled: enabled,
-            enabled
+            autoScanEnabled: enabled
         }) as Promise<SettingsUpdateResult>;
     }
 
     async updateScanFrequency(frequency: string): Promise<SettingsUpdateResult> {
         return settingsShellService.updateAutoScanSettings({
-            scanFrequency: frequency,
-            frequency
+            scanFrequency: frequency
         }) as Promise<SettingsUpdateResult>;
     }
 
@@ -92,18 +79,11 @@ export class MusicFolderSettingsService {
 
     private normalizeAutoScanSettings(settings: MainSettingsPayload | null | undefined): AutoScanSettingsView {
         return {
-            enabled: Boolean(settings?.autoScanEnabled ?? settings?.enabled ?? false),
-            frequency: String(settings?.scanFrequency ?? settings?.frequency ?? 'on_startup')
+            enabled: Boolean(settings?.autoScanEnabled ?? false),
+            frequency: String(settings?.scanFrequency ?? 'on_startup')
         };
     }
 
-    private normalizeFoldersResult(result: SettingsUpdateResult): MusicFoldersUpdateResult {
-        return {
-            success: result.success,
-            folders: result.settings?.musicFolders || [],
-            error: result.error
-        };
-    }
 }
 
 export const musicFolderSettingsService = new MusicFolderSettingsService();

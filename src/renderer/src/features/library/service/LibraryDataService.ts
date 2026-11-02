@@ -254,11 +254,7 @@ export class LibraryDataService {
     }
 
     async getLibraryDirectoryOverviews(): Promise<LibraryDirectoryOverview[]> {
-        return await this.callGateway(
-            () => libraryGateway.getLibraryDirectoryOverviews(),
-            'library.getLibraryDirectoryOverviews',
-            []
-        );
+        return libraryGateway.getLibraryDirectoryOverviews();
     }
 
     async registerLibraryDirectory(

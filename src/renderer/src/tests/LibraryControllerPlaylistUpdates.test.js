@@ -58,7 +58,7 @@ function createController() {
         excludePlaylistFiles: vi.fn(async () => undefined),
         getPlaylistBindings: vi.fn(() => []),
         getSources: vi.fn(() => []),
-        loadAndMigrate: vi.fn(async () => ({migrated: false})),
+        load: vi.fn(async () => ({state: 'loaded'})),
         removeOrphanedPlaylistBindings: vi.fn(async () => []),
         removePlaylistBindings: vi.fn(async () => undefined)
     };
@@ -72,9 +72,7 @@ function createController() {
         {},
         {remove: vi.fn(async () => undefined)},
         vi.fn(),
-        async () => [],
         librarySourceManager,
-        vi.fn(),
         async () => false,
         {}
     );

@@ -88,7 +88,7 @@ controller 使用 `@Controller`、`@IpcHandle`、`@IpcOn` 装饰器声明 IPC �
 ### services
 
 - `services/library/LibraryCacheManager.ts` 管理可重建的音轨索引、歌单、忽略列表和缓存校验。
-- `services/library/LibrarySourceManager.ts` 管理目录/精确文件来源以及歌单与目录来源的绑定。
+- `services/library/LibrarySourceManager.ts` 使用 `music-library-sources.json` 统一管理目录/精确文件来源以及歌单绑定。设置页直接使用来源服务增删目录；自动扫描偏好由 SettingsController 管理。来源文件仅加载当前版本，首次缺文件建立空来源，格式或版本错误保留原文件并报告失败。保存采用串行队列、临时文件替换及备份。
 - `services/library/CoverCacheStorage.ts` 管理应用专用封面缓存目录、所有权标记和文件清单。
 - `services/library/MetadataHandler.ts` 负责元数据读取/写入相关处理。
 - `services/network/NetworkDriveManager.ts` 和 `NetworkFileAdapter.ts` 抽象 SMB / WebDAV 文件访问。

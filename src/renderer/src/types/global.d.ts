@@ -28,9 +28,6 @@ interface ElectronSettingsAPI {
     set<T = unknown>(key: string, value: T): Promise<boolean>;
     getAll(): Promise<Record<string, unknown>>;
     reset(): Promise<unknown>;
-    getMusicFolders(): Promise<string[]>;
-    addMusicFolder(folderPath: string): Promise<unknown>;
-    removeMusicFolder(folderPath: string): Promise<unknown>;
     getAutoScanSettings(): Promise<unknown>;
     updateAutoScanSettings(settings: unknown): Promise<unknown>;
     updateLastScanTime(timestamp: number): Promise<unknown>;

@@ -211,10 +211,6 @@ export class AppShellService {
         return networkDriveManagementService.onError(handler);
     }
 
-    async getMusicFolders(): Promise<string[]> {
-        return await settingsShellService.getMusicFolders();
-    }
-
     async getAutoScanSettings(): Promise<MainSettingsPayload> {
         return await settingsShellService.getAutoScanSettings();
     }
@@ -229,14 +225,6 @@ export class AppShellService {
 
     async selectFolder(): Promise<FolderSelectionResult> {
         return await settingsShellService.selectFolder();
-    }
-
-    async addMusicFolder(folderPath: string): Promise<SettingsUpdateResult> {
-        return await settingsShellService.addMusicFolder(folderPath);
-    }
-
-    async removeMusicFolder(folderPath: string): Promise<SettingsUpdateResult> {
-        return await settingsShellService.removeMusicFolder(folderPath);
     }
 
     async updateAutoScanSettings(settings: MainSettingsPayload): Promise<SettingsUpdateResult> {

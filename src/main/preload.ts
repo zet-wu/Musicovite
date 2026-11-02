@@ -309,9 +309,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
         reset: () => ipcRenderer.invoke('settings:reset'),
 
         // 音乐文件夹管理
-        getMusicFolders: () => ipcRenderer.invoke('settings:getMusicFolders'),
-        addMusicFolder: (folderPath: string) => ipcRenderer.invoke('settings:addMusicFolder', folderPath),
-        removeMusicFolder: (folderPath: string) => ipcRenderer.invoke('settings:removeMusicFolder', folderPath),
 
         // 自动扫描设置
         getAutoScanSettings: () => ipcRenderer.invoke('settings:getAutoScanSettings'),

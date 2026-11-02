@@ -40,7 +40,7 @@ describe('LibraryController 批量扫描通知', () => {
         const secondDirectory = await createTemporaryDirectory('second');
         const sourceFilePath = path.join(path.dirname(firstDirectory), 'music-library-sources.json');
         const sourceManager = new LibrarySourceManager(sourceFilePath);
-        await sourceManager.loadAndMigrate({musicFolders: [], scannedDirectories: [], tracks: []});
+        await sourceManager.load();
         const {source: firstSource} = await sourceManager.ensureSource('directory', firstDirectory, 'scan');
         await sourceManager.ensureSource('directory', secondDirectory, 'scan');
         await sourceManager.createPlaylistBinding('playlist-1', firstSource.id);
@@ -75,9 +75,7 @@ describe('LibraryController 批量扫描通知', () => {
             {},
             {},
             vi.fn(),
-            async () => [],
             sourceManager,
-            vi.fn(),
             async () => false,
             {}
         );
@@ -101,7 +99,7 @@ function createSourceQueryController({source, tracks}) {
     const sourceManager = {
         getSource: vi.fn(() => source),
         getSources: vi.fn(() => source ? [source] : []),
-        loadAndMigrate: vi.fn(async () => ({migrated: false})),
+        load: vi.fn(async () => ({state: 'loaded'})),
         removeOrphanedPlaylistBindings: vi.fn(async () => [])
     };
     const cacheManager = {
@@ -122,9 +120,7 @@ function createSourceQueryController({source, tracks}) {
         {},
         {},
         vi.fn(),
-        async () => [],
         sourceManager,
-        vi.fn(),
         async () => false,
         {}
     );

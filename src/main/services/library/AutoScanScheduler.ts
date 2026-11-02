@@ -9,7 +9,6 @@ import {app} from 'electron';
 type ScanHandler = () => Promise<void>;
 
 interface ScanSettings {
-    musicFolders: string[];
     sourceCount: number;
     autoScanEnabled: boolean;
     scanFrequency: 'on_startup' | 'daily' | 'weekly' | string;

@@ -27,10 +27,6 @@ export type PathResult = {
 };
 
 export class SettingsShellService {
-    async getMusicFolders(): Promise<string[]> {
-        return await settingsSystemGateway.settings.getMusicFolders();
-    }
-
     async getAutoScanSettings(): Promise<MainSettingsPayload> {
         return await settingsSystemGateway.settings.getAutoScanSettings() as MainSettingsPayload;
     }
@@ -45,14 +41,6 @@ export class SettingsShellService {
 
     async selectFolder(): Promise<FolderSelectionResult> {
         return await settingsSystemGateway.selectFolder();
-    }
-
-    async addMusicFolder(folderPath: string): Promise<SettingsUpdateResult> {
-        return await settingsSystemGateway.settings.addMusicFolder(folderPath) as SettingsUpdateResult;
-    }
-
-    async removeMusicFolder(folderPath: string): Promise<SettingsUpdateResult> {
-        return await settingsSystemGateway.settings.removeMusicFolder(folderPath) as SettingsUpdateResult;
     }
 
     async updateAutoScanSettings(settings: MainSettingsPayload): Promise<SettingsUpdateResult> {
