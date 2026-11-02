@@ -108,7 +108,7 @@ controller 使用 `@Controller`、`@IpcHandle`、`@IpcOn` 装饰器声明 IPC �
 - `networkDrive`、`globalShortcuts`、`systemMediaKeys`、`desktopLyrics`
 - `extensions`、`httpServer`、`benchmark`、`memory`
 
-通用 Node API 已默认关闭。只有设置 `MUSICBOX_ENABLE_LEGACY_NODE_APIS=1` 时，preload 才会暴露有限的兼容 `fs`、`os`、`path` 方法。新代码应使用领域 API 或 `src/renderer/src/infrastructure/electron/*Gateway.ts`，不要重新引入通用文件系统访问。
+preload 按媒体、音乐库、歌词、插件存储等领域暴露 IPC。渲染进程通过 `src/renderer/src/infrastructure/electron/*Gateway.ts` 调用；路径授权与文件操作由对应主进程领域服务负责。
 
 ## 渲染进程结构
 
@@ -219,7 +219,7 @@ MusicBox 当前有两类播放实现：
 - 文件系统、插件安装和扩展文件读取必须在主进程校验路径，复用 `src/main/utils/pathSecurity.ts`。
 - 外部链接通过主进程 `app:openExternal` 打开。
 - 插件安装会阻止 ZIP path traversal，并拒绝覆盖内置插件 ID。
-- 旧通用 `fs/path/os` preload 能力默认关闭，仅用于迁移期兼容。
+- 文件访问通过领域 IPC 执行，主进程负责路径授权。
 
 ## 构建与发布链路
 

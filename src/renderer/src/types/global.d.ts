@@ -133,30 +133,6 @@ interface ElectronAPI {
         }>;
     }
 
-    // 文件系统
-    fs?: {
-        // nodejs fs
-        fs: object;
-
-        // 获取文件信息
-        stat: (filePath: string) => Promise<{
-            size: number
-            mtime: any
-            isFile: boolean
-            isDirectory: boolean
-        }>;
-
-        // 读取文件内容
-        readFile: (filePath: string, encoding: string | null) => Promise<string | []>;
-
-        // 写入文件内容
-        writeFile: (filePath: string, data: string, encoding: string | null) => Promise<boolean>;
-    }
-
-    // nodejs
-    os?: object;
-    path?: object;
-
     // WebAudio音频引擎
     audio: ElectronAudioAPI;
 

@@ -1,47 +1,7 @@
 import {contextBridge, ipcRenderer} from 'electron';
 
-const OS_ALLOWED = [
-    'platform', 'type', 'arch', 'release',
-    'uptime', 'freemem', 'totalmem', 'cpus', 'loadavg', 'endianness'
-];
-const PATH_ALLOWED = [
-    'join', 'resolve', 'normalize', 'basename', 'dirname',
-    'extname', 'isAbsolute', 'relative', 'parse', 'format', 'sep'
-];
-const FS_ALLOWED = [
-    'stat', 'lstat', 'readdir', 'readFile', 'realpath', 'access'
-];
-const ENABLE_LEGACY_NODE_APIS = process.env.MUSICBOX_ENABLE_LEGACY_NODE_APIS === '1';
-
-const osApi: Record<string, (...args: any[]) => Promise<any>> = {};
-const pathApi: Record<string, (...args: any[]) => Promise<any>> = {};
-const fsApi: Record<string, (...args: any[]) => Promise<any>> = {};
-for (const prop of OS_ALLOWED) {
-    osApi[prop] = (...args) => ipcRenderer.invoke('os:call', {prop, args});
-}
-for (const prop of PATH_ALLOWED) {
-    pathApi[prop] = (...args) => ipcRenderer.invoke('path:call', {prop, args});
-}
-for (const prop of FS_ALLOWED) {
-    fsApi[prop] = (...args) => ipcRenderer.invoke('fs:call', {prop, args});
-}
-
-const legacyNodeApis = ENABLE_LEGACY_NODE_APIS
-    ? {
-        // 文件系统API
-        fs: {
-            stat: (filePath: string) => ipcRenderer.invoke('fs:stat', filePath),
-            readFile: (filePath: string, encoding: string) => ipcRenderer.invoke('fs:readFile', filePath, encoding),
-            writeFile: (filePath: string, data: unknown, encoding: string) => ipcRenderer.invoke('fs:writeFile', filePath, data, encoding)
-        },
-        os: osApi,
-        path: pathApi
-    }
-    : {};
-
 // 暴露安全的IPC方法给渲染进程
 contextBridge.exposeInMainWorld('electronAPI', {
-    ...legacyNodeApis,
     locale: {
         getState: () => ipcRenderer.invoke('locale:getState'),
         setPreference: (preference: string) => ipcRenderer.invoke('locale:setPreference', preference),
