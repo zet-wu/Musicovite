@@ -5,7 +5,15 @@ const iconGen = require('icon-gen');
 const root = path.resolve(__dirname, '../build/branding');
 const sizes = [16,20,24,32,40,48,64,96,128,192,256,512,1024];
 const traySizes = [16,20,22,24,32,40,44,48,64];
-const write = (name, data) => { const p=path.join(root,name); fs.mkdirSync(path.dirname(p),{recursive:true}); fs.writeFileSync(p,data); };
+const write = (name, data) => {
+    const p = path.join(root, name);
+    if (name.endsWith('.svg')) data = data.split(/\r?\n/).map(line => line.trimEnd()).join('\n').trimEnd() + '\n';
+    // 相同资源保持原文件，重复导出无需触发文件监听器与重新打包。
+    const bytes = Buffer.from(data);
+    if (fs.existsSync(p) && fs.readFileSync(p).equals(bytes)) return;
+    fs.mkdirSync(path.dirname(p), {recursive: true});
+    fs.writeFileSync(p, bytes);
+};
 const render = (svg,size) => new Resvg(svg,{fitTo:{mode:'width',value:size}}).render().asPng();
 
 // 椭圆孔沿用原稿倾斜，仅为托盘放大，避免小尺寸下消失。

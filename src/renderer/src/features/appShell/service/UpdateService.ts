@@ -23,19 +23,13 @@ export interface UpdateCheckResult {
     hasUpdate: boolean;
 }
 
-interface PackageInfo {
-    version?: string;
-}
-
 class UpdateService {
     private readonly githubRepo = 'zet-wu/MusicBox';
     private readonly githubApiUrl = `https://api.github.com/repos/${this.githubRepo}/releases/latest`;
     private readonly releasesUrl = `https://github.com/${this.githubRepo}/releases`;
 
-    async checkForUpdates(options: {fallbackCurrentVersion?: boolean} = {}): Promise<UpdateCheckResult> {
-        const currentVersion = options.fallbackCurrentVersion
-            ? await this.getCurrentVersionOrEmpty()
-            : await this.getCurrentVersion();
+    async checkForUpdates(): Promise<UpdateCheckResult> {
+        const currentVersion = await this.getCurrentVersion();
         const releaseInfo = await this.getLatestRelease();
         const latestVersion = releaseInfo.tag_name.replace(/^v/, '');
 
@@ -48,22 +42,7 @@ class UpdateService {
     }
 
     async getCurrentVersion(): Promise<string> {
-        const response = await fetch('../../../package.json');
-
-        if (!response.ok) {
-            throw new Error(`读取版本信息失败: ${response.status} ${response.statusText}`);
-        }
-
-        const packageInfo = await response.json() as PackageInfo;
-        return packageInfo.version || '';
-    }
-
-    async getCurrentVersionOrEmpty(): Promise<string> {
-        try {
-            return await this.getCurrentVersion();
-        } catch (_error) {
-            return '';
-        }
+        return systemGateway.getVersion();
     }
 
     async getLatestRelease(): Promise<GitHubRelease> {

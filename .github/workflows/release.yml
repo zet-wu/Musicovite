@@ -4,9 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., v1.0.0)'
+        description: 'Release tag matching package.json (v0.4.0)'
         required: true
         type: string
+        default: v0.4.0
       draft:
         description: 'Create as draft release'
         required: false
@@ -31,6 +32,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Validate release version
+        run: node scripts/check-release-version.cjs
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -94,6 +100,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Validate release version
+        run: node scripts/check-release-version.cjs
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -139,6 +150,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Validate release version
+        run: node scripts/check-release-version.cjs
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

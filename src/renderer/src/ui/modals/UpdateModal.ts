@@ -239,7 +239,7 @@ class UpdateModal extends Component {
             // 显示检查中状态
             this.showCheckingState();
 
-            const result = await updateService.checkForUpdates({fallbackCurrentVersion: true});
+            const result = await updateService.checkForUpdates();
             this.currentVersion = result.currentVersion;
             this.latestVersion = result.latestVersion;
             this.releaseInfo = result.releaseInfo;
