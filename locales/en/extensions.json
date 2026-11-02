@@ -8,7 +8,7 @@
   "allow": "Allow",
   "deny": "Deny",
   "permissionMessage": "Extension \"{{extension}}\" requests permission: {{permission}}\n\nAllow?",
-  "unsupported": "This extension requires the current API contract (apiVersion: 1).",
+  "unsupported": "This extension requires the current API contract (apiVersion: 2).",
   "permissionPLAYER_READ": "Read player state",
   "permissionPLAYER_CONTROL": "Control playback, pause and seeking",
   "permissionPLAYER_QUEUE": "Manage the play queue",

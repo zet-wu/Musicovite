@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 import * as fs from 'fs';
 import * as path from 'path';
 import {app, BrowserWindow} from 'electron';
@@ -29,7 +30,7 @@ export class SettingsController extends BaseController {
             || typeof data.autoScanEnabled !== 'boolean' || typeof data.autoPlaylistCoverFromFirstTrack !== 'boolean'
             || !['on_startup', 'daily', 'weekly'].includes(data.scanFrequency)
             || !Number.isFinite(data.lastScanTime) || data.lastScanTime < 0) {
-            throw new Error('音乐库设置格式无效');
+            throw new Error(nativeT('errors:invalidLibrarySettings'));
         }
         return {...data};
     }
@@ -91,13 +92,13 @@ export class SettingsController extends BaseController {
 
     @IpcHandle('settings:get')
     async get(key: string): Promise<unknown> {
-        if (!Object.hasOwn(DEFAULT_SETTINGS, key)) throw new Error('未知设置项');
+        if (!Object.hasOwn(DEFAULT_SETTINGS, key)) throw new Error(nativeT('errors:unknownSetting'));
         return (await this.ensureSettings())[key as keyof Settings];
     }
 
     @IpcHandle('settings:set')
     async set(key: string, value: unknown): Promise<boolean> {
-        if (!Object.hasOwn(DEFAULT_SETTINGS, key)) throw new Error('未知设置项');
+        if (!Object.hasOwn(DEFAULT_SETTINGS, key)) throw new Error(nativeT('errors:unknownSetting'));
         await this.update({[key]: value});
         return true;
     }

@@ -187,7 +187,7 @@ export class NativeAudioController extends BaseController {
 
     @IpcHandle('native-audio:set-visualization-enabled')
     setVisualizationEnabled(enabled: boolean): void {
-        if (typeof enabled !== 'boolean') throw new Error('可视化开关必须为布尔值');
+        if (typeof enabled !== 'boolean') throw new Error(nativeT('errors:invalidVisualizationFlag'));
         this.engine?.setVisualizationEnabled(enabled);
     }
 

@@ -1,3 +1,4 @@
+import {nativeT} from '../i18n/Translation';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -390,10 +391,10 @@ export class LibrarySourceManager {
 
     private validateData(data: any): LibrarySourceData {
         if (data?.version !== CURRENT_VERSION) {
-            throw new Error('不支持的音乐库来源数据版本: ' + data?.version);
+            throw new Error(nativeT('errors:unsupportedSourceVersion', {version: String(data?.version)}));
         }
         if (!Array.isArray(data.sources) || !Array.isArray(data.playlistBindings)) {
-            throw new Error('音乐库来源数据结构无效');
+            throw new Error(nativeT('errors:invalidSourceData'));
         }
         const sourceIds = new Set<string>();
         const origins = ['settings', 'scan', 'file_import', 'playlist_binding'];
@@ -401,7 +402,7 @@ export class LibrarySourceManager {
             if (!source || typeof source.id !== 'string' || !source.id || sourceIds.has(source.id)
                 || !['directory', 'file'].includes(source.type) || typeof source.path !== 'string' || !source.path
                 || !origins.includes(source.origin) || !Number.isFinite(source.createdAt)) {
-                throw new Error('音乐库来源记录无效');
+                throw new Error(nativeT('errors:invalidSourceRecord'));
             }
             sourceIds.add(source.id);
             return {...source, canonicalPath: this.canonicalize(source.path), knownFiles: this.validateKnownFiles(source.knownFiles)};
@@ -412,7 +413,7 @@ export class LibrarySourceManager {
                 || typeof binding.playlistId !== 'string' || !binding.playlistId || !sourceIds.has(binding.sourceId)
                 || !Number.isFinite(binding.createdAt) || !Array.isArray(binding.excludedPaths)
                 || !binding.excludedPaths.every((value: unknown) => typeof value === 'string')) {
-                throw new Error('歌单来源绑定无效');
+                throw new Error(nativeT('errors:invalidSourceBinding'));
             }
             bindingIds.add(binding.id);
             return {...binding, managedFiles: this.validateKnownFiles(binding.managedFiles), excludedPaths: [...binding.excludedPaths]};
@@ -421,11 +422,11 @@ export class LibrarySourceManager {
     }
 
     private validateKnownFiles(files: any): LibrarySourceKnownFile[] {
-        if (!Array.isArray(files)) throw new Error('来源文件列表无效');
+        if (!Array.isArray(files)) throw new Error(nativeT('errors:invalidSourceFiles'));
         return files.map((file: any) => {
             if (!file || typeof file.path !== 'string' || !file.path
                 || (file.trackId !== undefined && typeof file.trackId !== 'string')) {
-                throw new Error('来源文件记录无效');
+                throw new Error(nativeT('errors:invalidSourceFile'));
             }
             return {path: file.path, canonicalPath: this.canonicalize(file.path), trackId: file.trackId};
         });

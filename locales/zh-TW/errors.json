@@ -71,5 +71,20 @@
   "networkDriveIsNotConnected": "網路磁碟未連線",
   "fileDoesNotExist": "檔案不存在",
   "windowIsUnavailableOrAlreadyMaximized": "視窗不可用或已最大化",
-  "windowUnavailable": "視窗不可用"
+  "windowUnavailable": "視窗不可用",
+  "invalidLibraryData": "音樂庫資料結構無效",
+  "unsupportedLibraryVersion": "不支援的音樂庫資料版本",
+  "invalidLibraryTrack": "歌曲記錄無效",
+  "invalidLibraryPlaylist": "播放清單記錄不符合目前格式",
+  "invalidLibraryStats": "音樂庫統計資料無效",
+  "invalidLibrarySettings": "音樂庫設定格式無效",
+  "unknownSetting": "未知設定項目",
+  "invalidSourceData": "音樂庫來源資料結構無效",
+  "invalidSourceRecord": "音樂庫來源記錄無效",
+  "invalidSourceBinding": "播放清單來源綁定無效",
+  "invalidSourceFiles": "來源檔案清單無效",
+  "invalidSourceFile": "來源檔案記錄無效",
+  "invalidPluginModule": "外掛 manifest 必須宣告有效的 module",
+  "invalidVisualizationFlag": "視覺化開關必須為布林值",
+  "unsupportedSourceVersion": "不支援的音樂庫來源資料版本：{{version}}"
 }

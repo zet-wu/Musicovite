@@ -20,20 +20,6 @@ export type PlaybackEventName =
 export type PlaybackEventHandler<K extends PlaybackEventName> = (payload: MusicBoxAPIEvents[K]) => void;
 
 export interface PlaybackRuntimePort {
-    /** @deprecated Use getPlaybackRuntimeSnapshot() for state reads. */
-    currentTrack: Track | null;
-    /** @deprecated Use getPlaybackRuntimeSnapshot() for state reads. */
-    currentIndex: number;
-    /** @deprecated Use getPlaybackRuntimeSnapshot() for state reads. */
-    playlist: Track[];
-    /** @deprecated Use getPlaybackRuntimeSnapshot() for state reads. */
-    isPlaying: boolean;
-    /** @deprecated Use getPlaybackRuntimeSnapshot() for state reads. */
-    position: number;
-    /** @deprecated Use getPlaybackRuntimeSnapshot() for state reads. */
-    duration: number;
-    /** @deprecated Use getPlaybackRuntimeSnapshot() for state reads. */
-    volume: number;
     audioEngine: AudioEngineManagerBridge | null;
     getPlaybackRuntimeSnapshot(): Readonly<PlaybackRuntimeStateSnapshot>;
     play(): Promise<boolean>;

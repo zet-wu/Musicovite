@@ -7,7 +7,7 @@ type ScanHandler = () => Promise<void>;
 interface ScanSettings {
     sourceCount: number;
     autoScanEnabled: boolean;
-    scanFrequency: 'on_startup' | 'daily' | 'weekly' | string;
+    scanFrequency: 'on_startup' | 'daily' | 'weekly';
     lastScanTime: number;
 }
 

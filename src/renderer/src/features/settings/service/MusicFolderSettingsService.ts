@@ -7,11 +7,8 @@ export interface AutoScanSettingsView {
 }
 
 interface MainSettingsPayload {
-    musicFolders?: string[];
     autoScanEnabled?: boolean;
-    enabled?: boolean;
     scanFrequency?: string;
-    frequency?: string;
     [key: string]: unknown;
 }
 

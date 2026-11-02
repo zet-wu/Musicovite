@@ -71,5 +71,20 @@
   "networkDriveIsNotConnected": "网络磁盘未连接",
   "fileDoesNotExist": "文件不存在",
   "windowIsUnavailableOrAlreadyMaximized": "窗口不可用或已最大化",
-  "windowUnavailable": "窗口不可用"
+  "windowUnavailable": "窗口不可用",
+  "invalidLibraryData": "音乐库数据结构无效",
+  "unsupportedLibraryVersion": "不支持的音乐库数据版本",
+  "invalidLibraryTrack": "歌曲记录无效",
+  "invalidLibraryPlaylist": "歌单记录不是有效的当前格式",
+  "invalidLibraryStats": "音乐库统计数据无效",
+  "invalidLibrarySettings": "音乐库设置格式无效",
+  "unknownSetting": "未知设置项",
+  "invalidSourceData": "音乐库来源数据结构无效",
+  "invalidSourceRecord": "音乐库来源记录无效",
+  "invalidSourceBinding": "歌单来源绑定无效",
+  "invalidSourceFiles": "来源文件列表无效",
+  "invalidSourceFile": "来源文件记录无效",
+  "invalidPluginModule": "插件 manifest 必须声明有效的 module",
+  "invalidVisualizationFlag": "可视化开关必须为布尔值",
+  "unsupportedSourceVersion": "不支持的音乐库来源数据版本：{{version}}"
 }

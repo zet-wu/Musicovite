@@ -1,3 +1,4 @@
+import {readPlaybackSnapshot, savePlaybackSnapshot} from '../service/SavedPlaybackState';
 import {t} from '@/shared/i18n';
 import {cacheManager} from "@/shared/cache";
 import {isSameTrack} from '@/features/playback/domain';
@@ -151,11 +152,9 @@ export class PlaybackAppController {
     async restorePlaybackState(): Promise<void> {
         try {
             const settings = (cacheManager.getLocalCache('musicbox-settings') || {}) as MusicBoxSettings;
-            const state = cacheManager.getLocalCache('playback-state') as PlaybackStateSnapshot | null;
-            if (settings.rememberPosition && state) {
-                if (!state.queue || !Array.isArray(state.queue.entries)) {
-                    throw new Error('保存的播放状态缺少当前队列快照');
-                }
+            const saved = cacheManager.getLocalCache('playback-state');
+            if (settings.rememberPosition && saved) {
+                const state = readPlaybackSnapshot(saved);
                 const restored = await this.integrations.restorePlaybackQueue(state.queue);
                 if (!restored) throw new Error('无法恢复播放队列');
                 const track = state.queue.entries.find(entry => entry.queueId === state.queue?.currentQueueId)?.track;
@@ -192,7 +191,7 @@ export class PlaybackAppController {
 
         if (settings.rememberPosition) {
             const playbackState: PlaybackStateSnapshot = this.integrations.getPlaybackSnapshot();
-            cacheManager.setLocalCache('playback-state', playbackState);
+            cacheManager.setLocalCache('playback-state', savePlaybackSnapshot(playbackState));
         }
     }
 

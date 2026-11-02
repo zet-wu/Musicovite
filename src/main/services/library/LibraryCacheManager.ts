@@ -1,3 +1,4 @@
+import {nativeT} from '../i18n/Translation';
 /**
  * 音乐库缓存管理器
  */
@@ -188,15 +189,15 @@ export class LibraryCacheManager {
     }
 
     private validateCacheData(data: any): CacheData {
-        if (data?.version !== 1) throw new Error('不支持的音乐库数据版本');
+        if (data?.version !== 1) throw new Error(nativeT('errors:unsupportedLibraryVersion'));
         if (!Array.isArray(data.tracks) || !Array.isArray(data.playlists)
             || !Array.isArray(data.scannedDirectories) || !Array.isArray(data.ignoredFiles)
             || !data.scannedDirectories.every((p: unknown) => typeof p === 'string')
             || !data.ignoredFiles.every((p: unknown) => typeof p === 'string')
-            || !Number.isFinite(data.lastUpdated) || !data.statistics) throw new Error('音乐库数据结构无效');
+            || !Number.isFinite(data.lastUpdated) || !data.statistics) throw new Error(nativeT('errors:invalidLibraryData'));
         for (const track of data.tracks) {
             if (!track || typeof track.fileId !== 'string' || !track.fileId
-                || typeof track.filePath !== 'string' || !track.filePath) throw new Error('歌曲记录无效');
+                || typeof track.filePath !== 'string' || !track.filePath) throw new Error(nativeT('errors:invalidLibraryTrack'));
         }
         const ids = new Set<string>();
         for (const playlist of data.playlists) {
@@ -207,12 +208,12 @@ export class LibraryCacheManager {
                 || !Number.isFinite(playlist.createdAt) || !Number.isFinite(playlist.updatedAt)
                 || (playlist.systemType !== undefined && (playlist.systemType !== 'favorites' || playlist.id !== FAVORITES_PLAYLIST_ID))
                 || 'tracks' in playlist || 'coverImagePath' in playlist || 'coverImage' in playlist) {
-                throw new Error('歌单记录不是有效的当前格式');
+                throw new Error(nativeT('errors:invalidLibraryPlaylist'));
             }
             ids.add(playlist.id);
         }
         for (const key of ['totalTracks', 'totalSize', 'totalPlaylists', 'lastScanTime', 'scanDuration']) {
-            if (!Number.isFinite(data.statistics[key])) throw new Error('音乐库统计数据无效');
+            if (!Number.isFinite(data.statistics[key])) throw new Error(nativeT('errors:invalidLibraryStats'));
         }
         return data as CacheData;
     }

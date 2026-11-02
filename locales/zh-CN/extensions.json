@@ -8,7 +8,7 @@
   "allow": "允许",
   "deny": "拒绝",
   "permissionMessage": "扩展 \"{{extension}}\" 请求权限：{{permission}}\n\n是否允许？",
-  "unsupported": "插件不符合当前 API 协议，需要 apiVersion: 1",
+  "unsupported": "插件不符合当前 API 协议，需要 apiVersion: 2",
   "permissionPLAYER_READ": "读取播放器状态",
   "permissionPLAYER_CONTROL": "控制播放器（播放、暂停、跳转等）",
   "permissionPLAYER_QUEUE": "管理播放队列",

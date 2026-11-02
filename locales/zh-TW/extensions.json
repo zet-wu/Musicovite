@@ -8,7 +8,7 @@
   "allow": "允許",
   "deny": "拒絕",
   "permissionMessage": "擴充套件 \"{{extension}}\" 請求許可權：{{permission}}\n\n是否允許？",
-  "unsupported": "外掛不符合當前 API 協議，需要 apiVersion: 1",
+  "unsupported": "外掛不符合當前 API 協議，需要 apiVersion: 2",
   "permissionPLAYER_READ": "讀取播放器狀態",
   "permissionPLAYER_CONTROL": "控制播放器（播放、暫停、跳轉等）",
   "permissionPLAYER_QUEUE": "管理播放佇列",

@@ -100,7 +100,7 @@ describe('FolderSourcesPage 主从生命周期', () => {
         page.destroy();
     });
 
-    it('详情加载态只写 detailRoot 并保留列表 DOM', async () => {
+    it('详情完成加载后将来源和歌曲交给详情组件', async () => {
         const {FolderSourcesPage} = await import('../ui/pages/FolderSourcesPage');
         const page = new FolderSourcesPage(
             new FakeElement() as unknown as HTMLElement,
@@ -112,9 +112,8 @@ describe('FolderSourcesPage 主从生命周期', () => {
 
         await internals.showSourceDetail(source);
 
-        expect(internals.listRoot.innerHTML).toBe('<div>稳定列表</div>');
-        expect(internals.detailRoot.innerHTML).toContain('folder-source-detail-loading');
-        expect(internals.masterDetailHost.getLocation().kind).toBe('detail');
+        expect(sourceMocks.getTracks).toHaveBeenCalledWith(source.id);
+        expect(internals.trackCollectionDetail.show).toHaveBeenCalledWith(expect.objectContaining({identity: source.id, tracks: []}));
         page.destroy();
     });
 });

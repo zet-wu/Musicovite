@@ -1,3 +1,4 @@
+import {savePlaybackSnapshot, type SavedPlaybackState} from './SavedPlaybackState';
 import {cacheManager} from '@/shared/cache';
 import type {PlaybackStateSnapshot} from '@api/types/playback';
 import type {MusicBoxSettings} from '@api/types/settings';
@@ -19,13 +20,8 @@ export class PlaybackPersistence {
         return !!settings.rememberPosition;
     }
 
-    createPlaybackState(position?: number): PlaybackStateSnapshot {
-        const state = this.getPlaybackState();
-        return {
-            ...state,
-            position: position ?? state.position,
-            timestamp: Date.now()
-        };
+    createPlaybackState(position?: number): SavedPlaybackState {
+        return savePlaybackSnapshot(this.getPlaybackState(), position);
     }
 
     throttledSavePosition(position: number): void {
@@ -52,18 +48,9 @@ export class PlaybackPersistence {
         try {
             const playbackState = this.createPlaybackState();
 
-            console.log('💾 API: 保存播放状态:', {
-                hasTrack: !!playbackState.currentTrack,
-                trackTitle: playbackState.currentTrack?.title,
-                position: playbackState.position,
-                isPlaying: playbackState.isPlaying,
-                playlistLength: playbackState.playlist.length,
-                currentIndex: playbackState.currentIndex,
-                playMode: playbackState.playMode
-            });
 
             cacheManager.setLocalCache('playback-state', playbackState);
-            console.log('✅ API: 播放状态已保存（包含播放列表）');
+            console.log('✅ API: 播放队列快照已保存');
         } catch (error) {
             console.error('❌ API: 保存播放状态失败:', error);
         }

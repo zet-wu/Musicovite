@@ -190,7 +190,7 @@ export interface LibrarySource {
     type: 'directory' | 'file';
     path: string;
     canonicalPath: string;
-    origin: 'settings' | 'scan' | 'file_import' | 'playlist_binding' | 'migration';
+    origin: 'settings' | 'scan' | 'file_import' | 'playlist_binding';
     knownFiles: LibrarySourceKnownFile[];
     createdAt: number;
     lastScanAt?: number;

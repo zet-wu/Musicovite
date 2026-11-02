@@ -71,5 +71,20 @@
   "networkDriveIsNotConnected": "Network drive is not connected",
   "fileDoesNotExist": "File does not exist",
   "windowIsUnavailableOrAlreadyMaximized": "Window is unavailable or already maximized",
-  "windowUnavailable": "Window unavailable"
+  "windowUnavailable": "Window unavailable",
+  "invalidLibraryData": "Invalid library data structure",
+  "unsupportedLibraryVersion": "Unsupported library data version",
+  "invalidLibraryTrack": "Invalid track record",
+  "invalidLibraryPlaylist": "Invalid current playlist format",
+  "invalidLibraryStats": "Invalid library statistics",
+  "invalidLibrarySettings": "Invalid library settings format",
+  "unknownSetting": "Unknown setting",
+  "invalidSourceData": "Invalid library source data",
+  "invalidSourceRecord": "Invalid library source record",
+  "invalidSourceBinding": "Invalid playlist source binding",
+  "invalidSourceFiles": "Invalid source file list",
+  "invalidSourceFile": "Invalid source file record",
+  "invalidPluginModule": "The extension manifest must declare a valid module",
+  "invalidVisualizationFlag": "The visualization flag must be boolean",
+  "unsupportedSourceVersion": "Unsupported source data version: {{version}}"
 }

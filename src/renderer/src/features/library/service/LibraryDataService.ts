@@ -61,7 +61,7 @@ export class LibraryDataService {
     }
 
     async searchLibrary(query: string): Promise<Track[]> {
-        this.assertString(query, 'query');
+
 
         return await libraryGateway.search(query);
     }
@@ -351,26 +351,20 @@ export class LibraryDataService {
             .slice(0, limit);
     }
 
-    private assertString(value: unknown, paramName: string): asserts value is string {
-        if (typeof value !== 'string') {
-            throw new LibraryInputError(paramName, 'string', value);
-        }
-    }
+    private assertNonEmptyString(value: string, paramName: string): void {
 
-    private assertNonEmptyString(value: unknown, paramName: string): asserts value is string {
-        this.assertString(value, paramName);
         if (value.trim().length === 0) {
             throw new LibraryInputError(paramName, 'non-empty string', value);
         }
     }
 
-    private assertNumber(value: unknown, paramName: string): asserts value is number {
-        if (typeof value !== 'number' || Number.isNaN(value)) {
+    private assertNumber(value: number, paramName: string): void {
+        if (!Number.isFinite(value)) {
             throw new LibraryInputError(paramName, 'valid number', value);
         }
     }
 
-    private assertFilePath(value: unknown, paramName: string): asserts value is string {
+    private assertFilePath(value: string, paramName: string): void {
         this.assertNonEmptyString(value, paramName);
         if (value.includes('\0')) {
             throw new LibraryInputError(paramName, 'valid file path', value);
