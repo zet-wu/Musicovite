@@ -3,9 +3,7 @@ export {
     audioFileReaderService,
     MediaFileDialogService,
     mediaFileDialogService,
-    MediaFileSystemService,
-    mediaFileSystemService,
     MediaImageSelectionService,
     mediaImageSelectionService
 } from './service';
-export type {FileStatResult, OpenDialogResult, OpenFileResult, SaveFileResult, SelectedImageDataResult} from './service';
+export type {OpenDialogResult, OpenFileResult, SaveFileResult, SelectedImageDataResult} from './service';

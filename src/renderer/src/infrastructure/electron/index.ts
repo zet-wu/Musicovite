@@ -4,7 +4,7 @@ export {globalShortcutsGateway} from './GlobalShortcutsGateway';
 export {systemMediaKeysGateway} from './SystemMediaKeysGateway';
 export {networkDriveGateway} from './NetworkDriveGateway';
 export {mediaGateway} from './MediaGateway';
-export {fileGateway} from './FileGateway';
+export {dialogGateway} from './DialogGateway';
 export {extensionsGateway} from './ExtensionsGateway';
 export {settingsSystemGateway} from './SettingsSystemGateway';
 export {lyricsGateway} from './LyricsGateway';

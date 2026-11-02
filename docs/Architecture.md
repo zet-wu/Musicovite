@@ -108,7 +108,7 @@ controller 使用 `@Controller`、`@IpcHandle`、`@IpcOn` 装饰器声明 IPC �
 - `networkDrive`、`globalShortcuts`、`systemMediaKeys`、`desktopLyrics`
 - `extensions`、`httpServer`、`benchmark`、`memory`
 
-preload 按媒体、音乐库、歌词、插件存储等领域暴露 IPC。渲染进程通过 `src/renderer/src/infrastructure/electron/*Gateway.ts` 调用；路径授权与文件操作由对应主进程领域服务负责。
+preload 按媒体、音乐库、歌词、插件存储等领域暴露 IPC。渲染进程通过 `src/renderer/src/infrastructure/electron/*Gateway.ts` 调用；路径授权与文件操作由对应主进程领域服务负责。文件与目录选择通过 `DialogGateway` 调用对话框 IPC，音频读取通过 `MediaGateway` 完成。
 
 ## 渲染进程结构
 

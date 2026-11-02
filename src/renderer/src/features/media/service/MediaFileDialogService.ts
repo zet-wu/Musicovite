@@ -1,5 +1,5 @@
 import type {DirectoryResult, ImageFileResult} from '@api/types/file';
-import {fileGateway} from '@/infrastructure/electron';
+import {dialogGateway} from '@/infrastructure/electron';
 
 export type OpenDialogResult = {
     canceled: boolean;
@@ -22,7 +22,7 @@ export type SaveFileResult = {
 
 export class MediaFileDialogService {
     async openDirectory(): Promise<string | null> {
-        return await this.wrapFileOperation(() => fileGateway.openDirectory(), null);
+        return await this.wrapFileOperation(() => dialogGateway.openDirectory(), null);
     }
 
     async openDirectoryDialog(): Promise<string | null> {
@@ -30,16 +30,16 @@ export class MediaFileDialogService {
     }
 
     async openDirectories(): Promise<string[]> {
-        return await this.wrapFileOperation(() => fileGateway.openDirectories(), []);
+        return await this.wrapFileOperation(() => dialogGateway.openDirectories(), []);
     }
 
     async openFiles(): Promise<string[]> {
-        return await this.wrapFileOperation(() => fileGateway.openFiles(), []);
+        return await this.wrapFileOperation(() => dialogGateway.openFiles(), []);
     }
 
     async selectMusicFolder(): Promise<DirectoryResult> {
         try {
-            const result = await fileGateway.selectFolder();
+            const result = await dialogGateway.selectFolder();
             if (result && result.filePaths && result.filePaths.length > 0 && !result.canceled) {
                 return {path: result.filePaths[0], success: true};
             }
@@ -52,7 +52,7 @@ export class MediaFileDialogService {
 
     async selectImageFile(): Promise<ImageFileResult> {
         try {
-            const imagePath = await fileGateway.openImageFile();
+            const imagePath = await dialogGateway.openImageFile();
             if (imagePath) {
                 return {path: imagePath, success: true};
             }
@@ -65,21 +65,21 @@ export class MediaFileDialogService {
 
     async showOpenDialog(options: Record<string, unknown>): Promise<OpenDialogResult> {
         return await this.wrapFileOperation(
-            () => fileGateway.showOpenDialog(options),
+            () => dialogGateway.showOpenDialog(options),
             {canceled: true, filePaths: []}
         );
     }
 
     async openFile(options: Record<string, unknown>): Promise<OpenFileResult> {
         return await this.wrapFileOperation(
-            () => fileGateway.openFile(options),
+            () => dialogGateway.openFile(options),
             {success: false, filePaths: [], canceled: true}
         );
     }
 
     async saveFile(options: Record<string, unknown>): Promise<SaveFileResult> {
         return await this.wrapFileOperation(
-            () => fileGateway.saveFile(options),
+            () => dialogGateway.saveFile(options),
             {success: false, canceled: true}
         );
     }
