@@ -50,9 +50,9 @@ setInterval(async () => {
             const app = document.getElementById('app');
             const error = document.querySelector('#loading .error-message');
             return {
-                ready: !!app && getComputedStyle(app).display !== 'none' && !!document.querySelector('.musicovite-home'),
+                ready: !!app && getComputedStyle(app).display !== 'none' && !!document.querySelector('[data-home-page]'),
                 error: error?.textContent || null,
-                homeText: document.querySelector('.musicovite-home')?.textContent || null
+                homeText: document.querySelector('[data-home-page]')?.textContent || null
             };
         })()`);
         if (state.error) finish(false, state);

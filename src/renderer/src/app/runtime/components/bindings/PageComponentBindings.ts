@@ -18,15 +18,7 @@ export class PageComponentBindings {
             return;
         }
 
-        const {app, components, content} = this.context;
-
-        components.homePage.on('trackPlayed', async (track: Track, index: number, tracks: Track[]) => {
-            await app.handleTrackPlayed(track, index, tracks);
-        });
-
-        components.homePage.on('viewChange', (view: AppView) => {
-            content.navigateToView(view);
-        });
+        const {components} = this.context;
 
 
         if (components.recentPage) {
