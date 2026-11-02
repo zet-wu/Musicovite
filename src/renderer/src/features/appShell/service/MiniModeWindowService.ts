@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {cacheManager} from '@/shared/cache';
 import {windowShellService} from './WindowShellService';
 
@@ -49,7 +50,7 @@ export class MiniModeWindowService {
         });
 
         if (!result.success) {
-            throw new Error(result.error || '设置迷你模式窗口状态失败');
+            throw new Error(result.error || t('audit:miniWindowFailed'));
         }
 
         this.active = true;
@@ -69,7 +70,7 @@ export class MiniModeWindowService {
         });
 
         if (!restoreResult.success) {
-            throw new Error(restoreResult.error || '恢复主窗口状态失败');
+            throw new Error(restoreResult.error || t('audit:restoreWindowFailed'));
         }
     }
 

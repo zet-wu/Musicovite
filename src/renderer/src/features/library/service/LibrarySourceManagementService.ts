@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import type {LibraryDirectoryOverview} from '@api/types/electron';
 import type {Track} from '@api/types/track';
 import type {Unsubscribe} from '@api/types/common';
@@ -24,7 +26,7 @@ export class LibrarySourceManagementService {
         const paths = await mediaFileDialogService.openDirectories();
         if (paths.length === 0) return false;
 
-        appNotificationService.showInfo(`正在添加并扫描 ${paths.length} 个文件夹...`);
+        appNotificationService.showInfo(t('dynamic:addingFolders', {count: paths.length}));
         let successCount = 0;
         const failedPaths: string[] = [];
         for (const directoryPath of paths) {
@@ -36,49 +38,49 @@ export class LibrarySourceManagementService {
         }
 
         if (failedPaths.length === 0) {
-            appNotificationService.showSuccess(`已添加并扫描 ${successCount} 个文件夹`);
+            appNotificationService.showSuccess(t('dynamic:foldersAddedScanned', {count: successCount}));
         } else if (successCount > 0) {
-            appNotificationService.showError(`已添加 ${successCount} 个文件夹，${failedPaths.length} 个扫描失败`);
+            appNotificationService.showError(t('dynamic:foldersAddedWithFailures', {added: successCount, failed: failedPaths.length}));
         } else {
-            appNotificationService.showError('添加文件夹失败，请检查目录是否可访问');
+            appNotificationService.showError(t('messages:couldNotAddFolderCheckWhetherItIsAccessible'));
         }
         return successCount > 0;
     }
 
     async rescan(source: LibraryDirectoryOverview): Promise<boolean> {
-        appNotificationService.showInfo(`正在扫描 ${this.getDisplayName(source.path)}...`);
+        appNotificationService.showInfo(t('dynamic:scanningFolder', {name: this.getDisplayName(source.path)}));
         const result = await libraryDataService.rescanLibrarySource(source.id);
         if (!result.success) {
-            appNotificationService.showError(result.error || '重新扫描文件夹失败');
+            appNotificationService.showError(result.error || t('messages:couldNotRescanFolder'));
             return false;
         }
-        appNotificationService.showSuccess('文件夹扫描完成');
+        appNotificationService.showSuccess(t('messages:folderScanComplete'));
         return true;
     }
 
     async remove(source: LibraryDirectoryOverview): Promise<boolean> {
         const confirmed = await appConfirmationService.confirm({
-            title: '移除音乐源',
-            message: `确定要移除此音乐文件夹吗？\n\n${source.path}\n\n将同时解除 ${source.bindings.length} 个歌单绑定，并移除仅由此来源覆盖的索引歌曲。原始音频文件不会被删除。`,
-            confirmText: '移除',
-            cancelText: '取消',
+            title: t('messages:removeMusicSource'),
+            message: t('dynamic:removeSourceConfirm', {path: source.path, count: source.bindings.length}),
+            confirmText: t('messages:remove'),
+            cancelText: t('app:cancel'),
             type: 'warning'
         });
         if (!confirmed) return false;
 
         const result = await libraryDataService.removeLibrarySource(source.id);
         if (!result.success) {
-            appNotificationService.showError(result.error || '移除音乐源失败');
+            appNotificationService.showError(result.error || t('messages:couldNotRemoveMusicSource'));
             return false;
         }
-        appNotificationService.showSuccess(`音乐源已移除，共清理 ${result.removedTrackCount || 0} 首索引歌曲`);
+        appNotificationService.showSuccess(t('dynamic:sourceRemoved', {count: result.removedTrackCount || 0}));
         return true;
     }
 
     async open(source: LibraryDirectoryOverview): Promise<boolean> {
         const result = await systemGateway.openPath(source.path);
         if (!result.success) {
-            appNotificationService.showError(result.error || '无法打开文件夹');
+            appNotificationService.showError(result.error || t('messages:couldNotOpenFolder'));
             return false;
         }
         return true;
@@ -87,10 +89,10 @@ export class LibrarySourceManagementService {
     async bindToPlaylist(sourceId: string, playlistId: string): Promise<boolean> {
         const result = await libraryDataService.bindLibrarySourceToPlaylist(playlistId, sourceId);
         if (!result.success) {
-            appNotificationService.showError(result.error || '绑定歌单失败');
+            appNotificationService.showError(result.error || t('messages:couldNotBindPlaylist'));
             return false;
         }
-        appNotificationService.showSuccess('文件夹已绑定到歌单');
+        appNotificationService.showSuccess(t('messages:folderBoundToPlaylist'));
         return true;
     }
 

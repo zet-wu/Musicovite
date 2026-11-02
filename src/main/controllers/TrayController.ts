@@ -1,3 +1,5 @@
+import {localeService} from './LocaleController';
+import {nativeT} from '../services/i18n/Translation';
 // 系统托盘控制器
 
 import * as fs from 'fs';
@@ -15,6 +17,9 @@ interface TraySettings {
 @Controller('tray')
 export class TrayController extends BaseController {
     private tray: Tray | null = null;
+    private disposeLocale = localeService.subscribe(() => this.updateTrayMenu());
+
+    override unregister(): void { this.disposeLocale(); super.unregister(); }
     private settings: TraySettings = {enabled: true, closeToTray: false, startMinimized: false};
     private settingsFilePath: string;
 
@@ -47,10 +52,10 @@ export class TrayController extends BaseController {
         if (!this.tray) return;
         const menu = Menu.buildFromTemplate([
             {type: 'separator'},
-            {label: '显示主窗口', click: () => this.showMainWindow()},
+            {label: nativeT('native:showWindow'), click: () => this.showMainWindow()},
             {type: 'separator'},
             {
-                label: '退出', click: () => {
+                label: nativeT('native:quit'), click: () => {
                     this.windowManager.sendToMainWindow('tray:quit');
                     setTimeout(() => app.quit(), 300);
                 }

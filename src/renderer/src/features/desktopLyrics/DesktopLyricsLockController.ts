@@ -1,3 +1,4 @@
+import {t, onLocaleChanged} from '@/shared/i18n';
 import {desktopLyricsWindowService} from './service';
 import type {DesktopLyricsElements} from './DesktopLyricsTypes';
 
@@ -5,6 +6,8 @@ type DesktopLyricsWindowService = typeof desktopLyricsWindowService;
 
 export class DesktopLyricsLockController {
     private isLocked = false;
+    private disposeLocale = onLocaleChanged(() => this.updateLockPresentation());
+    destroy(): void { this.disposeLocale(); }
 
     constructor(
         private readonly elements: Pick<DesktopLyricsElements, 'container' | 'controlsBar' | 'lockBtn' | 'lockIcon' | 'unlockIcon'>,
@@ -66,7 +69,7 @@ export class DesktopLyricsLockController {
     private updateLockPresentation(): void {
         this.elements.container.classList.toggle('locked', this.isLocked);
         this.elements.lockBtn.classList.toggle('locked', this.isLocked);
-        this.elements.lockBtn.title = this.isLocked ? '已锁定（点击解锁）' : '未锁定（点击锁定）';
+        this.elements.lockBtn.title = t(this.isLocked ? 'lyrics:unlock' : 'lyrics:lock');
         this.elements.lockIcon.style.display = this.isLocked ? 'block' : 'none';
         this.elements.unlockIcon.style.display = this.isLocked ? 'none' : 'block';
     }

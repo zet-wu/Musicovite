@@ -1,3 +1,5 @@
+import {th, htmlT, t, setLocalizedText} from '@/shared/i18n';
+
 import {Component} from "@ui/base/Component";
 import {libraryDataService} from "@/features/library/service/LibraryDataService";
 import {playlistViewModePreferenceService} from "@/features/settings/service";
@@ -126,42 +128,42 @@ export class PlaylistsPage extends Component {
                     <div class="left cluster">
                         <div class="title">
                             <span class="disc" aria-hidden>🎵</span>
-                            <span>歌单</span>
-                            <em class="muted">${this.playlists.length} 个</em>
+                            <span data-i18n="app:playlists">${th('app:playlists')}</span>
+                            <em class="muted">${htmlT('common:playlists', {count: this.playlists.length})}</em>
                         </div>
-                        <div class="segmented" role="tablist" aria-label="封面尺寸">
-                            <button class="seg-btn ${this.viewSize === 's' ? 'active' : ''}" data-size="s" ${this.viewMode === 'list' ? 'disabled' : ''}>小</button>
-                            <button class="seg-btn ${this.viewSize === 'm' ? 'active' : ''}" data-size="m" ${this.viewMode === 'list' ? 'disabled' : ''}>中</button>
-                            <button class="seg-btn ${this.viewSize === 'l' ? 'active' : ''}" data-size="l" ${this.viewMode === 'list' ? 'disabled' : ''}>大</button>
+                        <div class="segmented" role="tablist" aria-label="${th('audit:artworkSize')}" data-i18n-aria-label="audit:artworkSize">
+                            <button class="seg-btn ${this.viewSize === 's' ? 'active' : ''}" data-size="s" ${this.viewMode === 'list' ? 'disabled' : ''} data-i18n="messages:small">${th('messages:small')}</button>
+                            <button class="seg-btn ${this.viewSize === 'm' ? 'active' : ''}" data-size="m" ${this.viewMode === 'list' ? 'disabled' : ''} data-i18n="messages:medium">${th('messages:medium')}</button>
+                            <button class="seg-btn ${this.viewSize === 'l' ? 'active' : ''}" data-size="l" ${this.viewMode === 'list' ? 'disabled' : ''} data-i18n="messages:large">${th('messages:large')}</button>
                         </div>
                     </div>
                     <div class="right cluster">
                         <div class="select">
-                            <select id="playlist-sort" aria-label="歌单排序字段">
-                                <option value="name" ${this.sortBy === 'name' ? 'selected' : ''}>按歌单名</option>
-                                <option value="tracks" ${this.sortBy === 'tracks' ? 'selected' : ''}>按歌曲数</option>
-                                <option value="duration" ${this.sortBy === 'duration' ? 'selected' : ''}>按总时长</option>
+                            <select id="playlist-sort" aria-label="${th('audit:playlistSortField')}" data-i18n-aria-label="audit:playlistSortField">
+                                <option value="name" ${this.sortBy === 'name' ? 'selected' : ''} data-i18n="messages:byPlaylistName">${th('messages:byPlaylistName')}</option>
+                                <option value="tracks" ${this.sortBy === 'tracks' ? 'selected' : ''} data-i18n="messages:byTrackCount">${th('messages:byTrackCount')}</option>
+                                <option value="duration" ${this.sortBy === 'duration' ? 'selected' : ''} data-i18n="messages:byTotalDuration">${th('messages:byTotalDuration')}</option>
                             </select>
                         </div>
                         <button class="sort-direction-btn" id="playlist-sort-direction" type="button"
-                                title="切换为${this.sortDirection === 'asc' ? '降序' : '升序'}"
-                                aria-label="当前${this.sortDirection === 'asc' ? '升序' : '降序'}，点击切换">
+                                title="${th('common:sortToggle')}" data-i18n-title="common:sortToggle"
+                                aria-label="${th('common:sortToggle')}" data-i18n-aria-label="common:sortToggle">
                             ${this.sortDirection === 'asc' ? '↑' : '↓'}
                         </button>
                         <div class="search-inline">
-                            <input type="text" id="playlist-query" value="${this.escapeHtml(this.searchQuery)}" placeholder="搜索歌单…">
+                            <input type="text" id="playlist-query" value="${this.escapeHtml(this.searchQuery)}" placeholder="${th('messages:searchPlaylists')}" data-i18n-placeholder="messages:searchPlaylists">
                         </div>
-                        <div class="segmented" role="tablist" aria-label="视图模式">
-                            <button class="seg-btn ${this.viewMode === 'grid' ? 'active' : ''}" data-view="grid">方格</button>
-                            <button class="seg-btn ${this.viewMode === 'list' ? 'active' : ''}" data-view="list">列表</button>
+                        <div class="segmented" role="tablist" aria-label="${th('audit:viewMode')}" data-i18n-aria-label="audit:viewMode">
+                            <button class="seg-btn ${this.viewMode === 'grid' ? 'active' : ''}" data-view="grid" data-i18n="messages:grid">${th('messages:grid')}</button>
+                            <button class="seg-btn ${this.viewMode === 'list' ? 'active' : ''}" data-view="list" data-i18n="messages:list">${th('messages:list')}</button>
                         </div>
                     </div>
                 </div>
                 ${this.playlists.length > 0 ? `
                     <div class="album-surface-root playlist-surface-root ${this.viewMode === 'grid' ? 'albumsx-grid' : 'albumsx-list'}" style="--cover:${coverSize}px;"></div>
                     <div class="albumsx-empty playlists-no-results" hidden>
-                        <h3>没有匹配的歌单</h3>
-                        <p>请尝试其他歌单名称</p>
+                        <h3 data-i18n="messages:noMatchingPlaylists">${th('messages:noMatchingPlaylists')}</h3>
+                        <p data-i18n="messages:tryAnotherPlaylistName">${th('messages:tryAnotherPlaylistName')}</p>
                     </div>
                 ` : this.renderEmptyState()}
             </div>
@@ -176,7 +178,7 @@ export class PlaylistsPage extends Component {
         const name = this.escapeHtml(playlist.name);
         const count = this.getTrackCount(playlist);
         const duration = this.formatDuration(playlist.duration);
-        const metadata = `${count} 首歌曲 · ${duration}`;
+        const metadata = t('dynamic:trackDurationSummary', {count: count, duration: duration});
         const coverUrl = this.resolveCoverUrl(playlist.coverImage || playlist.cover);
         return `
             <div class="albumsx-tile playlist-browser-item ${this.viewMode === 'list' ? 'albumsx-list-item' : ''}"
@@ -204,8 +206,8 @@ export class PlaylistsPage extends Component {
                 <div class="icon">
                     <svg viewBox="0 0 24 24"><path d="M15,6H3V8H15V6M15,10H3V12H15V10M3,16H11V14H3V16M17,6V14.18C16.69,14.07 16.35,14 16,14A3,3 0 0,0 13,17A3,3 0 0,0 16,20A3,3 0 0,0 19,17V8H22V6H17Z"/></svg>
                 </div>
-                <h3>暂无自建歌单</h3>
-                <p>创建歌单后，这里会集中展示你的歌单</p>
+                <h3 data-i18n="messages:noCustomPlaylistsYet">${th('messages:noCustomPlaylistsYet')}</h3>
+                <p data-i18n="messages:yourPlaylistsWillAppearHereOnceCreated">${th('messages:yourPlaylistsWillAppearHereOnceCreated')}</p>
             </div>
         `;
     }
@@ -337,7 +339,7 @@ export class PlaylistsPage extends Component {
 
     private updatePlaylistCount(): void {
         const count = this.container?.querySelector<HTMLElement>('.albumsx-toolbar .title .muted');
-        if (count) count.textContent = `${this.playlists.length} 个`;
+        if (count) setLocalizedText(count, 'dynamic:itemCount', {count: this.playlists.length}, 'textContent');
     }
 
     private getTrackCount(playlist: Playlist): number {

@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {
     parseLrc,
     parseQrc,
@@ -47,7 +48,7 @@ export class LyricsNormalizer {
 
     fromTtml(ttmlText: string, context: NormalizeContext): LyricsDocument {
         const document = this.ttmlService.parse(ttmlText);
-        if (!document.lines.length) throw new Error('TTML 未包含可用歌词');
+        if (!document.lines.length) throw new Error(t('audit:noTtmlLyrics'));
         return this.createDocument(ttmlText, document, context);
     }
 

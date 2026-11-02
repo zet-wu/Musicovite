@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {
     appConfirmationService,
     appNavigationService,
@@ -36,11 +38,11 @@ class NetworkDriveActionService {
     async refreshDrive(drive: NetworkDriveActionTarget): Promise<NetworkDriveRefreshResult> {
         try {
             await networkDriveDetailService.refreshConnection(drive.id);
-            appNotificationService.showInfo(`网络磁盘 "${getDriveDisplayName(drive)}" 已刷新`);
+            appNotificationService.showInfo(t('dynamic:driveRefreshed', {name: getDriveDisplayName(drive)}));
             return {refreshed: true};
         } catch (error) {
             console.error('❌ NetworkDriveActionService: 刷新失败', error);
-            appNotificationService.showError('刷新失败，请重试');
+            appNotificationService.showError(t('messages:couldNotRefreshPleaseTryAgain'));
             return {refreshed: false};
         }
     }
@@ -54,16 +56,16 @@ class NetworkDriveActionService {
         try {
             const result = await networkDriveDetailService.scanNetworkDrive(drive.id, '/');
             if (!result) {
-                appNotificationService.showError('扫描失败，请检查网络连接');
+                appNotificationService.showError(t('messages:scanFailedCheckYourNetworkConnection'));
                 return {scanned: false};
             }
 
             const tracks = await networkDriveDetailService.getTracksByDrive(drive.id);
-            appNotificationService.showInfo(`扫描完成，找到 ${tracks.length} 首歌曲`);
+            appNotificationService.showInfo(t('dynamic:scanTracksFound', {count: tracks.length}));
             return {scanned: true, tracks};
         } catch (error) {
             console.error('❌ NetworkDriveActionService: 扫描失败', error);
-            appNotificationService.showError('扫描失败，请重试');
+            appNotificationService.showError(t('messages:scanFailedPleaseTryAgain'));
             return {scanned: false};
         } finally {
             removeListener();
@@ -73,9 +75,9 @@ class NetworkDriveActionService {
     async removeDrive(drive: NetworkDriveActionTarget): Promise<NetworkDriveRemoveResult> {
         const displayName = getDriveDisplayName(drive);
         const confirmed = await appConfirmationService.confirm({
-            title: '移除网络磁盘',
-            message: `确定要移除网络磁盘 "${displayName}" 吗？\n\n这将删除该磁盘下的所有音乐缓存，但不会删除网络磁盘上的文件。`,
-            confirmText: '移除',
+            title: t('messages:removeNetworkDrive'),
+            message: t('dynamic:removeDriveConfirm', {name: displayName}),
+            confirmText: t('messages:remove'),
             type: 'warning'
         });
 
@@ -87,15 +89,15 @@ class NetworkDriveActionService {
             const result = await networkDriveDetailService.removeTracksByDrive(drive.id);
             if (result.success) {
                 await networkDriveDetailService.unmount(drive.id);
-                appNotificationService.showInfo(`网络磁盘 "${displayName}" 已移除`);
+                appNotificationService.showInfo(t('dynamic:driveRemoved', {name: displayName}));
                 await appNavigationService.navigateToLibrary();
                 return {removed: true};
             }
 
-            appNotificationService.showError('移除失败，请重试');
+            appNotificationService.showError(t('messages:couldNotRemovePleaseTryAgain'));
         } catch (error) {
             console.error('❌ NetworkDriveActionService: 移除失败', error);
-            appNotificationService.showError('移除失败，请重试');
+            appNotificationService.showError(t('messages:couldNotRemovePleaseTryAgain'));
         }
 
         return {removed: false};
@@ -116,23 +118,23 @@ class NetworkDriveActionService {
             }
 
             console.log('🎵 NetworkDriveActionService: 文件未在缓存中，开始扫描...');
-            appNotificationService.showInfo('正在加载音乐...');
+            appNotificationService.showInfo(t('messages:loadingMusic'));
 
             const result = await networkDriveDetailService.scanSingleFile(networkPath);
             if (result.success && result.track) {
                 console.log(`✅ NetworkDriveActionService: 文件扫描成功 - ${result.track.title}`);
                 if (result.isNew) {
-                    appNotificationService.showSuccess('音乐已添加到音乐库');
+                    appNotificationService.showSuccess(t('messages:musicAddedToLibrary'));
                     return {track: result.track, addedTrack: result.track};
                 }
                 return {track: result.track};
             }
 
             console.error('❌ NetworkDriveActionService: 文件扫描失败', result.error);
-            appNotificationService.showError(result.error || '无法加载此音乐文件');
+            appNotificationService.showError(result.error || t('messages:couldNotLoadThisMusicFile'));
         } catch (error) {
             console.error('❌ NetworkDriveActionService: 播放音乐文件失败', error);
-            appNotificationService.showError('播放失败，请重试');
+            appNotificationService.showError(t('messages:playbackFailedPleaseTryAgain'));
         }
 
         return {};
@@ -149,8 +151,8 @@ class NetworkDriveActionService {
         return {
             filePath: networkPath,
             title: (fileName || filePath.split('/').pop() || '未知歌曲').replace(/\.[^/.]+$/, ''),
-            artist: '未知艺术家',
-            album: '未知专辑',
+            artist: t('app:unknownArtist'),
+            album: t('messages:unknownAlbum'),
             duration: 0,
             isNetworkFile: true,
             needsScan: true
@@ -163,7 +165,7 @@ class NetworkDriveActionService {
 }
 
 function getDriveDisplayName(drive: NetworkDriveActionTarget): string {
-    return drive.config?.displayName || drive.displayName || '未命名磁盘';
+    return drive.config?.displayName || drive.displayName || t('messages:unnamedDrive');
 }
 
 export const networkDriveActionService = new NetworkDriveActionService();

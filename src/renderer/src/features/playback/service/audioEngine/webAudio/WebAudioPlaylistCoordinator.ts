@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {
     getTrackFilePath,
     getTrackTitle,
@@ -68,7 +69,7 @@ class WebAudioPlaylistCoordinator {
 
     async nextTrack(nextIndex: number | null = null): Promise<boolean> {
         const state = this.actions.getState();
-        if (!this.canSwitchTrack(state, '下一首')) {
+        if (!this.canSwitchTrack(state, t('app:nextTrack'))) {
             return false;
         }
 
@@ -99,7 +100,7 @@ class WebAudioPlaylistCoordinator {
 
     async previousTrack(prevIndex: number | null = null): Promise<boolean> {
         const state = this.actions.getState();
-        if (!this.canSwitchTrack(state, '上一首')) {
+        if (!this.canSwitchTrack(state, t('app:previousTrack'))) {
             return false;
         }
 

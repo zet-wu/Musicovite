@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {cacheManager} from "@/shared/cache";
 import {localCoverManager} from "@/features/mediaAssets/service/LocalCoverManager";
 import type {MusicBoxAPIEvents} from "@api/types/events";
@@ -113,7 +115,7 @@ export class LibraryAppController {
 
             await app.syncDesktopLyricsButtonState();
         } catch (error) {
-            app.showError('加载音乐库失败');
+            app.showError(t('messages:couldNotLoadMusicLibrary'));
         }
     }
 
@@ -147,7 +149,7 @@ export class LibraryAppController {
         try {
             app.addManagedAPIEventListener('cacheValidationCompleted', async (result: MusicBoxAPIEvents['cacheValidationCompleted']) => {
                 if (result.invalid > 0) {
-                    app.showInfo(`已清理 ${result.invalid} 个无效的音乐文件`);
+                    app.showInfo(t('dynamic:invalidFilesRemoved', {count: result.invalid}));
                 }
             });
 
@@ -199,7 +201,7 @@ export class LibraryAppController {
         } catch (error) {
             if (generation === this.searchGeneration) {
                 console.error('❌ 搜索音乐库失败:', error);
-                this.app.showError('搜索失败，请重试');
+                this.app.showError(t('messages:searchFailedPleaseTryAgain'));
             }
         }
     }
@@ -236,20 +238,20 @@ export class LibraryAppController {
         }
 
         if (app.currentView === 'network-drive-detail') {
-            app.showError('网络磁盘中的歌曲无法单独删除，请通过移除整个网络磁盘来删除');
+            app.showError(t('messages:toRemoveTheseTracksRemoveTheirNetworkDrive'));
             return;
         }
 
         if (!track.fileId) {
-            app.showError('该歌曲缺少可用标识，无法从音乐库删除');
+            app.showError(t('messages:thisTrackHasNoUsableIdentifierAndCannotBeRemoved'));
             return;
         }
 
         const confirmed = await app.confirm({
-            title: '删除歌曲',
-            message: `确定要从音乐库中删除 "${track.title}" 吗？\n\n此操作将从音乐库和所有歌单中移除该歌曲，但不会删除本地文件。`,
+            title: t('messages:deleteTrack'),
+            message: t('dynamic:deleteLibraryTrackConfirm', {title: track.title}),
             type: 'danger',
-            confirmText: '删除'
+            confirmText: t('app:delete')
         });
 
         if (!confirmed) {
@@ -273,13 +275,13 @@ export class LibraryAppController {
 
                 this.applySearchToActiveCollection();
                 libraryService.emitLibraryUpdated(app.library);
-                app.showInfo(`已从音乐库删除 "${track.title}"`);
+                app.showInfo(t('dynamic:libraryTrackRemoved', {title: track.title}));
             } else {
-                app.showError(result.error || '删除失败');
+                app.showError(result.error || t('messages:couldNotDelete'));
             }
         } catch (error) {
             console.error('❌ 删除歌曲失败:', error);
-            app.showError('删除失败，请重试');
+            app.showError(t('messages:couldNotDeletePleaseTryAgain'));
         }
     }
 
@@ -301,16 +303,16 @@ export class LibraryAppController {
         }
         const tracksToDelete = Array.from(tracksById.values());
         if (tracksToDelete.length === 0) {
-            app.showError('选中的歌曲缺少可用标识，无法删除');
+            app.showError(t('messages:selectedTracksHaveNoUsableIdentifierAndCannotBeDeleted'));
             return;
         }
 
         const count = tracksToDelete.length;
         const confirmed = await app.confirm({
-            title: '批量删除',
-            message: `确定要从音乐库中删除选中的 ${count} 首歌曲吗？\n\n此操作不会删除本地文件。`,
+            title: t('app:deleteSelected'),
+            message: t('dynamic:deleteLibraryTracksConfirm', {count: count}),
             type: 'danger',
-            confirmText: '删除'
+            confirmText: t('app:delete')
         });
 
         if (!confirmed) return;
@@ -339,7 +341,7 @@ export class LibraryAppController {
 
         this.applySearchToActiveCollection();
         libraryService.emitLibraryUpdated(app.library);
-        app.showInfo(`已从音乐库删除 ${successCount} 首歌曲`);
+        app.showInfo(t('dynamic:libraryTracksRemoved', {count: successCount}));
     }
 
     async handleTrackInfoUpdated(data: TrackInfoUpdateData): Promise<void> {
@@ -408,10 +410,10 @@ export class LibraryAppController {
                     genre: updatedData.genre
                 });
             }
-            app.showInfo(`歌曲信息已更新：${updatedData.title}`);
+            app.showInfo(t('dynamic:trackInformationUpdated', {title: updatedData.title}));
         } catch (error) {
             console.error('❌ 更新歌曲信息失败:', error);
-            app.showError('更新歌曲信息失败，请重试');
+            app.showError(t('messages:couldNotUpdateTrackInformationPleaseTryAgain'));
         }
     }
 

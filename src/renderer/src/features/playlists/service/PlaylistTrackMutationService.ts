@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {appConfirmationService, appNotificationService} from "@/features/appShell/service";
 import {libraryDataService} from "@/features/library/service/LibraryDataService";
 import type {Track} from "@api/types/library";
@@ -25,11 +27,11 @@ class PlaylistTrackMutationService {
 
         const isFavorites = playlist.id === 'system:favorites';
         const confirmed = await appConfirmationService.confirm({
-            title: isFavorites ? '清空收藏' : '清空歌单',
+            title: isFavorites ? t('messages:clearFavorites') : t('messages:clearPlaylist'),
             message: isFavorites
-                ? `确定要清空收藏吗？\n这将取消收藏全部 ${tracks.length} 首歌曲，此操作无法撤销。`
-                : `确定要清空歌单"${playlist.name}"吗？\n这将移除歌单中的所有 ${tracks.length} 首歌曲，此操作无法撤销。`,
-            confirmText: '清空',
+                ? t('dynamic:clearFavoritesConfirm', {count: tracks.length})
+                : t('dynamic:clearPlaylistConfirm', {name: playlist.name, count: tracks.length}),
+            confirmText: t('app:clear'),
             type: 'warning'
         });
 
@@ -42,14 +44,14 @@ class PlaylistTrackMutationService {
             const result = await libraryDataService.removeFromPlaylist(playlist.id, trackIds);
 
             if (result.success) {
-                appNotificationService.showInfo(isFavorites ? '收藏已清空' : `歌单"${playlist.name}"已清空`);
+                appNotificationService.showInfo(isFavorites ? t('messages:favoritesCleared') : t('dynamic:playlistCleared', {name: playlist.name}));
                 return true;
             }
 
-            appNotificationService.showError(result.error || '清空歌单失败');
+            appNotificationService.showError(result.error || t('messages:couldNotClearPlaylist'));
         } catch (error) {
             console.error('❌ PlaylistTrackMutationService: 清空歌单失败', error);
-            appNotificationService.showError('清空歌单失败，请重试');
+            appNotificationService.showError(t('messages:couldNotClearPlaylistPleaseTryAgain'));
         }
 
         return false;
@@ -64,9 +66,9 @@ class PlaylistTrackMutationService {
         }
 
         const confirmed = await appConfirmationService.confirm({
-            title: '移除歌曲',
-            message: `确定要从歌单中移除选中的 ${tracks.length} 首歌曲吗？`,
-            confirmText: '移除',
+            title: t('messages:removeTrack'),
+            message: t('dynamic:removePlaylistTracksConfirm', {count: tracks.length}),
+            confirmText: t('messages:remove'),
             type: 'warning'
         });
 
@@ -97,9 +99,9 @@ class PlaylistTrackMutationService {
         }
 
         if (failCount === 0) {
-            appNotificationService.showInfo(`成功移除 ${successCount} 首歌曲`);
+            appNotificationService.showInfo(t('dynamic:tracksRemoved', {count: successCount}));
         } else {
-            appNotificationService.showInfo(`移除完成：成功 ${successCount} 首，失败 ${failCount} 首`);
+            appNotificationService.showInfo(t('dynamic:tracksRemovedWithFailures', {removed: successCount, failed: failCount}));
         }
 
         return {completed: true, successCount, failCount};
@@ -107,9 +109,9 @@ class PlaylistTrackMutationService {
 
     async removeTrack(playlistId: string, track: PlaylistMutationTrack): Promise<boolean> {
         const confirmed = await appConfirmationService.confirm({
-            title: '移除歌曲',
-            message: `确定要从歌单中移除 "${track.title}" 吗？`,
-            confirmText: '移除',
+            title: t('messages:removeTrack'),
+            message: t('dynamic:removePlaylistTrackConfirm', {title: track.title}),
+            confirmText: t('messages:remove'),
             type: 'warning'
         });
 
@@ -124,14 +126,14 @@ class PlaylistTrackMutationService {
             );
 
             if (result.success) {
-                appNotificationService.showInfo(`已从歌单中移除 "${track.title}"`);
+                appNotificationService.showInfo(t('dynamic:playlistTrackRemoved', {title: track.title}));
                 return true;
             }
 
-            appNotificationService.showError(result.error || '移除失败');
+            appNotificationService.showError(result.error || t('messages:couldNotRemove'));
         } catch (error) {
             console.error('❌ PlaylistTrackMutationService: 移除歌曲失败', error);
-            appNotificationService.showError('移除失败，请重试');
+            appNotificationService.showError(t('messages:couldNotRemovePleaseTryAgain'));
         }
 
         return false;

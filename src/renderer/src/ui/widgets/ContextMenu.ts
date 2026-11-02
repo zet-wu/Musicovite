@@ -1,3 +1,5 @@
+import {bindLocalizedText, setLocalizedText, t} from '@/shared/i18n';
+
 /**
  * 菜单组件
  */
@@ -85,20 +87,20 @@ class ContextMenu extends Component {
         this.deleteItem.style.display = isPlaylistCollection || (!isMulti && !collectionActionsOnly) ? '' : 'none';
         this.batchDeleteItem.style.display = isMulti && !collectionActionsOnly ? '' : 'none';
         this.detailsDivider.style.display = isPlaylistCollection || !collectionActionsOnly ? '' : 'none';
-        this.editInfoLabel.textContent = isPlaylistCollection ? '编辑歌单信息' : '编辑歌曲信息';
-        this.deleteLabel.textContent = isPlaylistCollection ? '删除歌单' : '删除';
+        bindLocalizedText(this.editInfoLabel, () => isPlaylistCollection ? t('messages:editPlaylistInformation') : t('app:editTrackInformation'), 'textContent');
+        bindLocalizedText(this.deleteLabel, () => isPlaylistCollection ? t('messages:deletePlaylist') : t('app:delete'), 'textContent');
         this.deleteItem.classList.toggle('danger', isPlaylistCollection);
         if (isMulti) {
-            this.batchDeleteLabel.textContent = `批量删除 (${selectedTracks.size} 首)`;
+            setLocalizedText(this.batchDeleteLabel, 'dynamic:deleteSelectedTracks', {count: selectedTracks.size}, 'textContent');
         }
         const selectionCount = this.selectedTrackItems.length;
-        this.playNextLabel.textContent = selectionCount > 1 ? `下 ${selectionCount} 首播放` : '下一首播放';
-        this.addToPlaylistLabel.textContent = selectionCount > 1
-            ? `添加到播放列表 (${selectionCount} 首)`
-            : '添加到播放列表';
-        this.addToCustomPlaylistLabel.textContent = selectionCount > 1
-            ? `添加到歌单 (${selectionCount} 首)`
-            : '添加到歌单';
+        bindLocalizedText(this.playNextLabel, () => selectionCount > 1 ? t('dynamic:playNextTracks', {count: selectionCount}) : t('app:playNext'), 'textContent');
+        bindLocalizedText(this.addToPlaylistLabel, () => selectionCount > 1
+            ? t('dynamic:addTracksToQueue', {count: selectionCount})
+            : t('app:addToQueue'), 'textContent');
+        bindLocalizedText(this.addToCustomPlaylistLabel, () => selectionCount > 1
+            ? t('dynamic:addTracksToPlaylist', {count: selectionCount})
+            : t('app:addToPlaylist'), 'textContent');
 
         // 菜单位置
         this.menu.style.left = `${x}px`;

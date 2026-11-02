@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {showToast} from "@utils/index.js";
 import type {MusicBoxSettings} from "@api/types/settings";
 import {cacheSettingsRenderer} from "./CacheSettingsRenderer";
@@ -120,7 +122,7 @@ class SettingsToolsController {
 
             const resolved = await mediaDirectorySettingsService.resolveCoverCacheDirectory(selectedPath);
             if (!resolved.directory) {
-                showToast(resolved.error || '创建封面缓存目录失败', 'error');
+                showToast(resolved.error || t('messages:couldNotCreateArtworkCacheFolder'), 'error');
                 return;
             }
             callbacks.updateSetting('coverCacheDirectory', selectedPath);
@@ -162,13 +164,13 @@ class SettingsToolsController {
             const display = await cacheSettingsService.getStatisticsDisplay();
             if (display.success) {
                 cacheSettingsRenderer.updateDescription(this.toCacheSettingsElements(elements), display.description || '');
-                showToast(display.toastMessage || '缓存统计已更新', 'info');
+                showToast(display.toastMessage || t('messages:cacheStatisticsUpdated'), 'info');
             } else {
-                showToast(display.error || '获取缓存统计失败', 'error');
+                showToast(display.error || t('messages:couldNotGetCacheStatistics'), 'error');
             }
         } catch (error) {
             console.error('❌ 获取缓存统计失败:', error);
-            showToast('获取缓存统计失败', 'error');
+            showToast(t('messages:couldNotGetCacheStatistics'), 'error');
         } finally {
             cacheSettingsRenderer.setStatisticsLoading(this.toCacheSettingsElements(elements), false);
         }
@@ -177,13 +179,13 @@ class SettingsToolsController {
     private async validateCache(elements: SettingsToolsElements): Promise<void> {
         try {
             cacheSettingsRenderer.setValidationLoading(this.toCacheSettingsElements(elements), true);
-            showToast('开始验证缓存，请稍候...', 'info');
+            showToast(t('messages:validatingCachePleaseWait'), 'info');
 
             const result = await cacheSettingsService.validateCache();
             showToast(result.message, result.success ? 'success' : 'error');
         } catch (error) {
             console.error('缓存验证失败:', error);
-            showToast('缓存验证失败', 'error');
+            showToast(t('messages:cacheValidationFailed'), 'error');
         } finally {
             cacheSettingsRenderer.setValidationLoading(this.toCacheSettingsElements(elements), false);
         }
@@ -191,10 +193,10 @@ class SettingsToolsController {
 
     private async rebuildLibraryIndex(elements: SettingsToolsElements): Promise<void> {
         const confirmed = await appConfirmationService.confirm({
-            title: '重建音乐库索引',
-            message: '确定要重建音乐库索引吗？现有歌曲索引会先被清除，然后立即重新扫描已配置的音乐文件夹。歌单、收藏、忽略列表、音乐文件夹设置和原始音乐文件都会保留。',
+            title: t('app:rebuildLibraryIndex'),
+            message: t('messages:rebuildTheLibraryIndexTheTrackIndexWillBeCleared'),
             type: 'warning',
-            confirmText: '重建索引'
+            confirmText: t('app:rebuildIndex')
         });
 
         if (!confirmed) {
@@ -211,7 +213,7 @@ class SettingsToolsController {
             }
         } catch (error) {
             console.error('重建音乐库索引失败:', error);
-            showToast('重建音乐库索引失败', 'error');
+            showToast(t('messages:couldNotRebuildLibraryIndex'), 'error');
         } finally {
             cacheSettingsRenderer.setClearLoading(this.toCacheSettingsElements(elements), false);
         }
@@ -219,10 +221,10 @@ class SettingsToolsController {
 
     private async clearCoverCache(elements: SettingsToolsElements): Promise<void> {
         const confirmed = await appConfirmationService.confirm({
-            title: '清除封面缓存',
-            message: '确定要清除封面缓存吗？这会释放内存封面和 MusicBox 管理的磁盘缓存，不会修改音乐文件中的内嵌封面、歌单自定义封面或其他用户图片。',
+            title: t('app:clearArtworkCache'),
+            message: t('messages:clearArtworkCachesThisClearsMemoryAndManagedDiskCaches'),
             type: 'warning',
-            confirmText: '清除封面缓存'
+            confirmText: t('app:clearArtworkCache')
         });
         if (!confirmed) return;
 
@@ -235,7 +237,7 @@ class SettingsToolsController {
             }
         } catch (error) {
             console.error('清除封面缓存失败:', error);
-            showToast('清除封面缓存失败', 'error');
+            showToast(t('messages:couldNotClearArtworkCache'), 'error');
         } finally {
             cacheSettingsRenderer.setCoverClearLoading(this.toCacheSettingsElements(elements), false);
         }
@@ -252,20 +254,20 @@ class SettingsToolsController {
             embeddedLyricsDiagnosticsRenderer.setState(this.toEmbeddedLyricsDiagnosticsElements(elements), 'selecting');
             const diagnostics = await embeddedLyricsDiagnosticsService.chooseFileAndBuildReport();
             if (!diagnostics.selected) {
-                showToast('未选择文件', 'info');
+                showToast(t('messages:noFileSelected'), 'info');
                 return;
             }
 
             embeddedLyricsDiagnosticsRenderer.setState(this.toEmbeddedLyricsDiagnosticsElements(elements), 'checking');
             console.log(`🎵 测试内嵌歌词: ${diagnostics.filePath}`);
-            showToast(diagnostics.foundLyrics ? '检测到内嵌歌词！' : '未检测到内嵌歌词', diagnostics.foundLyrics ? 'success' : 'info');
+            showToast(diagnostics.foundLyrics ? t('messages:embeddedLyricsFound') : t('messages:noEmbeddedLyricsFound'), diagnostics.foundLyrics ? 'success' : 'info');
 
-            const report = diagnostics.report || diagnostics.error || '没有诊断报告';
+            const report = diagnostics.report || diagnostics.error || t('messages:noDiagnosticReport');
             console.log('🔧 内嵌歌词测试报告:\n', report);
             embeddedLyricsDiagnosticsDialogRenderer.show(report);
         } catch (error) {
             console.error('❌ 内嵌歌词测试失败:', error);
-            showToast('内嵌歌词测试失败', 'error');
+            showToast(t('messages:embeddedLyricsTestFailed'), 'error');
         } finally {
             embeddedLyricsDiagnosticsRenderer.setState(this.toEmbeddedLyricsDiagnosticsElements(elements), 'idle');
         }

@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {settingsShellService} from "@/features/appShell/service";
 import {localCoverManager} from "@/features/mediaAssets/service/LocalCoverManager";
 import {mediaAssetsService} from "@/features/mediaAssets/service/MediaAssetsService";
@@ -28,7 +29,7 @@ class MediaDirectorySettingsService {
             return {
                 directory: null,
                 shouldPersist: false,
-                error: resolved.error || '获取封面缓存路径失败'
+                error: resolved.error || t('messages:couldNotGetArtworkCachePath')
             };
         }
 

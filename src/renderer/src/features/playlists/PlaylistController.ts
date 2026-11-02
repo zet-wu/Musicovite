@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import type {Playlist} from '@api/types/playlist';
 import type {Track} from '@api/types/track';
 import type {QueueMutationResult} from '@api/types/playback';
@@ -92,9 +94,9 @@ export class PlaylistController {
     async addTracksToQueue(tracks: Track[]): Promise<void> {
         const result = await this.playback.appendToQueue(tracks);
         if (result.added > 0) {
-            this.app.showInfo(`已添加 ${result.added} 首歌曲到播放列表`);
+            this.app.showInfo(t('dynamic:tracksQueued', {count: result.added}));
         } else {
-            this.app.showInfo('所选歌曲已在播放列表中');
+            this.app.showInfo(t('messages:selectedTracksAreAlreadyInTheQueue'));
         }
     }
 
@@ -102,9 +104,9 @@ export class PlaylistController {
         const result = await this.playback.playNext(tracks);
         const changed = result.added + result.moved;
         if (changed > 0) {
-            this.app.showInfo(`已安排 ${changed} 首歌曲接下来播放`);
+            this.app.showInfo(t('dynamic:tracksScheduledNext', {count: changed}));
         } else if (result.skippedCurrent > 0) {
-            this.app.showInfo('当前歌曲已跳过，没有其他歌曲需要安排');
+            this.app.showInfo(t('messages:theCurrentTrackWasSkippedNoOtherTracksNeedTo'));
         }
     }
 

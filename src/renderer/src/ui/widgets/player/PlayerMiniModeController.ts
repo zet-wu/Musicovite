@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {miniModeWindowService} from "@/features/appShell/service";
 import {playbackUiStateService} from "@/features/playback/service/PlaybackUiStateService";
 import {showToast} from "@/utils";
@@ -39,7 +40,7 @@ class PlayerMiniModeController {
             miniModeWindowService.setPersistedMiniModeEnabled(this.active);
         } catch (error) {
             console.error('❌ Player: 切换迷你模式失败:', error);
-            showToast('迷你模式切换失败', 'error');
+            showToast(t('messages:couldNotSwitchMiniMode'), 'error');
         }
     }
 

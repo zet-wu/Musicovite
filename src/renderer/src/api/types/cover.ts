@@ -26,6 +26,7 @@ export interface CoverData {
  * 封面结果
  */
 export interface CoverResult extends Result<CoverData> {
+    code?: string;
     imageUrl?: string;
     imageData?: Base64String | Blob;
     type?: CoverSource;

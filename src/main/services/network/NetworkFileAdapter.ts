@@ -160,7 +160,7 @@ export class NetworkFileAdapter {
         if (!driveInfo) throw new Error(`网络磁盘 ${driveId} 未挂载`);
 
         const status = this.networkDriveManager.getDriveStatus(driveId);
-        if (!status?.connected) throw new Error(`网络磁盘 ${driveId} 未连接`);
+        if (!status?.connected) throw Object.assign(new Error(`Network drive ${driveId} is disconnected`), {code: 'NETWORK_DRIVE_DISCONNECTED'});
 
         try {
             if (driveInfo.type === 'smb') {
@@ -194,7 +194,7 @@ export class NetworkFileAdapter {
         if (!driveInfo) throw new Error(`网络磁盘 ${driveId} 未挂载`);
 
         const status = this.networkDriveManager.getDriveStatus(driveId);
-        if (!status?.connected) throw new Error(`网络磁盘 ${driveId} 未连接`);
+        if (!status?.connected) throw Object.assign(new Error(`Network drive ${driveId} is disconnected`), {code: 'NETWORK_DRIVE_DISCONNECTED'});
 
         if (driveInfo.type === 'smb') {
             return this.statSMB(driveInfo.client, relativePath);
@@ -243,7 +243,7 @@ export class NetworkFileAdapter {
         if (!driveInfo) throw new Error(`网络磁盘 ${driveId} 未挂载`);
 
         const status = this.networkDriveManager.getDriveStatus(driveId);
-        if (!status?.connected) throw new Error(`网络磁盘 ${driveId} 未连接`);
+        if (!status?.connected) throw Object.assign(new Error(`Network drive ${driveId} is disconnected`), {code: 'NETWORK_DRIVE_DISCONNECTED'});
 
         try {
             if (driveInfo.type === 'smb') {
@@ -293,7 +293,7 @@ export class NetworkFileAdapter {
         if (!driveInfo) throw new Error(`网络磁盘 ${driveId} 未挂载`);
 
         const status = this.networkDriveManager.getDriveStatus(driveId);
-        if (!status?.connected) throw new Error(`网络磁盘 ${driveId} 未连接`);
+        if (!status?.connected) throw Object.assign(new Error(`Network drive ${driveId} is disconnected`), {code: 'NETWORK_DRIVE_DISCONNECTED'});
 
         if (driveInfo.type === 'smb') {
             return this.writeSMBFile(driveInfo.client, relativePath, buffer);

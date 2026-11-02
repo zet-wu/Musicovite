@@ -1,3 +1,5 @@
+import {bindLocalizedText, htmlT, t, th} from '@/shared/i18n';
+
 import type {Track} from "@api/types/library";
 import type {Unsubscribe} from "@api/types/common";
 import {favoriteService} from "@/features/library/service/FavoriteService";
@@ -176,7 +178,7 @@ export class TrackCollectionDetail {
                             <h1 class="playlist-title">${this.escapeHtml(this.model.title)}</h1>
                             ${this.model.description ? `<p class="playlist-description">${this.escapeHtml(this.model.description)}</p>` : ''}
                             <div class="playlist-meta">
-                                <span class="meta-item">${trackCount} 首歌曲</span>
+                                <span class="meta-item">${htmlT('common:tracks', {count: trackCount})}</span>
                                 <span class="meta-item">${this.formatTotalDuration(totalDuration)}</span>
                                 ${this.model.metadata.map(item => `<span class="meta-item">${this.escapeHtml(item)}</span>`).join('')}
                             </div>
@@ -188,13 +190,13 @@ export class TrackCollectionDetail {
                         <button class="play-btn primary collection-play-all" type="button" ${trackCount === 0 ? 'disabled' : ''}>
                             <div class="btn-content">
                                 <svg class="play-icon" viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
-                                <span class="btn-text">播放全部</span>
+                                <span class="btn-text" data-i18n="messages:playAll">${th('messages:playAll')}</span>
                             </div>
                         </button>
                         <button class="play-btn primary collection-append-all" type="button" ${trackCount === 0 ? 'disabled' : ''}>
                             <div class="btn-content">
                                 <svg class="play-icon" viewBox="0 0 24 24"><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/></svg>
-                                <span class="btn-text">添加到播放列表</span>
+                                <span class="btn-text" data-i18n="app:addToQueue">${th('app:addToQueue')}</span>
                             </div>
                         </button>
                     </div>
@@ -202,16 +204,16 @@ export class TrackCollectionDetail {
                 <div class="tracks-section">
                     <div class="tracks-header">
                         <div class="header-left">
-                            <h3 class="tracks-title">歌曲列表</h3>
-                            <span class="tracks-count">${trackCount} 首歌曲</span>
+                            <h3 class="tracks-title" data-i18n="messages:tracks">${th('messages:tracks')}</h3>
+                            <span class="tracks-count">${htmlT('common:tracks', {count: trackCount})}</span>
                         </div>
                         <div class="header-right">
                             <div class="tracks-controls">
                                 <button class="control-btn collection-select-all" type="button">
-                                    <span>全选</span>
+                                    <span data-i18n="messages:selectAll">${th('messages:selectAll')}</span>
                                 </button>
                                 <button class="control-btn collection-clear-selection" type="button" style="display:none">
-                                    <span>取消选择</span>
+                                    <span data-i18n="messages:cancelSelection">${th('messages:cancelSelection')}</span>
                                 </button>
                             </div>
                         </div>
@@ -223,6 +225,16 @@ export class TrackCollectionDetail {
             </div>
         `;
 
+        const title = this.container.querySelector('.playlist-title');
+        const description = this.container.querySelector('.playlist-description');
+        const back = this.container.querySelector('.collection-back-btn span');
+        if (title) bindLocalizedText(title, () => this.model?.title || '');
+        if (description) bindLocalizedText(description, () => this.model?.description || '');
+        if (back) bindLocalizedText(back, () => this.model?.backLabel || '');
+        this.container.querySelectorAll('.playlist-meta > .meta-item').forEach((element, index) => {
+            if (index === 1) bindLocalizedText(element, () => this.formatTotalDuration(totalDuration));
+            if (index >= 2) bindLocalizedText(element, () => this.model?.metadata[index - 2] || '');
+        });
         this.bindEvents();
         this.mountSurface();
         this.loadCollectionCover(generation);
@@ -232,7 +244,7 @@ export class TrackCollectionDetail {
     }
 
     private getModelIdentity(model: TrackCollectionDetailModel): string {
-        return model.identity || `${model.title}|${model.coverArtist || ''}|${model.coverAlbum || ''}`;
+        return model.identity ?? `${model.title}|${model.coverArtist || ''}|${model.coverAlbum || ''}`;
     }
 
     private getScrollStateKey(model: TrackCollectionDetailModel): string {
@@ -241,17 +253,17 @@ export class TrackCollectionDetail {
 
     private renderTrackListShell(): string {
         if (!this.model || this.model.tracks.length === 0) {
-            return '<div class="playlist-empty-state"><h3 class="empty-title">没有可播放的歌曲</h3></div>';
+            return `<div class="playlist-empty-state"><h3 class="empty-title" data-i18n="messages:noPlayableTracks">${th('messages:noPlayableTracks')}</h3></div>`;
         }
 
         return `
             <div class="modern-tracks-table ${this.showCovers ? 'with-covers' : ''}">
                 <div class="tracks-table-header">
                     <div class="header-cell cell-number">#</div>
-                    ${this.showCovers ? '<div class="header-cell cell-cover">封面</div>' : ''}
-                    <div class="header-cell cell-title">歌曲</div>
-                    <div class="header-cell cell-album">专辑</div>
-                    <div class="header-cell cell-duration">时长</div>
+                    ${this.showCovers ? `<div class="header-cell cell-cover" data-i18n="app:artwork">${th('app:artwork')}</div>` : ''}
+                    <div class="header-cell cell-title" data-i18n="messages:track">${th('messages:track')}</div>
+                    <div class="header-cell cell-album" data-i18n="app:albums">${th('app:albums')}</div>
+                    <div class="header-cell cell-duration" data-i18n="messages:duration">${th('messages:duration')}</div>
                     <div class="header-cell cell-actions"></div>
                 </div>
                 <div class="tracks-table-body track-collection-surface-root"></div>
@@ -324,19 +336,19 @@ export class TrackCollectionDetail {
                     </div>
                 </div>
                 ${this.showCovers ? `<div class="track-cell cell-cover">
-                    <img class="track-cover" src="${this.getTrackCover(track)}" alt="封面" loading="lazy">
+                    <img class="track-cover" src="${this.getTrackCover(track)}" alt="${th('app:artwork')}" data-i18n-alt="app:artwork" loading="lazy">
                 </div>` : ''}
                 <div class="track-cell cell-title">
                     <div class="track-main-info">
-                        <div class="track-name">${this.escapeHtml(track.title || track.fileName || '未知标题')}</div>
-                        <div class="track-artist">${this.escapeHtml(track.artist || '未知艺术家')}</div>
+                        <div class="track-name">${this.escapeHtml(track.title || track.fileName || t('messages:unknownTitle'))}</div>
+                        <div class="track-artist">${this.escapeHtml(track.artist || t('app:unknownArtist'))}</div>
                     </div>
                 </div>
-                <div class="track-cell cell-album"><span class="album-name">${this.escapeHtml(track.album || '未知专辑')}</span></div>
+                <div class="track-cell cell-album"><span class="album-name">${this.escapeHtml(track.album || t('messages:unknownAlbum'))}</span></div>
                 <div class="track-cell cell-duration"><span class="duration-text">${this.formatDuration(track.duration)}</span></div>
                 <div class="track-cell cell-actions">
                     <button class="track-action-btn like-btn ${liked ? 'active' : ''}" data-action="like"
-                            type="button" aria-pressed="${liked}" title="${liked ? '取消收藏' : '收藏'}">
+                            type="button" aria-pressed="${liked}" title="${liked ? t('messages:removeFromFavorites') : t('app:favorites')}">
                         <svg class="icon" viewBox="0 0 24 24"><path d="M12,21.35L10.55,20.03C5.4,16.36 2,13.27 2,9.5 2,6.41 4.42,4 7.5,4C9.24,4 10.91,4.81 12,6.08C13.09,4.81 14.76,4 16.5,4C19.58,4 22,6.41 22,9.5 22,13.27 18.6,16.36 13.45,21.03L12,21.35Z"/></svg>
                     </button>
                 </div>
@@ -455,7 +467,7 @@ export class TrackCollectionDetail {
         }
         const selectAllLabel = this.container.querySelector<HTMLElement>('.collection-select-all span');
         if (selectAllLabel && this.model) {
-            selectAllLabel.textContent = this.selectedTracks.size === this.model.tracks.length ? '取消全选' : '全选';
+            bindLocalizedText(selectAllLabel, () => this.selectedTracks.size === this.model?.tracks.length ? t('messages:deselectAll') : t('messages:selectAll'), 'textContent');
         }
     }
 
@@ -619,7 +631,7 @@ export class TrackCollectionDetail {
     private formatTotalDuration(duration: number): string {
         const hours = Math.floor(duration / 3600);
         const minutes = Math.floor((duration % 3600) / 60);
-        return hours > 0 ? `${hours} 小时 ${minutes} 分钟` : `${minutes} 分钟`;
+        return hours > 0 ? t('dynamic:durationHoursMinutes', {hours: hours, minutes: minutes}) : t('dynamic:durationMinutes', {minutes: minutes});
     }
 
     private escapeHtml(value: unknown): string {

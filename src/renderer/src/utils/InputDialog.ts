@@ -1,3 +1,4 @@
+import {setLocalizedText} from '@/shared/i18n';
 /**
  * 输入对话框工具类
  */
@@ -72,7 +73,7 @@ class InputDialog {
      * @param {string} title - 对话框标题
      * @returns {Promise<string|null>} 返回输入的值，取消时返回null
      */
-    show(message: string, defaultValue = '', title = '输入'): Promise<string | null> {
+    show(message: string, defaultValue = '', title?: string): Promise<string | null> {
         return new Promise((resolve, reject) => {
             if (!this.modal || !this.title || !this.message || !this.input) {
                 resolve(null);
@@ -83,7 +84,8 @@ class InputDialog {
             void reject;
             const input = this.input;
 
-            this.title.textContent = title;
+            if (title === undefined) setLocalizedText(this.title, 'app:input');
+            else { this.title.removeAttribute('data-i18n'); this.title.textContent = title; }
             this.message.textContent = message;
             this.input.value = defaultValue;
 
@@ -132,7 +134,7 @@ let inputDialogInstance: InputDialog | null = null;
  * @param {string} title - 对话框标题
  * @returns {Promise<string|null>} 返回输入的值，取消时返回null
  */
-export function showInputDialog(message: string, defaultValue = '', title = '输入'): Promise<string | null> {
+export function showInputDialog(message: string, defaultValue = '', title?: string): Promise<string | null> {
     if (!inputDialogInstance) {
         inputDialogInstance = new InputDialog();
     }

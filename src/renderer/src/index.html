@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh" data-theme="light">
+<html data-locale-loading lang="zh" data-theme="light">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,6 +7,7 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <title>MusicBox</title>
     <link rel="stylesheet" href="./styles/main.scss">
+    <style>html[data-locale-loading] body { visibility: hidden; }</style>
 </head>
 <body>
     <noscript>
@@ -17,7 +18,7 @@
     <div id="loading" class="loading-screen">
         <div class="loading-spinner"></div>
         <div class="loading-text">MusicBox loading...</div>
-        <div id="cache-loading-status" class="cache-loading-status" style="display: none;">
+        <div id="cache-loading-status" class="cache-loading-status" style="display: none;" data-i18n="app:loadingLibraryFromCache">
             正在从缓存加载音乐库...
         </div>
     </div>
@@ -42,7 +43,7 @@
 
                 <div class="navbar-center">
                     <div class="search-container">
-                        <input type="text" id="search-input" placeholder="搜索..." class="search-input">
+                        <input type="text" id="search-input" placeholder="搜索..." class="search-input" data-i18n-placeholder="app:search">
                         <svg class="search-icon" viewBox="0 0 24 24">
                             <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                         </svg>
@@ -51,21 +52,21 @@
 
                 <div class="navbar-right">
                     <button class="nav-button" id="settings-btn">
-                        <img class="icon" src="assets/icons/settings.svg" alt="设置">
+                        <img class="icon" src="assets/icons/settings.svg" alt="设置" data-i18n-alt="app:settings">
                     </button>
                     <button class="nav-button" id="theme-toggle">
-                        <img class="icon light-icon" src="assets/icons/light.svg" alt="切换到深色主题">
-                        <img class="icon dark-icon" src="assets/icons/dark.svg" alt="切换到浅色主题" style="display: none;">
+                        <img class="icon light-icon" src="assets/icons/light.svg" alt="切换到深色主题" data-i18n-alt="app:switchToDarkTheme">
+                        <img class="icon dark-icon" src="assets/icons/dark.svg" alt="切换到浅色主题" style="display: none;" data-i18n-alt="app:switchToLightTheme">
                     </button>
                     <button class="nav-button" id="minimize-btn">
-                        <img class="icon" src="assets/icons/minimize.svg" alt="最小化">
+                        <img class="icon" src="assets/icons/minimize.svg" alt="最小化" data-i18n-alt="app:minimize">
                     </button>
                     <button class="nav-button" id="maximize-btn">
-                        <img class="icon maximize-icon" src="assets/icons/maximize.svg" alt="最大化">
-                        <img class="icon restore-icon" src="assets/icons/restore.svg" alt="还原" style="display: none;">
+                        <img class="icon maximize-icon" src="assets/icons/maximize.svg" alt="最大化" data-i18n-alt="app:maximize">
+                        <img class="icon restore-icon" src="assets/icons/restore.svg" alt="还原" style="display: none;" data-i18n-alt="app:restore">
                     </button>
                     <button class="nav-button" id="close-btn">
-                        <img class="icon" src="assets/icons/x.svg" alt="关闭应用">
+                        <img class="icon" src="assets/icons/x.svg" alt="关闭应用" data-i18n-alt="app:closeApplication">
                     </button>
                 </div>
             </div>
@@ -76,19 +77,19 @@
             <!-- 侧边栏收缩/展开按钮 -->
             <div class="sidebar-toggle">
                 <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
-                    <img class="icon collapse-icon" src="assets/icons/arrow-left.svg" alt="收缩侧边栏">
-                    <img class="icon expand-icon" src="assets/icons/menu.svg" alt="展开侧边栏">
+                    <img class="icon collapse-icon" src="assets/icons/arrow-left.svg" alt="收缩侧边栏" data-i18n-alt="app:collapseSidebar">
+                    <img class="icon expand-icon" src="assets/icons/menu.svg" alt="展开侧边栏" data-i18n-alt="app:expandSidebar">
                 </button>
             </div>
 
             <div class="sidebar-content">
                 <div class="sidebar-section">
-                    <h3 class="sidebar-title">音乐库</h3>
+                    <h3 class="sidebar-title" data-i18n="app:musicLibrary">音乐库</h3>
                     <ul class="sidebar-menu">
                         <li>
                             <a href="#" class="sidebar-link active" data-view="home-page">
                                 <img class="sidebar-icon" src="assets/icons/home.svg" alt="">
-                                <span class="sidebar-text">首页</span>
+                                <span class="sidebar-text" data-i18n="app:home">首页</span>
                             </a>
                         </li>
                         <li>
@@ -96,7 +97,7 @@
                                 <svg class="sidebar-icon" viewBox="0 0 24 24">
                                     <path d="M12,3V12.26C11.5,12.09 11,12 10.5,12C8.01,12 6,14.01 6,16.5S8.01,21 10.5,21S15,18.99 15,16.5V6H19V3H12Z"/>
                                 </svg>
-                                <span class="sidebar-text">全部歌曲</span>
+                                <span class="sidebar-text" data-i18n="app:allTracks">全部歌曲</span>
                             </a>
                         </li>
                         <li>
@@ -104,7 +105,7 @@
                                 <svg class="sidebar-icon" viewBox="0 0 24 24">
                                     <path d="M10,4H4C2.89,4 2,4.89 2,6V18C2,19.1 2.9,20 4,20H20C21.1,20 22,19.1 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
                                 </svg>
-                                <span class="sidebar-text">文件夹</span>
+                                <span class="sidebar-text" data-i18n="app:folders">文件夹</span>
                             </a>
                         </li>
                         <li>
@@ -112,7 +113,7 @@
                                 <svg class="sidebar-icon" viewBox="0 0 24 24">
                                     <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
                                 </svg>
-                                <span class="sidebar-text">星河</span>
+                                <span class="sidebar-text" data-i18n="app:artists">星河</span>
                             </a>
                         </li>
                         <li>
@@ -120,7 +121,7 @@
                                 <svg class="sidebar-icon" viewBox="0 0 24 24">
                                     <path d="M12,2A10,10 0 1,0 22,12A10,10 0 0,0 12,2M12,7A5,5 0 1,1 7,12A5,5 0 0,1 12,7M12,10A2,2 0 1,0 14,12A2,2 0 0,0 12,10Z"/>
                                 </svg>
-                                <span class="sidebar-text">专辑</span>
+                                <span class="sidebar-text" data-i18n="app:albums">专辑</span>
                             </a>
                         </li>
                         <li>
@@ -128,7 +129,7 @@
                                 <svg class="sidebar-icon" viewBox="0 0 24 24">
                                     <path d="M15,6H3V8H15V6M15,10H3V12H15V10M3,16H11V14H3V16M17,6V14.18C16.69,14.07 16.35,14 16,14A3,3 0 0,0 13,17A3,3 0 0,0 16,20A3,3 0 0,0 19,17V8H22V6H17Z"/>
                                 </svg>
-                                <span class="sidebar-text">歌单</span>
+                                <span class="sidebar-text" data-i18n="app:playlists">歌单</span>
                             </a>
                         </li>
                         <li>
@@ -136,21 +137,21 @@
                                 <svg class="sidebar-icon" viewBox="0 0 24 24">
                                     <path d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z"/>
                                 </svg>
-                                <span class="sidebar-text">统计</span>
+                                <span class="sidebar-text" data-i18n="app:statistics">统计</span>
                             </a>
                         </li>
                     </ul>
                 </div>
 
                 <div class="sidebar-section">
-                    <h3 class="sidebar-title">播放列表</h3>
+                    <h3 class="sidebar-title" data-i18n="app:playlistsLabel">播放列表</h3>
                     <ul class="sidebar-menu" id="playlists-menu">
                         <li>
                             <a href="#" class="sidebar-link" data-view="favorites">
                                 <svg class="sidebar-icon" viewBox="0 0 24 24">
                                     <path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/>
                                 </svg>
-                                <span class="sidebar-text">收藏</span>
+                                <span class="sidebar-text" data-i18n="app:favorites">收藏</span>
                             </a>
                         </li>
                         <li>
@@ -158,7 +159,7 @@
                                 <svg class="sidebar-icon" viewBox="0 0 24 24">
                                     <path d="M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3Z"/>
                                 </svg>
-                                <span class="sidebar-text">最近播放</span>
+                                <span class="sidebar-text" data-i18n="app:recentlyPlayed">最近播放</span>
                             </a>
                         </li>
                         <li>
@@ -166,7 +167,7 @@
                                 <svg class="sidebar-icon" viewBox="0 0 24 24">
                                     <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                                 </svg>
-                                <span class="sidebar-text">创建新歌单</span>
+                                <span class="sidebar-text" data-i18n="app:createPlaylist">创建新歌单</span>
                             </button>
                         </li>
                     </ul>
@@ -174,7 +175,7 @@
 
                 <!-- 用户歌单列表 -->
                 <div class="sidebar-section" id="user-playlists-section" style="display: none;">
-                    <h3 class="sidebar-title">我的歌单</h3>
+                    <h3 class="sidebar-title" data-i18n="app:myPlaylists">我的歌单</h3>
                     <ul class="sidebar-menu" id="user-playlists-list">
                         <!-- 用户歌单将动态添加到这里 -->
                     </ul>
@@ -182,7 +183,7 @@
 
                 <!-- 网络磁盘列表 -->
                 <div class="sidebar-section" id="network-drives-section" style="display: none;">
-                    <h3 class="sidebar-title">网络磁盘</h3>
+                    <h3 class="sidebar-title" data-i18n="app:networkDrives">网络磁盘</h3>
                     <ul class="sidebar-menu" id="network-drives-list">
                         <!-- 网络磁盘将动态添加到这里 -->
                     </ul>
@@ -219,17 +220,17 @@
                             <img id="track-cover" class="track-cover" src="assets/images/default-cover.svg" alt="Album cover">
                             <div class="track-cover-overlay">
                                 <div class="lyrics-hint-icon">
-                                    <img src="assets/icons/arrow-up.svg" alt="查看歌词">
+                                    <img src="assets/icons/arrow-up.svg" alt="查看歌词" data-i18n-alt="app:viewLyrics">
                                 </div>
                             </div>
                         </div>
                         <div class="track-info">
-                            <div id="track-title" class="track-name">未选择歌曲</div>
-                            <div id="track-artist" class="track-artist">未知艺术家</div>
+                            <div id="track-title" class="track-name" data-i18n="app:noTrackSelected">未选择歌曲</div>
+                            <div id="track-artist" class="track-artist" data-i18n="app:unknownArtist">未知艺术家</div>
                         </div>
                         <div class="like-button">
-                            <button class="button-icon disabled" id="like-btn" type="button" disabled aria-pressed="false" title="收藏">
-                                <img class="icon" src="assets/icons/heart.svg" alt="喜欢">
+                            <button class="button-icon disabled" id="like-btn" type="button" disabled aria-pressed="false" title="收藏" data-i18n-title="app:favorites">
+                                <img class="icon" src="assets/icons/heart.svg" alt="喜欢" data-i18n-alt="app:like">
                             </button>
                         </div>
                     </div>
@@ -241,14 +242,14 @@
                     <div class="blank"></div>
                     <div class="container">
                         <button class="button-icon" id="prev-btn">
-                            <img class="icon" src="assets/icons/previous.svg" alt="上一首">
+                            <img class="icon" src="assets/icons/previous.svg" alt="上一首" data-i18n-alt="app:previousTrack">
                         </button>
                         <button class="button-icon play" id="play-pause-btn">
-                            <img class="icon play-icon" src="assets/icons/play.svg" alt="播放">
-                            <img class="icon pause-icon" src="assets/icons/pause.svg" alt="暂停" style="display: none;">
+                            <img class="icon play-icon" src="assets/icons/play.svg" alt="播放" data-i18n-alt="app:play">
+                            <img class="icon pause-icon" src="assets/icons/pause.svg" alt="暂停" style="display: none;" data-i18n-alt="app:pause">
                         </button>
                         <button class="button-icon" id="next-btn">
-                            <img class="icon" src="assets/icons/next.svg" alt="下一首">
+                            <img class="icon" src="assets/icons/next.svg" alt="下一首" data-i18n-alt="app:nextTrack">
                         </button>
                     </div>
                     <div class="blank"></div>
@@ -259,30 +260,30 @@
                     <div class="blank"></div>
                     <div class="container">
                         <button class="button-icon" id="lyrics-btn">
-                            <img class="icon" src="assets/icons/arrow-up.svg" alt="歌词">
+                            <img class="icon" src="assets/icons/arrow-up.svg" alt="歌词" data-i18n-alt="app:lyrics">
                         </button>
                         <button class="button-icon" id="playlist-btn">
-                            <img class="icon" src="assets/icons/playlist.svg" alt="播放列表">
+                            <img class="icon" src="assets/icons/playlist.svg" alt="播放列表" data-i18n-alt="app:playlistsLabel">
                         </button>
-                        <button class="button-icon" id="play-mode-btn" title="播放模式">
-                            <img class="icon mode-sequence" src="assets/icons/repeat.svg" alt="顺序播放">
-                            <img class="icon mode-shuffle" src="assets/icons/shuffle.svg" alt="随机播放" style="display: none;">
-                            <img class="icon mode-repeat-one" src="assets/icons/repeat-one.svg" alt="单曲循环" style="display: none;">
+                        <button class="button-icon" id="play-mode-btn" title="播放模式" data-i18n-title="app:playbackMode">
+                            <img class="icon mode-sequence" src="assets/icons/repeat.svg" alt="顺序播放" data-i18n-alt="app:sequential">
+                            <img class="icon mode-shuffle" src="assets/icons/shuffle.svg" alt="随机播放" style="display: none;" data-i18n-alt="app:shuffle">
+                            <img class="icon mode-repeat-one" src="assets/icons/repeat-one.svg" alt="单曲循环" style="display: none;" data-i18n-alt="app:repeatOne">
                         </button>
-                        <button class="button-icon" id="mini-mode-btn" title="迷你模式">
-                            <img class="icon" src="assets/icons/mini-mode.svg" alt="迷你模式">
+                        <button class="button-icon" id="mini-mode-btn" title="迷你模式" data-i18n-title="app:miniMode">
+                            <img class="icon" src="assets/icons/mini-mode.svg" alt="迷你模式" data-i18n-alt="app:miniMode">
                         </button>
                         <button class="button-icon" id="desktop-lyrics-btn">
-                            <img class="icon" src="assets/icons/lyrics_filled.svg" alt="桌面歌词">
+                            <img class="icon" src="assets/icons/lyrics_filled.svg" alt="桌面歌词" data-i18n-alt="app:desktopLyrics">
                         </button>
 <!--                        <button class="button-icon" id="karaoke-btn">-->
 <!--                            <img class="icon" src="assets/icons/karaoke.svg" alt="人声消除">-->
 <!--                        </button>-->
                         <div class="volume-control">
                             <button class="button-icon" id="volume-btn">
-                                <img class="icon volume-high" src="assets/icons/volume.svg" alt="音量">
-                                <img class="icon volume-half" src="assets/icons/volume-half.svg" alt="音量" style="display: none;">
-                                <img class="icon volume-mute" src="assets/icons/volume-mute.svg" alt="静音" style="display: none;">
+                                <img class="icon volume-high" src="assets/icons/volume.svg" alt="音量" data-i18n-alt="app:volume">
+                                <img class="icon volume-half" src="assets/icons/volume-half.svg" alt="音量" style="display: none;" data-i18n-alt="app:volume">
+                                <img class="icon volume-mute" src="assets/icons/volume-mute.svg" alt="静音" style="display: none;" data-i18n-alt="app:mute">
                             </button>
                             <div class="volume-bar">
                                 <div class="volume-slider-container">
@@ -301,7 +302,7 @@
         <!-- Playlist Panel -->
         <div id="playlist-panel" class="playlist-panel" style="display: none;">
             <div class="playlist-header">
-                <h3 class="playlist-title">播放队列</h3>
+                <h3 class="playlist-title" data-i18n="app:playQueue">播放队列</h3>
                 <button class="playlist-close" id="playlist-close">
                     <svg class="icon" viewBox="0 0 24 24">
                         <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
@@ -310,8 +311,8 @@
             </div>
             <div class="playlist-content">
                 <div class="playlist-info">
-                    <span id="playlist-count">0 首歌曲</span>
-                    <button class="playlist-clear" id="playlist-clear">清空</button>
+                    <span id="playlist-count" data-i18n="app:0Tracks">0 首歌曲</span>
+                    <button class="playlist-clear" id="playlist-clear" data-i18n="app:clear">清空</button>
                 </div>
                 <div class="playlist-tracks" id="playlist-tracks">
                     <!-- Playlist tracks will be dynamically added here -->
@@ -325,50 +326,50 @@
                 <svg class="icon" viewBox="0 0 24 24">
                     <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
                 </svg>
-                <span>播放</span>
+                <span data-i18n="app:play">播放</span>
             </div>
             <div class="context-menu-item" id="context-play-next">
                 <svg class="icon" viewBox="0 0 24 24">
                     <path d="M6,18L14.5,12L6,6V18M16,6V18H18V6H16Z"/>
                 </svg>
-                <span id="context-play-next-label">下一首播放</span>
+                <span id="context-play-next-label" data-i18n="app:playNext">下一首播放</span>
             </div>
             <div class="context-menu-item" id="context-add-to-playlist">
                 <svg class="icon" viewBox="0 0 24 24">
                     <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                 </svg>
-                <span id="context-add-to-playlist-label">添加到播放列表</span>
+                <span id="context-add-to-playlist-label" data-i18n="app:addToQueue">添加到播放列表</span>
             </div>
             <div class="context-menu-item" id="context-add-to-custom-playlist">
                 <svg class="icon" viewBox="0 0 24 24">
                     <path d="M13,2V8H21V2M13,9V15H21V9M13,16V22H21V16M3,2V8H11V2M3,9V15H11V9M3,16V22H11V16Z"/>
                 </svg>
-                <span id="context-add-to-custom-playlist-label">添加到歌单</span>
+                <span id="context-add-to-custom-playlist-label" data-i18n="app:addToPlaylist">添加到歌单</span>
             </div>
             <div class="context-menu-item" id="context-select-lyrics">
                 <svg class="icon" viewBox="0 0 24 24">
                     <path d="M12 3V13.55A4 4 0 1 0 14 17V7H19V3H12Z"/>
                 </svg>
-                <span>选择歌词...</span>
+                <span data-i18n="app:chooseLyrics">选择歌词...</span>
             </div>
             <div class="context-menu-divider"></div>
             <div class="context-menu-item" id="context-edit-info">
                 <svg class="icon" viewBox="0 0 24 24">
                     <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/>
                 </svg>
-                <span>编辑歌曲信息</span>
+                <span data-i18n="app:editTrackInformation">编辑歌曲信息</span>
             </div>
             <div class="context-menu-item" id="context-delete">
                 <svg class="icon" viewBox="0 0 24 24">
                     <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
                 </svg>
-                <span>删除</span>
+                <span data-i18n="app:delete">删除</span>
             </div>
             <div class="context-menu-item danger" id="context-batch-delete" style="display:none;">
                 <svg class="icon" viewBox="0 0 24 24">
                     <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
                 </svg>
-                <span id="context-batch-delete-label">批量删除</span>
+                <span id="context-batch-delete-label" data-i18n="app:deleteSelected">批量删除</span>
             </div>
         </div>
 
@@ -376,7 +377,7 @@
         <div id="create-playlist-dialog" class="modal-overlay" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-header">
-                    <h3 class="modal-title">创建新歌单</h3>
+                    <h3 class="modal-title" data-i18n="app:createPlaylist">创建新歌单</h3>
                     <button class="modal-close-btn" id="create-playlist-close">
                         <svg class="icon" viewBox="0 0 24 24">
                             <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
@@ -385,18 +386,18 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="playlist-name-input" class="form-label">歌单名称</label>
-                        <input type="text" id="playlist-name-input" class="form-input" placeholder="请输入歌单名称" maxlength="50">
+                        <label for="playlist-name-input" class="form-label" data-i18n="app:playlistName">歌单名称</label>
+                        <input type="text" id="playlist-name-input" class="form-input" placeholder="请输入歌单名称" maxlength="50" data-i18n-placeholder="app:enterPlaylistName">
                         <div class="form-error" id="playlist-name-error" style="display: none;"></div>
                     </div>
                     <div class="form-group">
-                        <label for="playlist-description-input" class="form-label">歌单描述（可选）</label>
-                        <textarea id="playlist-description-input" class="form-textarea" placeholder="请输入歌单描述" maxlength="200" rows="3"></textarea>
+                        <label for="playlist-description-input" class="form-label" data-i18n="app:descriptionOptional">歌单描述（可选）</label>
+                        <textarea id="playlist-description-input" class="form-textarea" placeholder="请输入歌单描述" maxlength="200" rows="3" data-i18n-placeholder="app:enterPlaylistDescription"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" id="create-playlist-cancel">取消</button>
-                    <button class="btn btn-primary" id="create-playlist-confirm" disabled>创建</button>
+                    <button class="btn btn-secondary" id="create-playlist-cancel" data-i18n="app:cancel">取消</button>
+                    <button class="btn btn-primary" id="create-playlist-confirm" disabled data-i18n="app:create">创建</button>
                 </div>
             </div>
         </div>
@@ -405,7 +406,7 @@
         <div id="add-to-playlist-dialog" class="modal-overlay" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-header">
-                    <h3 class="modal-title">添加到歌单</h3>
+                    <h3 class="modal-title" data-i18n="app:addToPlaylist">添加到歌单</h3>
                     <button class="modal-close-btn" id="add-to-playlist-close">
                         <svg class="icon" viewBox="0 0 24 24">
                             <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
@@ -426,7 +427,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" id="add-to-playlist-cancel">取消</button>
+                    <button class="btn btn-secondary" id="add-to-playlist-cancel" data-i18n="app:cancel">取消</button>
                 </div>
             </div>
         </div>
@@ -435,7 +436,7 @@
         <div id="confirm-dialog" class="modal-overlay" style="display: none;">
             <div class="modal-dialog modal-dialog-small">
                 <div class="modal-header">
-                    <h3 class="modal-title" id="confirm-dialog-title">确认操作</h3>
+                    <h3 class="modal-title" id="confirm-dialog-title" data-i18n="app:confirmAction">确认操作</h3>
                     <button class="modal-close-btn" id="confirm-dialog-close">
                         <svg class="icon" viewBox="0 0 24 24">
                             <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
@@ -446,8 +447,8 @@
                     <p class="confirm-message" id="confirm-dialog-message"></p>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" id="confirm-dialog-cancel">取消</button>
-                    <button class="btn btn-primary" id="confirm-dialog-confirm">确定</button>
+                    <button class="btn btn-secondary" id="confirm-dialog-cancel" data-i18n="app:cancel">取消</button>
+                    <button class="btn btn-primary" id="confirm-dialog-confirm" data-i18n="app:confirm">确定</button>
                 </div>
             </div>
         </div>
@@ -456,7 +457,7 @@
         <div id="rename-playlist-dialog" class="modal-overlay" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-header">
-                    <h3 class="modal-title">重命名歌单</h3>
+                    <h3 class="modal-title" data-i18n="app:renamePlaylist">重命名歌单</h3>
                     <button class="modal-close-btn" id="rename-playlist-close">
                         <svg class="icon" viewBox="0 0 24 24">
                             <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
@@ -465,18 +466,18 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="rename-playlist-input" class="form-label">歌单名称</label>
-                        <input type="text" id="rename-playlist-input" class="form-input" placeholder="请输入新的歌单名称" maxlength="50">
+                        <label for="rename-playlist-input" class="form-label" data-i18n="app:playlistName">歌单名称</label>
+                        <input type="text" id="rename-playlist-input" class="form-input" placeholder="请输入新的歌单名称" maxlength="50" data-i18n-placeholder="app:enterNewPlaylistName">
                         <div class="form-error" id="rename-playlist-error" style="display: none;"></div>
                     </div>
                     <div class="form-group">
-                        <label for="rename-playlist-description-input" class="form-label">歌单描述（可选）</label>
-                        <textarea id="rename-playlist-description-input" class="form-textarea" placeholder="请输入歌单描述" maxlength="200" rows="3"></textarea>
+                        <label for="rename-playlist-description-input" class="form-label" data-i18n="app:descriptionOptional">歌单描述（可选）</label>
+                        <textarea id="rename-playlist-description-input" class="form-textarea" placeholder="请输入歌单描述" maxlength="200" rows="3" data-i18n-placeholder="app:enterPlaylistDescription"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" id="rename-playlist-cancel">取消</button>
-                    <button class="btn btn-primary" id="rename-playlist-confirm" disabled>重命名</button>
+                    <button class="btn btn-secondary" id="rename-playlist-cancel" data-i18n="app:cancel">取消</button>
+                    <button class="btn btn-primary" id="rename-playlist-confirm" disabled data-i18n="app:rename">重命名</button>
                 </div>
             </div>
         </div>
@@ -486,77 +487,77 @@
             <div class="settings-container">
                 <!-- 设置页面关闭按钮 -->
                 <button class="settings-close-btn" id="settings-close-btn">
-                    <img class="icon" src="assets/icons/x.svg" alt="关闭">
+                    <img class="icon" src="assets/icons/x.svg" alt="关闭" data-i18n-alt="app:close">
                 </button>
 
                 <!-- 设置页面侧边栏导航 -->
                 <div class="settings-sidebar">
                     <div class="settings-sidebar-content">
                         <div class="settings-header">
-                            <h1 class="settings-title">设置</h1>
-                            <p class="settings-subtitle">个性化您的音乐体验</p>
+                            <h1 class="settings-title" data-i18n="app:settings">设置</h1>
+                            <p class="settings-subtitle" data-i18n="app:personalizeYourListeningExperience">个性化您的音乐体验</p>
                         </div>
 
                         <nav class="settings-nav">
                         <ul class="settings-nav-list">
                             <li class="settings-nav-item">
                                 <button class="settings-nav-btn active" data-section="appearance">
-                                    <span class="nav-text">外观与显示</span>
+                                    <span class="nav-text" data-i18n="app:appearance">外观与显示</span>
                                 </button>
                             </li>
                             <li class="settings-nav-item">
                                 <button class="settings-nav-btn active" data-section="lyrics">
-                                    <span class="nav-text">歌词</span>
+                                    <span class="nav-text" data-i18n="app:lyrics">歌词</span>
                                 </button>
                             </li>
                             <li class="settings-nav-item">
                                 <button class="settings-nav-btn" data-section="audio">
-                                    <span class="nav-text">音频</span>
+                                    <span class="nav-text" data-i18n="app:audio">音频</span>
                                 </button>
                             </li>
                             <li class="settings-nav-item">
                                 <button class="settings-nav-btn" data-section="playback">
-                                    <span class="nav-text">播放</span>
+                                    <span class="nav-text" data-i18n="app:play">播放</span>
                                 </button>
                             </li>
                             <li class="settings-nav-item">
                                 <button class="settings-nav-btn" data-section="library">
-                                    <span class="nav-text">音乐库</span>
+                                    <span class="nav-text" data-i18n="app:musicLibrary">音乐库</span>
                                 </button>
                             </li>
                             <li class="settings-nav-item">
                                 <button class="settings-nav-btn" data-section="desktop-lyrics">
-                                    <span class="nav-text">桌面歌词</span>
+                                    <span class="nav-text" data-i18n="app:desktopLyrics">桌面歌词</span>
                                 </button>
                             </li>
                             <li class="settings-nav-item">
                                 <button class="settings-nav-btn" data-section="mini-mode">
-                                    <span class="nav-text">迷你模式</span>
+                                    <span class="nav-text" data-i18n="app:miniMode">迷你模式</span>
                                 </button>
                             </li>
                             <li class="settings-nav-item">
                                 <button class="settings-nav-btn" data-section="advanced">
-                                    <span class="nav-text">高级</span>
+                                    <span class="nav-text" data-i18n="app:advanced">高级</span>
                                 </button>
                             </li>
                             <li class="settings-nav-item">
                                 <button class="settings-nav-btn" data-section="network">
-                                    <span class="nav-text">网络磁盘</span>
+                                    <span class="nav-text" data-i18n="app:networkDrives">网络磁盘</span>
                                 </button>
                             </li>
                             <li class="settings-nav-item">
                                 <button class="settings-nav-btn" data-section="shortcuts">
-                                    <span class="nav-text">快捷键</span>
+                                    <span class="nav-text" data-i18n="app:shortcuts">快捷键</span>
                                 </button>
                             </li>
                             <li class="settings-nav-item">
                                 <button class="settings-nav-btn" data-section="plugins">
-                                    <span class="nav-text">插件管理</span>
+                                    <span class="nav-text" data-i18n="app:extensions">插件管理</span>
                                 </button>
                             </li>
                             <li class="settings-nav-item">
                                 <button class="settings-nav-btn" data-section="about">
-                                    <span class="nav-text">关于</span>
+                                    <span class="nav-text" data-i18n="app:about">关于</span>
                                 </button>
                             </li>
                         </ul>
@@ -570,16 +571,17 @@
 
                     <!-- 外观设置 -->
                     <div class="settings-section" data-section="appearance">
-                        <h2 class="section-title">外观与显示</h2>
+                        <h2 class="section-title" data-i18n="app:appearance">外观与显示</h2>
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">语言</label>
-                                <p class="item-description">选择界面显示语言</p>
+                                <label class="item-label" data-i18n="app:language">语言</label>
+                                <p class="item-description" data-i18n="app:chooseTheApplicationLanguage">选择界面显示语言</p>
                             </div>
                             <div class="item-control">
                                 <select class="settings-select" id="language-select">
-                                    <option value="zh-CN">简体中文</option>
-                                    <option value="zh-TW">繁體中文</option>
+                                    <option value="system" data-i18n="settings:system">跟随系统</option>
+                                    <option value="zh-CN" data-i18n="app:simplifiedChinese">简体中文</option>
+                                    <option value="zh-TW" data-i18n="app:traditionalChinese">繁體中文</option>
                                     <option value="en">English</option>
                                 </select>
                             </div>
@@ -587,8 +589,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">按艺术家拆分同名专辑</label>
-                                <p class="item-description">开启后，同名专辑会按专辑艺术家分别显示；关闭时合并为一张专辑</p>
+                                <label class="item-label" data-i18n="app:separateAlbumsByArtist">按艺术家拆分同名专辑</label>
+                                <p class="item-description" data-i18n="app:separateAlbumsWithTheSameTitleByAlbumArtist">开启后，同名专辑会按专辑艺术家分别显示；关闭时合并为一张专辑</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -600,8 +602,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">启用桌面歌词</label>
-                                <p class="item-description">控制主界面桌面歌词按钮的显示，开启后可在播放器中使用桌面歌词功能</p>
+                                <label class="item-label" data-i18n="app:enableDesktopLyrics">启用桌面歌词</label>
+                                <p class="item-description" data-i18n="app:showTheDesktopLyricsButtonInThePlayer">控制主界面桌面歌词按钮的显示，开启后可在播放器中使用桌面歌词功能</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -613,8 +615,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">启用统计信息</label>
-                                <p class="item-description">控制侧边栏统计按钮的显示，开启后可查看统计信息</p>
+                                <label class="item-label" data-i18n="app:enableStatistics">启用统计信息</label>
+                                <p class="item-description" data-i18n="app:showListeningStatisticsInTheSidebar">控制侧边栏统计按钮的显示，开启后可查看统计信息</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -626,8 +628,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">启用最近播放</label>
-                                <p class="item-description">控制侧边栏最近播放按钮的显示，开启后可查看最近播放的音乐</p>
+                                <label class="item-label" data-i18n="app:enableRecentlyPlayed">启用最近播放</label>
+                                <p class="item-description" data-i18n="app:showRecentlyPlayedTracksInTheSidebar">控制侧边栏最近播放按钮的显示，开启后可查看最近播放的音乐</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -639,8 +641,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">启用星河页面</label>
-                                <p class="item-description">控制侧边栏星河按钮的显示，开启后可查看艺术家列表和详情</p>
+                                <label class="item-label" data-i18n="app:enableArtistsPage">启用星河页面</label>
+                                <p class="item-description" data-i18n="app:showTheArtistsPageInTheSidebar">控制侧边栏星河按钮的显示，开启后可查看艺术家列表和详情</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -652,8 +654,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">启用专辑页面</label>
-                                <p class="item-description">控制侧边栏专辑按钮的显示，开启后可查看专辑</p>
+                                <label class="item-label" data-i18n="app:enableAlbumsPage">启用专辑页面</label>
+                                <p class="item-description" data-i18n="app:showTheAlbumsPageInTheSidebar">控制侧边栏专辑按钮的显示，开启后可查看专辑</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -665,8 +667,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">启用歌曲列表封面</label>
-                                <p class="item-description">控制歌曲列表中歌曲封面的显示，开启后可显示歌曲列表中各首歌曲封面</p>
+                                <label class="item-label" data-i18n="app:showTrackArtwork">启用歌曲列表封面</label>
+                                <p class="item-description" data-i18n="app:displayArtworkBesideEachTrackInLists">控制歌曲列表中歌曲封面的显示，开启后可显示歌曲列表中各首歌曲封面</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -678,8 +680,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">自动联网补全缺失封面</label>
-                                <p class="item-description">歌曲、艺术家或专辑没有本地封面时，按需联网获取可见项目的封面；无匹配时保留默认封面</p>
+                                <label class="item-label" data-i18n="app:findMissingArtworkOnline">自动联网补全缺失封面</label>
+                                <p class="item-description" data-i18n="app:fetchMissingArtworkForVisibleTracksArtistsAndAlbums">歌曲、艺术家或专辑没有本地封面时，按需联网获取可见项目的封面；无匹配时保留默认封面</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -691,8 +693,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">首次加歌时自动设置歌单封面</label>
-                                <p class="item-description">歌单没有封面时，从新加入歌曲中保存首张可用的内嵌封面快照</p>
+                                <label class="item-label" data-i18n="app:setPlaylistArtworkWhenAddingTracks">首次加歌时自动设置歌单封面</label>
+                                <p class="item-description" data-i18n="app:saveTheFirstAvailableEmbeddedArtworkFromAddedTracks">歌单没有封面时，从新加入歌曲中保存首张可用的内嵌封面快照</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -704,22 +706,22 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">歌单信息对齐方式</label>
-                                <p class="item-description">设置歌单详情页标题、描述和元信息的水平对齐方式</p>
+                                <label class="item-label" data-i18n="app:playlistInformationAlignment">歌单信息对齐方式</label>
+                                <p class="item-description" data-i18n="app:alignThePlaylistTitleDescriptionAndDetails">设置歌单详情页标题、描述和元信息的水平对齐方式</p>
                             </div>
                             <div class="item-control">
                                 <select class="settings-select" id="playlist-info-alignment-select">
-                                    <option value="left">靠左</option>
-                                    <option value="center">居中</option>
-                                    <option value="right">靠右</option>
+                                    <option value="left" data-i18n="app:left">靠左</option>
+                                    <option value="center" data-i18n="app:center">居中</option>
+                                    <option value="right" data-i18n="app:right">靠右</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">启用系统托盘</label>
-                                <p class="item-description">在系统托盘显示应用图标</p>
+                                <label class="item-label" data-i18n="app:enableSystemTray">启用系统托盘</label>
+                                <p class="item-description" data-i18n="app:showTheAppIconInTheSystemTray">在系统托盘显示应用图标</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -731,21 +733,21 @@
 
                         <div class="settings-item" id="tray-close-behavior-item">
                             <div class="item-info">
-                                <label class="item-label">关闭应用</label>
-                                <p class="item-description">选择关闭按钮行为</p>
+                                <label class="item-label" data-i18n="app:closeApplication">关闭应用</label>
+                                <p class="item-description" data-i18n="app:chooseWhatTheCloseButtonDoes">选择关闭按钮行为</p>
                             </div>
                             <div class="item-control">
                                 <select class="settings-select" id="tray-close-behavior-select">
-                                    <option value="exit">直接退出</option>
-                                    <option value="minimize">最小化到托盘</option>
+                                    <option value="exit" data-i18n="app:quit">直接退出</option>
+                                    <option value="minimize" data-i18n="app:minimizeToTray">最小化到托盘</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="settings-item" id="tray-start-minimized-item">
                             <div class="item-info">
-                                <label class="item-label">静默启动</label>
-                                <p class="item-description">应用启动时直接最小化到系统托盘</p>
+                                <label class="item-label" data-i18n="app:startMinimized">静默启动</label>
+                                <p class="item-description" data-i18n="app:minimizeToTheSystemTrayWhenTheAppStarts">应用启动时直接最小化到系统托盘</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -758,25 +760,25 @@
 
                     <!-- 歌词设置 -->
                     <div class="settings-section" data-section="lyrics">
-                        <h2 class="section-title">歌词设置</h2>
+                        <h2 class="section-title" data-i18n="app:lyricsSettings">歌词设置</h2>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">歌词颜色模式</label>
-                                <p class="item-description">默认跟随浅色或深色主题，也可以使用自定义颜色</p>
+                                <label class="item-label" data-i18n="app:lyricsColorMode">歌词颜色模式</label>
+                                <p class="item-description" data-i18n="app:followTheLightOrDarkThemeOrChooseA">默认跟随浅色或深色主题，也可以使用自定义颜色</p>
                             </div>
                             <div class="item-control">
                                 <select class="settings-select" id="lyrics-color-mode">
-                                    <option value="auto">跟随主题</option>
-                                    <option value="custom">自定义</option>
+                                    <option value="auto" data-i18n="app:followTheme">跟随主题</option>
+                                    <option value="custom" data-i18n="app:custom">自定义</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">歌词颜色</label>
-                                <p class="item-description">设置 AMLL 使用的基础文字颜色，逐字进度由原生透明度遮罩呈现</p>
+                                <label class="item-label" data-i18n="app:lyricsColor">歌词颜色</label>
+                                <p class="item-description" data-i18n="app:setTheBaseTextColorForAmllWordProgress">设置 AMLL 使用的基础文字颜色，逐字进度由原生透明度遮罩呈现</p>
                             </div>
                             <div class="item-control">
                                 <input type="color" class="color-picker" id="lyrics-color" value="#335eea">
@@ -786,17 +788,17 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">歌词字体</label>
-                                <p class="item-description">设置应用内 AMLL 歌词使用的字体族</p>
+                                <label class="item-label" data-i18n="app:lyricsFont">歌词字体</label>
+                                <p class="item-description" data-i18n="app:chooseTheFontFamilyForInappAmllLyrics">设置应用内 AMLL 歌词使用的字体族</p>
                             </div>
                             <div class="item-control">
                                 <select class="settings-select" id="lyrics-font-family">
-                                    <option value="inherit">跟随应用</option>
-                                    <option value="system">系统无衬线</option>
-                                    <option value="cjk-sans">中日韩无衬线</option>
-                                    <option value="serif">衬线字体</option>
-                                    <option value="monospace">等宽字体</option>
-                                    <option value="custom">自定义字体</option>
+                                    <option value="inherit" data-i18n="app:followApplication">跟随应用</option>
+                                    <option value="system" data-i18n="app:systemSansSerif">系统无衬线</option>
+                                    <option value="cjk-sans" data-i18n="app:cjkSansSerif">中日韩无衬线</option>
+                                    <option value="serif" data-i18n="app:serif">衬线字体</option>
+                                    <option value="monospace" data-i18n="app:monospace">等宽字体</option>
+                                    <option value="custom" data-i18n="app:customFont">自定义字体</option>
                                 </select>
                             </div>
                         </div>
@@ -804,35 +806,35 @@
                         <div id="lyrics-custom-font-container" hidden>
                             <div class="settings-item">
                                 <div class="item-info">
-                                    <label class="item-label" for="lyrics-custom-latin-font">拉丁字体</label>
-                                    <p class="item-description">用于拉丁字母、数字和半角标点；留空时跟随 CJK 字体</p>
+                                    <label class="item-label" for="lyrics-custom-latin-font" data-i18n="app:latinFont">拉丁字体</label>
+                                    <p class="item-description" data-i18n="app:forLatinLettersNumbersAndPunctuationLeaveBlankTo">用于拉丁字母、数字和半角标点；留空时跟随 CJK 字体</p>
                                 </div>
                                 <div class="item-control">
                                     <input type="text" class="settings-text-input" id="lyrics-custom-latin-font"
-                                           placeholder="例如：Inter" maxlength="100">
+                                           placeholder="例如：Inter" maxlength="100" data-i18n-placeholder="app:exampleInter">
                                 </div>
                             </div>
 
                             <div class="settings-item">
                                 <div class="item-info">
-                                    <label class="item-label" for="lyrics-custom-cjk-font">CJK 字体</label>
-                                    <p class="item-description">用于中日韩字符和全角标点；留空时跟随拉丁字体</p>
+                                    <label class="item-label" for="lyrics-custom-cjk-font" data-i18n="app:cjkFont">CJK 字体</label>
+                                    <p class="item-description" data-i18n="app:forChineseJapaneseAndKoreanCharactersLeaveBlankTo">用于中日韩字符和全角标点；留空时跟随拉丁字体</p>
                                 </div>
                                 <div class="item-control">
                                     <input type="text" class="settings-text-input" id="lyrics-custom-cjk-font"
-                                           placeholder="例如：霞鹜文楷" maxlength="100">
+                                           placeholder="例如：霞鹜文楷" maxlength="100" data-i18n-placeholder="app:exampleLxgwWenkai">
                                 </div>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">歌词字号</label>
-                                <p class="item-description">使用 AMLL 自适应字号，或选择固定大小</p>
+                                <label class="item-label" data-i18n="app:lyricsFontSize">歌词字号</label>
+                                <p class="item-description" data-i18n="app:useAdaptiveAmllSizingOrChooseAFixedSize">使用 AMLL 自适应字号，或选择固定大小</p>
                             </div>
                             <div class="item-control">
                                 <select class="settings-select" id="lyrics-font-size">
-                                    <option value="auto">自适应（默认）</option>
+                                    <option value="auto" data-i18n="app:adaptiveDefault">自适应（默认）</option>
                                     <option value="20">20px</option>
                                     <option value="24">24px</option>
                                     <option value="28">28px</option>
@@ -848,8 +850,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">显示翻译</label>
-                                <p class="item-description">显示来源或 TTML 明确提供的行级翻译</p>
+                                <label class="item-label" data-i18n="app:showTranslation">显示翻译</label>
+                                <p class="item-description" data-i18n="app:showLineTranslationsProvidedByTheSourceOrTtml">显示来源或 TTML 明确提供的行级翻译</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -861,8 +863,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">显示音译</label>
-                                <p class="item-description">显示行级和逐字 romanization</p>
+                                <label class="item-label" data-i18n="app:showRomanization">显示音译</label>
+                                <p class="item-description" data-i18n="app:showLineAndWordRomanization">显示行级和逐字 romanization</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -874,8 +876,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">显示注音</label>
-                                <p class="item-description">显示 TTML 中已有的 Ruby 注音</p>
+                                <label class="item-label" data-i18n="app:showRubyAnnotations">显示注音</label>
+                                <p class="item-description" data-i18n="app:showRubyAnnotationsProvidedInTtml">显示 TTML 中已有的 Ruby 注音</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -888,13 +890,13 @@
 
                     <!-- 音频设置 -->
                     <div class="settings-section" data-section="audio">
-                        <h2 class="section-title">音频</h2>
+                        <h2 class="section-title" data-i18n="app:audio">音频</h2>
 
                         <!-- WASAPI 音频引擎 -->
                         <div class="settings-item" id="exclusive-mode-item">
                             <div class="item-info">
-                                <label class="item-label">启用 WASAPI 引擎</label>
-                                <p class="item-description">启用 Windows WASAPI 音频引擎，使用本机流式播放路径和原生音频处理能力</p>
+                                <label class="item-label" data-i18n="app:enableWasapiEngine">启用 WASAPI 引擎</label>
+                                <p class="item-description" data-i18n="app:useTheWindowsWasapiEngineForNativeStreamingAnd">启用 Windows WASAPI 音频引擎，使用本机流式播放路径和原生音频处理能力</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -907,13 +909,13 @@
                         <!-- WASAPI 模式选择 -->
                         <div class="settings-item" id="wasapi-share-mode-item" style="display: none;">
                             <div class="item-info">
-                                <label class="item-label">WASAPI 模式</label>
-                                <p class="item-description">独占模式会请求独占音频设备，共享模式与其他应用共享设备，兼容性更好</p>
+                                <label class="item-label" data-i18n="app:wasapiMode">WASAPI 模式</label>
+                                <p class="item-description" data-i18n="app:exclusiveModeTakesControlOfTheAudioDeviceShared">独占模式会请求独占音频设备，共享模式与其他应用共享设备，兼容性更好</p>
                             </div>
                             <div class="item-control">
                                 <select class="settings-select" id="wasapi-share-mode-select">
-                                    <option value="exclusive">独占模式</option>
-                                    <option value="shared">共享模式</option>
+                                    <option value="exclusive" data-i18n="app:exclusive">独占模式</option>
+                                    <option value="shared" data-i18n="app:shared">共享模式</option>
                                 </select>
                             </div>
                         </div>
@@ -921,8 +923,8 @@
                         <!-- 无间隙播放 -->
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">无间隙播放</label>
-                                <p class="item-description">消除歌曲之间的静音间隔，提供连续的播放体验（此功能会增加资源占用，请按需开启）</p>
+                                <label class="item-label" data-i18n="app:gaplessPlayback">无间隙播放</label>
+                                <p class="item-description" data-i18n="app:removeSilenceBetweenTracksForContinuousPlaybackThisUses">消除歌曲之间的静音间隔，提供连续的播放体验（此功能会增加资源占用，请按需开启）</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -935,8 +937,8 @@
                         <!-- 均衡器设置 -->
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">图形均衡器</label>
-                                <p class="item-description">启用音频均衡器以调节音频频率响应</p>
+                                <label class="item-label" data-i18n="app:graphicEqualizer">图形均衡器</label>
+                                <p class="item-description" data-i18n="app:enableTheEqualizerToAdjustTheFrequencyResponse">启用音频均衡器以调节音频频率响应</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -948,32 +950,32 @@
 
                         <div class="settings-item equalizer-settings" id="equalizer-settings">
                             <div class="item-info">
-                                <label class="item-label">十段图形均衡器设置</label>
-                                <p class="item-description">调节各频段的音频增益</p>
+                                <label class="item-label" data-i18n="app:10bandEqualizerSettings">十段图形均衡器设置</label>
+                                <p class="item-description" data-i18n="app:adjustTheGainOfEachFrequencyBand">调节各频段的音频增益</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button" id="open-equalizer-btn">打开均衡器</button>
+                                <button class="settings-button" id="open-equalizer-btn" data-i18n="app:openEqualizer">打开均衡器</button>
                             </div>
                         </div>
 
                         <div class="settings-item equalizer-settings" id="parametric-equalizer-settings">
                             <div class="item-info">
-                                <label class="item-label">参量均衡器设置</label>
-                                <p class="item-description">专业级参量均衡器，支持自定义频率、Q值和多种滤波器类型（仅WASAPI模式可用）</p>
+                                <label class="item-label" data-i18n="app:parametricEqualizerSettings">参量均衡器设置</label>
+                                <p class="item-description" data-i18n="app:adjustFrequencyQAndFilterTypesWithTheParametric">专业级参量均衡器，支持自定义频率、Q值和多种滤波器类型（仅WASAPI模式可用）</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button" id="open-parametric-equalizer-btn">打开均衡器</button>
+                                <button class="settings-button" id="open-parametric-equalizer-btn" data-i18n="app:openEqualizer">打开均衡器</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- 播放设置 -->
                     <div class="settings-section" data-section="playback">
-                        <h2 class="section-title">播放</h2>
+                        <h2 class="section-title" data-i18n="app:play">播放</h2>
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">自动播放</label>
-                                <p class="item-description">启动应用时自动播放上次的音乐</p>
+                                <label class="item-label" data-i18n="app:autoplay">自动播放</label>
+                                <p class="item-description" data-i18n="app:resumeTheLastTrackWhenTheAppStarts">启动应用时自动播放上次的音乐</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -985,8 +987,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">记住播放位置</label>
-                                <p class="item-description">重新打开应用时恢复上次的播放位置和播放列表</p>
+                                <label class="item-label" data-i18n="app:rememberPlaybackPosition">记住播放位置</label>
+                                <p class="item-description" data-i18n="app:restoreThePlaybackPositionAndQueueWhenReopeningThe">重新打开应用时恢复上次的播放位置和播放列表</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -1000,21 +1002,21 @@
 
                     <!-- 库设置 -->
                     <div class="settings-section" data-section="library">
-                        <h2 class="section-title">音乐库</h2>
+                        <h2 class="section-title" data-i18n="app:musicLibrary">音乐库</h2>
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">音乐文件夹</label>
-                                <p class="item-description">在文件夹页面集中添加、扫描、移除音乐源并管理歌单绑定</p>
+                                <label class="item-label" data-i18n="app:musicFolders">音乐文件夹</label>
+                                <p class="item-description" data-i18n="app:addScanAndRemoveMusicSourcesAndManagePlaylist">在文件夹页面集中添加、扫描、移除音乐源并管理歌单绑定</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button" id="manage-music-folders-btn">管理文件夹</button>
+                                <button class="settings-button" id="manage-music-folders-btn" data-i18n="app:manageFolders">管理文件夹</button>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">自动扫描</label>
-                                <p class="item-description">定期自动扫描音乐文件夹中的新文件</p>
+                                <label class="item-label" data-i18n="app:automaticScanning">自动扫描</label>
+                                <p class="item-description" data-i18n="app:periodicallyScanMusicFoldersForNewFiles">定期自动扫描音乐文件夹中的新文件</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -1027,126 +1029,126 @@
                         <!-- 扫描频率设置 -->
                         <div class="settings-item" id="scan-frequency-container" style="display: none;">
                             <div class="item-info">
-                                <label class="item-label">扫描频率</label>
-                                <p class="item-description">设置自动扫描的时间间隔</p>
+                                <label class="item-label" data-i18n="app:scanFrequency">扫描频率</label>
+                                <p class="item-description" data-i18n="app:chooseHowOftenToScanAutomatically">设置自动扫描的时间间隔</p>
                             </div>
                             <div class="item-control">
                                 <select id="scan-frequency-select" class="settings-select">
-                                    <option value="on_startup">每次启动时</option>
-                                    <option value="daily">每天一次</option>
-                                    <option value="weekly">每周一次</option>
+                                    <option value="on_startup" data-i18n="app:atStartup">每次启动时</option>
+                                    <option value="daily" data-i18n="app:daily">每天一次</option>
+                                    <option value="weekly" data-i18n="app:weekly">每周一次</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">本地歌词目录</label>
-                                <p class="item-description">选择包含歌词文件(.lrc或.ttml)的文件夹</p>
+                                <label class="item-label" data-i18n="app:localLyricsFolder">本地歌词目录</label>
+                                <p class="item-description" data-i18n="app:chooseAFolderContainingLrcOrTtmlFiles">选择包含歌词文件(.lrc或.ttml)的文件夹</p>
                             </div>
                             <div class="item-control">
                                 <div class="folder-path-container">
-                                    <span class="folder-path" id="lyrics-folder-path">未选择</span>
-                                    <button class="settings-button" id="select-lyrics-folder-btn">选择文件夹</button>
+                                    <span class="folder-path" id="lyrics-folder-path" data-i18n="app:notSelected">未选择</span>
+                                    <button class="settings-button" id="select-lyrics-folder-btn" data-i18n="app:chooseFolder">选择文件夹</button>
                                 </div>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">封面缓存目录</label>
-                                <p class="item-description">选择用于缓存歌曲封面的文件夹</p>
+                                <label class="item-label" data-i18n="app:artworkCacheFolder">封面缓存目录</label>
+                                <p class="item-description" data-i18n="app:chooseAFolderForCachedArtwork">选择用于缓存歌曲封面的文件夹</p>
                             </div>
                             <div class="item-control">
                                 <div class="folder-path-container">
-                                    <span class="folder-path" id="cover-cache-folder-path">未选择</span>
-                                    <button class="settings-button" id="select-cover-cache-folder-btn">选择文件夹</button>
+                                    <span class="folder-path" id="cover-cache-folder-path" data-i18n="app:notSelected">未选择</span>
+                                    <button class="settings-button" id="select-cover-cache-folder-btn" data-i18n="app:chooseFolder">选择文件夹</button>
                                 </div>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">缓存统计</label>
-                                <p class="item-description" id="cache-stats-description">查看音乐库缓存信息</p>
+                                <label class="item-label" data-i18n="app:cacheStatistics">缓存统计</label>
+                                <p class="item-description" id="cache-stats-description" data-i18n="app:viewLibraryCacheInformation">查看音乐库缓存信息</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button" id="view-cache-stats-btn">查看统计</button>
+                                <button class="settings-button" id="view-cache-stats-btn" data-i18n="app:viewStatistics">查看统计</button>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">验证缓存</label>
-                                <p class="item-description">检查缓存文件的有效性并清理无效条目</p>
+                                <label class="item-label" data-i18n="app:validateCache">验证缓存</label>
+                                <p class="item-description" data-i18n="app:checkCachedFilesAndRemoveInvalidEntries">检查缓存文件的有效性并清理无效条目</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button" id="validate-cache-btn">验证缓存</button>
+                                <button class="settings-button" id="validate-cache-btn" data-i18n="app:validateCache">验证缓存</button>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">重建音乐库索引</label>
-                                <p class="item-description">清除歌曲索引并立即重新扫描；保留歌单、收藏、忽略列表、音乐文件夹设置和原始音乐文件</p>
+                                <label class="item-label" data-i18n="app:rebuildLibraryIndex">重建音乐库索引</label>
+                                <p class="item-description" data-i18n="app:clearTheTrackIndexAndRescanKeepPlaylistsFavorites">清除歌曲索引并立即重新扫描；保留歌单、收藏、忽略列表、音乐文件夹设置和原始音乐文件</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button danger" id="clear-cache-btn">重建索引</button>
+                                <button class="settings-button danger" id="clear-cache-btn" data-i18n="app:rebuildIndex">重建索引</button>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">清除封面缓存</label>
-                                <p class="item-description">释放内存封面和应用管理的磁盘缓存；不修改内嵌封面、歌单自定义封面或其他用户图片</p>
+                                <label class="item-label" data-i18n="app:clearArtworkCache">清除封面缓存</label>
+                                <p class="item-description" data-i18n="app:clearArtworkFromMemoryAndManagedDiskCachesKeep">释放内存封面和应用管理的磁盘缓存；不修改内嵌封面、歌单自定义封面或其他用户图片</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button danger" id="clear-cover-cache-btn">清除封面缓存</button>
+                                <button class="settings-button danger" id="clear-cover-cache-btn" data-i18n="app:clearArtworkCache">清除封面缓存</button>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">忽略列表</label>
-                                <p class="item-description">已手动删除的歌曲不会被自动扫描重新添加，可清空忽略列表以重新添加</p>
+                                <label class="item-label" data-i18n="app:ignoredTracks">忽略列表</label>
+                                <p class="item-description" data-i18n="app:automaticallySkipManuallyRemovedTracksClearThisListTo">已手动删除的歌曲不会被自动扫描重新添加，可清空忽略列表以重新添加</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button secondary" id="clear-ignore-list-btn">清空忽略列表</button>
+                                <button class="settings-button secondary" id="clear-ignore-list-btn" data-i18n="app:clearIgnoredTracks">清空忽略列表</button>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">内嵌歌词测试</label>
+                                <label class="item-label" data-i18n="app:embeddedLyricsTest">内嵌歌词测试</label>
                                 <p class="item-description"></p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button" id="test-embedded-lyrics-btn">测试内嵌歌词</button>
+                                <button class="settings-button" id="test-embedded-lyrics-btn" data-i18n="app:testEmbeddedLyrics">测试内嵌歌词</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- 桌面歌词设置 -->
                     <div class="settings-section" data-section="desktop-lyrics">
-                        <h2 class="section-title">桌面歌词设置</h2>
+                        <h2 class="section-title" data-i18n="app:desktopLyricsSettings">桌面歌词设置</h2>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">布局模式</label>
-                                <p class="item-description">选择桌面歌词的显示样式</p>
+                                <label class="item-label" data-i18n="app:layout">布局模式</label>
+                                <p class="item-description" data-i18n="app:chooseTheDesktopLyricsLayout">选择桌面歌词的显示样式</p>
                             </div>
                             <div class="item-control">
                                 <select class="settings-select" id="dl-layout-mode-select">
-                                    <option value="default">默认（自由拖拽）</option>
-                                    <option value="center">居中模式（固定屏幕中央）</option>
+                                    <option value="default" data-i18n="app:defaultDraggable">默认（自由拖拽）</option>
+                                    <option value="center" data-i18n="app:centeredFixedAtScreenCenter">居中模式（固定屏幕中央）</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">桌面歌词颜色</label>
-                                <p class="item-description">独立设置桌面歌词的单色显示效果</p>
+                                <label class="item-label" data-i18n="app:desktopLyricsColor">桌面歌词颜色</label>
+                                <p class="item-description" data-i18n="app:chooseASeparateColorForDesktopLyrics">独立设置桌面歌词的单色显示效果</p>
                             </div>
                             <div class="item-control">
                                 <input type="color" class="color-picker" id="dl-color" value="#ffffff">
@@ -1156,8 +1158,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">窗口透明度</label>
-                                <p class="item-description">调节桌面歌词窗口的透明度</p>
+                                <label class="item-label" data-i18n="app:windowOpacity">窗口透明度</label>
+                                <p class="item-description" data-i18n="app:adjustDesktopLyricsWindowOpacity">调节桌面歌词窗口的透明度</p>
                             </div>
                             <div class="item-control">
                                 <input type="range" class="settings-slider" id="dl-opacity-slider"
@@ -1168,8 +1170,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">桌面歌词字号</label>
-                                <p class="item-description">独立设置桌面歌词的字号大小</p>
+                                <label class="item-label" data-i18n="app:desktopLyricsFontSize">桌面歌词字号</label>
+                                <p class="item-description" data-i18n="app:chooseASeparateFontSizeForDesktopLyrics">独立设置桌面歌词的字号大小</p>
                             </div>
                             <div class="item-control">
                                 <input type="range" class="settings-slider" id="dl-font-size-slider"
@@ -1181,11 +1183,11 @@
 
                     <!-- 迷你模式设置 -->
                     <div class="settings-section" data-section="mini-mode">
-                        <h2 class="section-title">迷你模式设置</h2>
+                        <h2 class="section-title" data-i18n="app:miniModeSettings">迷你模式设置</h2>
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">字体颜色</label>
-                                <p class="item-description">调节未高亮的字体颜色</p>
+                                <label class="item-label" data-i18n="app:textColor">字体颜色</label>
+                                <p class="item-description" data-i18n="app:setTheColorOfUnhighlightedLyrics">调节未高亮的字体颜色</p>
                             </div>
                             <div class="item-control">
                                 <input type="color" class="color-picker" id="mini-mode-font-color" value="#ffffff">
@@ -1195,8 +1197,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">高亮颜色</label>
-                                <p class="item-description">调节高亮扫过后歌词的颜色</p>
+                                <label class="item-label" data-i18n="app:highlightColor">高亮颜色</label>
+                                <p class="item-description" data-i18n="app:setTheColorOfHighlightedLyrics">调节高亮扫过后歌词的颜色</p>
                             </div>
                             <div class="item-control">
                                 <input type="color" class="color-picker" id="mini-mode-highlight-color" value="#335eea">
@@ -1206,8 +1208,8 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">字体大小</label>
-                                <p class="item-description">调节当前歌词的字体大小</p>
+                                <label class="item-label" data-i18n="app:fontSize">字体大小</label>
+                                <p class="item-description" data-i18n="app:adjustTheLyricsFontSize">调节当前歌词的字体大小</p>
                             </div>
                             <div class="item-control">
                                 <input type="range" class="settings-slider" id="mini-mode-font-size-slider"
@@ -1219,11 +1221,11 @@
 
                     <!-- 高级设置 -->
                     <div class="settings-section" data-section="advanced">
-                        <h2 class="section-title">高级</h2>
+                        <h2 class="section-title" data-i18n="app:advanced">高级</h2>
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">硬件加速</label>
-                                <p class="item-description">开启可获得更好的性能，关闭可降低资源占用和解决某些显卡兼容性问题</p>
+                                <label class="item-label" data-i18n="app:hardwareAcceleration">硬件加速</label>
+                                <p class="item-description" data-i18n="app:enableForBetterPerformanceDisableToReduceResourceUse">开启可获得更好的性能，关闭可降低资源占用和解决某些显卡兼容性问题</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -1235,34 +1237,34 @@
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">打开应用数据文件夹</label>
-                                <p class="item-description">打开应用数据文件夹</p>
+                                <label class="item-label" data-i18n="app:openApplicationDataFolder">打开应用数据文件夹</label>
+                                <p class="item-description" data-i18n="app:openApplicationDataFolder">打开应用数据文件夹</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button" id="open-soft-dir">打开文件夹</button>
+                                <button class="settings-button" id="open-soft-dir" data-i18n="app:openFolder">打开文件夹</button>
                             </div>
                         </div>
 
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">开发者工具</label>
-                                <p class="item-description">打开开发者工具</p>
+                                <label class="item-label" data-i18n="app:developerTools">开发者工具</label>
+                                <p class="item-description" data-i18n="app:openDeveloperTools">打开开发者工具</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button" id="developer-tools">打开</button>
+                                <button class="settings-button" id="developer-tools" data-i18n="app:open">打开</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- 网络磁盘设置 -->
                     <div class="settings-section" data-section="network">
-                        <h2 class="section-title">网络磁盘</h2>
+                        <h2 class="section-title" data-i18n="app:networkDrives">网络磁盘</h2>
 
                         <!-- 网络磁盘功能开关 -->
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">启用网络磁盘</label>
-                                <p class="item-description">允许挂载SMB、WebDAV等网络磁盘，扫描网络音乐文件</p>
+                                <label class="item-label" data-i18n="app:enableNetworkDrives">启用网络磁盘</label>
+                                <p class="item-description" data-i18n="app:mountSmbOrWebdavDrivesAndScanNetworkMusic">允许挂载SMB、WebDAV等网络磁盘，扫描网络音乐文件</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -1277,11 +1279,11 @@
                             <!-- 添加网络磁盘 -->
                             <div class="settings-item">
                                 <div class="item-info">
-                                    <label class="item-label">添加网络磁盘</label>
-                                    <p class="item-description">配置新的网络磁盘连接</p>
+                                    <label class="item-label" data-i18n="app:addNetworkDrive">添加网络磁盘</label>
+                                    <p class="item-description" data-i18n="app:configureANewNetworkDriveConnection">配置新的网络磁盘连接</p>
                                 </div>
                                 <div class="item-control">
-                                    <button class="settings-button" id="add-network-drive-btn">添加磁盘</button>
+                                    <button class="settings-button" id="add-network-drive-btn" data-i18n="app:addDrive">添加磁盘</button>
                                 </div>
                             </div>
 
@@ -1289,13 +1291,13 @@
                             <div class="settings-item network-drives-section">
                                 <div class="network-drives-header">
                                     <div class="header-info">
-                                        <label class="item-label">已挂载的磁盘</label>
-                                        <p class="item-description">管理已连接的网络磁盘</p>
+                                        <label class="item-label" data-i18n="app:mountedDrives">已挂载的磁盘</label>
+                                        <p class="item-description" data-i18n="app:manageConnectedNetworkDrives">管理已连接的网络磁盘</p>
                                     </div>
-                                    <button class="settings-button secondary" id="refresh-drives-btn">刷新状态</button>
+                                    <button class="settings-button secondary" id="refresh-drives-btn" data-i18n="app:refreshStatus">刷新状态</button>
                                 </div>
                                 <div class="mounted-drives-list" id="mounted-drives-list">
-                                    <div class="no-drives-message">暂无已挂载的网络磁盘</div>
+                                    <div class="no-drives-message" data-i18n="app:noNetworkDrivesMounted">暂无已挂载的网络磁盘</div>
                                 </div>
                             </div>
                         </div>
@@ -1303,13 +1305,13 @@
 
                     <!-- 快捷键配置 -->
                     <div class="settings-section" data-section="shortcuts">
-                        <h2 class="section-title">快捷键</h2>
+                        <h2 class="section-title" data-i18n="app:shortcuts">快捷键</h2>
 
                         <!-- 全局快捷键开关 -->
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">启用全局快捷键</label>
-                                <p class="item-description">允许在应用后台时使用快捷键控制播放</p>
+                                <label class="item-label" data-i18n="app:enableGlobalShortcuts">启用全局快捷键</label>
+                                <p class="item-description" data-i18n="app:controlPlaybackWithShortcutsWhileTheAppIsIn">允许在应用后台时使用快捷键控制播放</p>
                             </div>
                             <div class="item-control">
                                 <div class="toggle-switch">
@@ -1323,7 +1325,7 @@
                         <div class="settings-item collapsible-item">
                             <div class="item-info collapsible-header" id="shortcuts-header">
                                 <div class="collapsible-title">
-                                    <label class="item-label">快捷键配置</label>
+                                    <label class="item-label" data-i18n="app:shortcutConfiguration">快捷键配置</label>
                                     <div class="collapsible-indicator">
                                         <svg class="collapse-icon" viewBox="0 0 24 24">
                                             <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
@@ -1331,8 +1333,8 @@
                                     </div>
                                 </div>
                                 <p class="item-description">
-                                    <span id="shortcuts-summary">已配置 0 个快捷键</span>
-                                    <span class="collapsible-hint">点击展开查看详细配置</span>
+                                    <span id="shortcuts-summary" data-i18n="app:0ShortcutsConfigured">已配置 0 个快捷键</span>
+                                    <span class="collapsible-hint" data-i18n="app:expandToViewShortcutSettings">点击展开查看详细配置</span>
                                 </p>
                             </div>
                         </div>
@@ -1341,7 +1343,7 @@
                         <div id="shortcuts-container" class="shortcuts-container collapsible-content">
                             <!-- 局内快捷键 -->
                             <div class="shortcuts-group">
-                                <h3 class="shortcuts-group-title">应用内快捷键</h3>
+                                <h3 class="shortcuts-group-title" data-i18n="app:applicationShortcuts">应用内快捷键</h3>
                                 <div class="shortcuts-list" id="local-shortcuts-list">
                                     <!-- 快捷键将通过JavaScript生成 -->
                                 </div>
@@ -1349,7 +1351,7 @@
 
                             <!-- 全局快捷键 -->
                             <div class="shortcuts-group" id="global-shortcuts-group">
-                                <h3 class="shortcuts-group-title">全局快捷键</h3>
+                                <h3 class="shortcuts-group-title" data-i18n="app:globalShortcuts">全局快捷键</h3>
                                 <div class="shortcuts-list" id="global-shortcuts-list">
                                     <!-- 快捷键将通过JavaScript生成 -->
                                 </div>
@@ -1357,35 +1359,35 @@
 
                             <!-- 快捷键操作按钮 -->
                             <div class="shortcuts-actions">
-                                <button class="settings-button danger" id="reset-shortcuts-btn">重置为默认</button>
+                                <button class="settings-button danger" id="reset-shortcuts-btn" data-i18n="app:resetToDefaults">重置为默认</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- 插件管理 -->
                     <div class="settings-section" data-section="plugins">
-                        <h2 class="section-title">插件管理</h2>
+                        <h2 class="section-title" data-i18n="app:extensions">插件管理</h2>
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">插件管理</label>
-                                <p class="item-description">管理、安装和配置插件</p>
+                                <label class="item-label" data-i18n="app:extensions">插件管理</label>
+                                <p class="item-description" data-i18n="app:manageInstallAndConfigureExtensions">管理、安装和配置插件</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button" id="open-plugin-manager-btn">管理插件</button>
+                                <button class="settings-button" id="open-plugin-manager-btn" data-i18n="app:manageExtensions">管理插件</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- 关于 -->
                     <div class="settings-section" data-section="about">
-                        <h2 class="section-title">关于</h2>
+                        <h2 class="section-title" data-i18n="app:about">关于</h2>
                         <div class="settings-item">
                             <div class="item-info">
-                                <label class="item-label">版本信息</label>
-                                <p class="item-description" id="app-version-info">MusicBox v占位</p>
+                                <label class="item-label" data-i18n="app:version">版本信息</label>
+                                <p class="item-description" id="app-version-info" data-i18n="app:musicbox">MusicBox v占位</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button secondary" id="check-updates-btn">检查更新</button>
+                                <button class="settings-button secondary" id="check-updates-btn" data-i18n="app:checkForUpdates">检查更新</button>
                             </div>
                         </div>
                         <div class="settings-item">
@@ -1394,7 +1396,7 @@
                                 <p class="item-description">ASXE</p>
                             </div>
                             <div class="item-control">
-                                <button class="settings-button secondary" id="MADE-BY">前往</button>
+                                <button class="settings-button secondary" id="MADE-BY" data-i18n="app:visit">前往</button>
                             </div>
                         </div>
                     </div>
@@ -1407,7 +1409,7 @@
         <div id="edit-track-info-dialog" class="modal-overlay" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-header">
-                    <h3 class="modal-title">编辑歌曲信息</h3>
+                    <h3 class="modal-title" data-i18n="app:editTrackInformation">编辑歌曲信息</h3>
                     <button class="modal-close-btn" id="edit-track-info-close">
                         <svg class="icon" viewBox="0 0 24 24">
                             <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
@@ -1418,9 +1420,9 @@
                     <div class="track-info-form">
                         <!-- 当前封面显示 -->
                         <div class="form-group cover-section">
-                            <label class="form-label">专辑封面</label>
+                            <label class="form-label" data-i18n="app:albumArtwork">专辑封面</label>
                             <div class="cover-container">
-                                <img id="edit-track-cover" class="track-cover-preview" src="assets/images/default-cover.svg" alt="专辑封面">
+                                <img id="edit-track-cover" class="track-cover-preview" src="assets/images/default-cover.svg" alt="专辑封面" data-i18n-alt="app:albumArtwork">
                                 <div class="cover-actions">
                                     <button type="button" class="btn btn-outline" id="select-cover-btn">
                                         <svg class="icon" viewBox="0 0 24 24">
@@ -1440,38 +1442,38 @@
 
                         <!-- 歌曲信息编辑 -->
                         <div class="form-group">
-                            <label for="edit-track-title" class="form-label">歌曲名称</label>
-                            <input type="text" id="edit-track-title" class="form-input" placeholder="请输入歌曲名称" maxlength="100">
+                            <label for="edit-track-title" class="form-label" data-i18n="app:trackName">歌曲名称</label>
+                            <input type="text" id="edit-track-title" class="form-input" placeholder="请输入歌曲名称" maxlength="100" data-i18n-placeholder="app:enterTrackName">
                             <div class="form-error" id="edit-track-title-error" style="display: none;"></div>
                         </div>
 
                         <div class="form-group">
-                            <label for="edit-track-artist" class="form-label">艺术家</label>
-                            <input type="text" id="edit-track-artist" class="form-input" placeholder="请输入艺术家名称" maxlength="100">
+                            <label for="edit-track-artist" class="form-label" data-i18n="app:artist">艺术家</label>
+                            <input type="text" id="edit-track-artist" class="form-input" placeholder="请输入艺术家名称" maxlength="100" data-i18n-placeholder="app:enterArtistName">
                             <div class="form-error" id="edit-track-artist-error" style="display: none;"></div>
                         </div>
 
                         <div class="form-group">
-                            <label for="edit-track-album" class="form-label">专辑名称</label>
-                            <input type="text" id="edit-track-album" class="form-input" placeholder="请输入专辑名称" maxlength="100">
+                            <label for="edit-track-album" class="form-label" data-i18n="app:albumName">专辑名称</label>
+                            <input type="text" id="edit-track-album" class="form-input" placeholder="请输入专辑名称" maxlength="100" data-i18n-placeholder="app:enterAlbumName">
                             <div class="form-error" id="edit-track-album-error" style="display: none;"></div>
                         </div>
 
                         <!-- 可选的额外信息 -->
                         <div class="form-group">
-                            <label for="edit-track-year" class="form-label">发行年份（可选）</label>
-                            <input type="number" id="edit-track-year" class="form-input" placeholder="例如：2023" min="1900" max="2099">
+                            <label for="edit-track-year" class="form-label" data-i18n="app:releaseYearOptional">发行年份（可选）</label>
+                            <input type="number" id="edit-track-year" class="form-input" placeholder="例如：2023" min="1900" max="2099" data-i18n-placeholder="app:example2023">
                         </div>
 
                         <div class="form-group">
-                            <label for="edit-track-genre" class="form-label">音乐类型（可选）</label>
-                            <input type="text" id="edit-track-genre" class="form-input" placeholder="例如：流行、摇滚、古典" maxlength="50">
+                            <label for="edit-track-genre" class="form-label" data-i18n="app:genreOptional">音乐类型（可选）</label>
+                            <input type="text" id="edit-track-genre" class="form-input" placeholder="例如：流行、摇滚、古典" maxlength="50" data-i18n-placeholder="app:examplePopRockClassical">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" id="edit-track-info-cancel">取消</button>
-                    <button class="btn btn-primary" id="edit-track-info-confirm" disabled>保存更改</button>
+                    <button class="btn btn-secondary" id="edit-track-info-cancel" data-i18n="app:cancel">取消</button>
+                    <button class="btn btn-primary" id="edit-track-info-confirm" disabled data-i18n="app:saveChanges">保存更改</button>
                 </div>
             </div>
         </div>
@@ -1480,7 +1482,7 @@
         <div id="network-drive-modal" class="modal-overlay" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-header">
-                    <h3 class="modal-title">配置网络磁盘</h3>
+                    <h3 class="modal-title" data-i18n="app:configureNetworkDrive">配置网络磁盘</h3>
                     <button class="modal-close-btn" id="network-drive-modal-close">
                         <svg class="icon" viewBox="0 0 24 24">
                             <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1491,15 +1493,15 @@
                     <form id="network-drive-form">
                         <!-- 磁盘名称 -->
                         <div class="form-group">
-                            <label for="drive-name">磁盘名称</label>
-                            <input type="text" id="drive-name" class="form-input" placeholder="例如：我的音乐服务器" required>
+                            <label for="drive-name" data-i18n="app:driveName">磁盘名称</label>
+                            <input type="text" id="drive-name" class="form-input" placeholder="例如：我的音乐服务器" required data-i18n-placeholder="app:exampleMyMusicServer">
                         </div>
 
                         <!-- 协议类型 -->
                         <div class="form-group">
-                            <label for="drive-protocol">协议类型</label>
+                            <label for="drive-protocol" data-i18n="app:protocol">协议类型</label>
                             <select id="drive-protocol" class="form-select" required>
-                                <option value="">请选择协议</option>
+                                <option value="" data-i18n="app:selectAProtocol">请选择协议</option>
                                 <option value="smb">SMB/CIFS</option>
                                 <option value="webdav">WebDAV</option>
                             </select>
@@ -1508,16 +1510,16 @@
                         <!-- SMB配置 -->
                         <div id="smb-config" class="protocol-config" style="display: none;">
                             <div class="form-group">
-                                <label for="smb-host">服务器地址</label>
-                                <input type="text" id="smb-host" class="form-input" placeholder="例如：192.168.1.100">
+                                <label for="smb-host" data-i18n="app:serverAddress">服务器地址</label>
+                                <input type="text" id="smb-host" class="form-input" placeholder="例如：192.168.1.100" data-i18n-placeholder="app:example1921681100">
                             </div>
                             <div class="form-group">
-                                <label for="smb-share">共享名称</label>
-                                <input type="text" id="smb-share" class="form-input" placeholder="例如：music">
+                                <label for="smb-share" data-i18n="app:shareName">共享名称</label>
+                                <input type="text" id="smb-share" class="form-input" placeholder="例如：music" data-i18n-placeholder="app:exampleMusic">
                             </div>
                             <div class="form-group">
-                                <label for="smb-domain">域名（可选）</label>
-                                <input type="text" id="smb-domain" class="form-input" placeholder="例如：WORKGROUP">
+                                <label for="smb-domain" data-i18n="app:domainOptional">域名（可选）</label>
+                                <input type="text" id="smb-domain" class="form-input" placeholder="例如：WORKGROUP" data-i18n-placeholder="app:exampleWorkgroup">
                             </div>
                         </div>
 
@@ -1525,18 +1527,18 @@
                         <div id="webdav-config" class="protocol-config" style="display: none;">
                             <div class="form-group">
                                 <label for="webdav-url">WebDAV URL</label>
-                                <input type="url" id="webdav-url" class="form-input" placeholder="例如：https://example.com/webdav">
+                                <input type="url" id="webdav-url" class="form-input" placeholder="例如：https://example.com/webdav" data-i18n-placeholder="app:exampleHttpsexamplecomwebdav">
                             </div>
                         </div>
 
                         <!-- 认证信息 -->
                         <div class="form-group">
-                            <label for="drive-username">用户名</label>
-                            <input type="text" id="drive-username" class="form-input" placeholder="用户名">
+                            <label for="drive-username" data-i18n="app:username">用户名</label>
+                            <input type="text" id="drive-username" class="form-input" placeholder="用户名" data-i18n-placeholder="app:username">
                         </div>
                         <div class="form-group">
-                            <label for="drive-password">密码</label>
-                            <input type="password" id="drive-password" class="form-input" placeholder="密码">
+                            <label for="drive-password" data-i18n="app:password">密码</label>
+                            <input type="password" id="drive-password" class="form-input" placeholder="密码" data-i18n-placeholder="app:password">
                         </div>
 
                         <!-- 测试连接状态 -->
@@ -1547,9 +1549,9 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="test-connection-btn">测试连接</button>
-                    <button type="button" class="btn btn-secondary" id="network-drive-cancel">取消</button>
-                    <button type="submit" class="btn btn-primary" id="network-drive-confirm" form="network-drive-form">添加磁盘</button>
+                    <button type="button" class="btn btn-secondary" id="test-connection-btn" data-i18n="app:testConnection">测试连接</button>
+                    <button type="button" class="btn btn-secondary" id="network-drive-cancel" data-i18n="app:cancel">取消</button>
+                    <button type="submit" class="btn btn-primary" id="network-drive-confirm" form="network-drive-form" data-i18n="app:addDrive">添加磁盘</button>
                 </div>
             </div>
         </div>
@@ -1562,15 +1564,15 @@
             <!-- 全屏按钮 -->
             <div class="lyrics-fullscreen-button">
                 <button class="fullscreen-btn" id="lyrics-fullscreen">
-                    <img class="icon fullscreen-icon" src="assets/icons/fullscreen.svg" alt="全屏">
-                    <img class="icon fullscreen-exit-icon" src="assets/icons/fullscreen-exit.svg" alt="退出全屏" style="display: none;">
+                    <img class="icon fullscreen-icon" src="assets/icons/fullscreen.svg" alt="全屏" data-i18n-alt="app:fullScreen">
+                    <img class="icon fullscreen-exit-icon" src="assets/icons/fullscreen-exit.svg" alt="退出全屏" style="display: none;" data-i18n-alt="app:exitFullScreen">
                 </button>
             </div>
 
             <!-- 关闭按钮 -->
             <div class="lyrics-close-button">
                 <button class="close-btn" id="lyrics-close">
-                    <img class="icon" src="assets/icons/arrow-down.svg" alt="关闭">
+                    <img class="icon" src="assets/icons/arrow-down.svg" alt="关闭" data-i18n-alt="app:close">
                 </button>
             </div>
 
@@ -1581,14 +1583,14 @@
                     <div class="lyrics-cover-section">
                         <!-- 封面容器 -->
                         <div class="lyrics-cover-container">
-                            <img class="lyrics-cover-image" id="lyrics-cover-image" src="assets/images/default-cover.svg" alt="封面">
+                            <img class="lyrics-cover-image" id="lyrics-cover-image" src="assets/images/default-cover.svg" alt="封面" data-i18n-alt="app:artwork">
                             <div class="lyrics-cover-shadow"></div>
                         </div>
 
                         <!-- 歌曲信息 -->
                         <div class="lyrics-track-info">
-                            <h2 class="lyrics-track-title" id="lyrics-track-title">歌曲标题</h2>
-                            <p class="lyrics-track-artist" id="lyrics-track-artist">艺术家</p>
+                            <h2 class="lyrics-track-title" id="lyrics-track-title" data-i18n="app:trackTitle">歌曲标题</h2>
+                            <p class="lyrics-track-artist" id="lyrics-track-artist" data-i18n="app:artist">艺术家</p>
                         </div>
 
                         <!-- 扩展控制面板 -->
@@ -1598,9 +1600,9 @@
                                 <!-- 音量控制 -->
                                 <div class="volume-control-section">
                                     <button class="button-icon volume-btn" id="lyrics-volume-btn">
-                                        <img class="icon volume-icon" src="assets/icons/volume.svg" alt="音量">
-                                        <img class="icon volume-half-icon" src="assets/icons/volume-half.svg" alt="音量" style="display: none;">
-                                        <img class="icon volume-mute-icon" src="assets/icons/volume-mute.svg" alt="静音" style="display: none;">
+                                        <img class="icon volume-icon" src="assets/icons/volume.svg" alt="音量" data-i18n-alt="app:volume">
+                                        <img class="icon volume-half-icon" src="assets/icons/volume-half.svg" alt="音量" style="display: none;" data-i18n-alt="app:volume">
+                                        <img class="icon volume-mute-icon" src="assets/icons/volume-mute.svg" alt="静音" style="display: none;" data-i18n-alt="app:mute">
                                     </button>
                                     <div class="volume-bar">
                                         <div class="volume-slider-container">
@@ -1614,10 +1616,10 @@
 
                                 <!-- 播放模式控制 -->
                                 <div class="playmode-control-section">
-                                    <button class="button-icon playmode-btn" id="lyrics-playmode-btn" title="播放模式">
-                                        <img class="icon lyrics-mode-sequence" src="assets/icons/repeat.svg" alt="顺序播放">
-                                        <img class="icon lyrics-mode-shuffle" src="assets/icons/shuffle.svg" alt="随机播放" style="display: none;">
-                                        <img class="icon lyrics-mode-repeat-one" src="assets/icons/repeat-one.svg" alt="单曲循环" style="display: none;">
+                                    <button class="button-icon playmode-btn" id="lyrics-playmode-btn" title="播放模式" data-i18n-title="app:playbackMode">
+                                        <img class="icon lyrics-mode-sequence" src="assets/icons/repeat.svg" alt="顺序播放" data-i18n-alt="app:sequential">
+                                        <img class="icon lyrics-mode-shuffle" src="assets/icons/shuffle.svg" alt="随机播放" style="display: none;" data-i18n-alt="app:shuffle">
+                                        <img class="icon lyrics-mode-repeat-one" src="assets/icons/repeat-one.svg" alt="单曲循环" style="display: none;" data-i18n-alt="app:repeatOne">
                                     </button>
                                 </div>
                             </div>
@@ -1641,14 +1643,14 @@
                         <div class="lyrics-controls">
                             <div class="middle">
                                 <button class="button-icon" id="lyrics-prev-btn">
-                                    <img class="icon" src="assets/icons/previous.svg" alt="上一首">
+                                    <img class="icon" src="assets/icons/previous.svg" alt="上一首" data-i18n-alt="app:previousTrack">
                                 </button>
                                 <button class="button-icon play" id="lyrics-play-btn">
-                                    <img class="icon play-icon" src="assets/icons/play.svg" alt="播放">
-                                    <img class="icon pause-icon" src="assets/icons/pause.svg" alt="暂停" style="display: none;">
+                                    <img class="icon play-icon" src="assets/icons/play.svg" alt="播放" data-i18n-alt="app:play">
+                                    <img class="icon pause-icon" src="assets/icons/pause.svg" alt="暂停" style="display: none;" data-i18n-alt="app:pause">
                                 </button>
                                 <button class="button-icon" id="lyrics-next-btn">
-                                    <img class="icon" src="assets/icons/next.svg" alt="下一首">
+                                    <img class="icon" src="assets/icons/next.svg" alt="下一首" data-i18n-alt="app:nextTrack">
                                 </button>
                             </div>
                         </div>
@@ -1659,10 +1661,10 @@
                 <div class="lyrics-right-side">
                     <div class="lyrics-container">
                         <div class="lyrics-display" id="lyrics-display"></div>
-                        <div class="lyrics-timeline-adjust" id="lyrics-timeline-adjust" hidden aria-label="调整歌词时间轴">
+                        <div class="lyrics-timeline-adjust" id="lyrics-timeline-adjust" hidden aria-label="调整歌词时间轴" data-i18n-aria-label="app:adjustLyricsTiming">
                             <div class="lyrics-timeline-adjust-controls">
-                                <button type="button" id="lyrics-timeline-later" title="歌词延后：单击 0.1 秒，长按连续加速" aria-label="歌词延后：单击 0.1 秒，长按连续加速">+</button>
-                                <button type="button" id="lyrics-timeline-earlier" title="歌词提前：单击 0.1 秒，长按连续加速" aria-label="歌词提前：单击 0.1 秒，长按连续加速">−</button>
+                                <button type="button" id="lyrics-timeline-later" title="歌词延后：单击 0.1 秒，长按连续加速" aria-label="歌词延后：单击 0.1 秒，长按连续加速" data-i18n-title="app:delayLyricsClickFor01SHoldToAccelerate" data-i18n-aria-label="app:delayLyricsClickFor01SHoldToAccelerate">+</button>
+                                <button type="button" id="lyrics-timeline-earlier" title="歌词提前：单击 0.1 秒，长按连续加速" aria-label="歌词提前：单击 0.1 秒，长按连续加速" data-i18n-title="app:advanceLyricsClickFor01SHoldToAccelerate" data-i18n-aria-label="app:advanceLyricsClickFor01SHoldToAccelerate">−</button>
                             </div>
                         </div>
                     </div>
@@ -1675,9 +1677,9 @@
     <div id="equalizer-modal" class="equalizer-modal" style="display: none;">
         <div class="equalizer-modal-content">
             <div class="equalizer-header">
-                <h2 class="equalizer-title">十段图形均衡器</h2>
+                <h2 class="equalizer-title" data-i18n="app:10bandEqualizer">十段图形均衡器</h2>
                 <button class="equalizer-close" id="equalizer-close">
-                    <img class="icon" src="assets/icons/x.svg" alt="关闭">
+                    <img class="icon" src="assets/icons/x.svg" alt="关闭" data-i18n-alt="app:close">
                 </button>
             </div>
 
@@ -1698,7 +1700,7 @@
 
                 <!-- 前置增益控制 -->
                 <div class="equalizer-preamp">
-                    <label class="preamp-label">前置增益</label>
+                    <label class="preamp-label" data-i18n="app:preamp">前置增益</label>
                     <div class="preamp-control">
                         <input type="range" class="preamp-slider" id="preamp-slider" min="-12" max="12" value="0" step="0.5">
                         <span class="preamp-value" id="preamp-value">0dB</span>
@@ -1707,55 +1709,55 @@
 
                 <!-- 预设选择 -->
                 <div class="equalizer-presets">
-                    <label class="preset-label">预设模式：</label>
+                    <label class="preset-label" data-i18n="app:preset">预设模式：</label>
                     <select class="preset-select" id="equalizer-preset-select">
                         <optgroup label="基础预设">
-                            <option value="flat">平坦</option>
-                            <option value="pop">流行</option>
-                            <option value="rock">摇滚</option>
-                            <option value="classical">古典</option>
-                            <option value="jazz">爵士</option>
-                            <option value="vocal">人声增强</option>
-                            <option value="bass">低音增强</option>
-                            <option value="treble">高音增强</option>
-                            <option value="electronic">电子音乐</option>
+                            <option value="flat" data-i18n="app:flat">平坦</option>
+                            <option value="pop" data-i18n="app:pop">流行</option>
+                            <option value="rock" data-i18n="app:rock">摇滚</option>
+                            <option value="classical" data-i18n="app:classical">古典</option>
+                            <option value="jazz" data-i18n="app:jazz">爵士</option>
+                            <option value="vocal" data-i18n="app:vocalBoost">人声增强</option>
+                            <option value="bass" data-i18n="app:bassBoost">低音增强</option>
+                            <option value="treble" data-i18n="app:trebleBoost">高音增强</option>
+                            <option value="electronic" data-i18n="app:electronic">电子音乐</option>
                         </optgroup>
                         <optgroup label="高级预设">
                             <option value="hifi">HiFi</option>
-                            <option value="studio">录音室</option>
-                            <option value="live">现场</option>
-                            <option value="loudness">响度</option>
-                            <option value="cinema">影院</option>
-                            <option value="warm">温暖</option>
-                            <option value="bright">明亮</option>
+                            <option value="studio" data-i18n="app:studio">录音室</option>
+                            <option value="live" data-i18n="app:live">现场</option>
+                            <option value="loudness" data-i18n="app:loudness">响度</option>
+                            <option value="cinema" data-i18n="app:cinema">影院</option>
+                            <option value="warm" data-i18n="app:warm">温暖</option>
+                            <option value="bright" data-i18n="app:bright">明亮</option>
                         </optgroup>
-                        <option value="custom">自定义</option>
+                        <option value="custom" data-i18n="app:custom">自定义</option>
                     </select>
                     <button class="preset-manage-btn" id="manage-presets-btn">
-                        <img class="icon" src="assets/icons/settings.svg" alt="管理预设">
+                        <img class="icon" src="assets/icons/settings.svg" alt="管理预设" data-i18n-alt="app:managePresets">
                     </button>
                 </div>
 
                 <!-- 自定义预设管理 -->
                 <div class="custom-presets-panel" id="custom-presets-panel" style="display: none;">
                     <div class="custom-presets-header">
-                        <h3>自定义预设管理</h3>
+                        <h3 data-i18n="app:customPresets">自定义预设管理</h3>
                         <button class="close-panel-btn" id="close-presets-panel">×</button>
                     </div>
 
                     <div class="custom-presets-content">
                         <!-- 保存当前设置为新预设 -->
                         <div class="save-preset-section">
-                            <h4>保存当前设置</h4>
+                            <h4 data-i18n="app:saveCurrentSettings">保存当前设置</h4>
                             <div class="save-preset-controls">
-                                <input type="text" id="new-preset-name" placeholder="输入预设名称" maxlength="20">
-                                <button class="preset-action-btn save-btn" id="save-preset-btn">保存</button>
+                                <input type="text" id="new-preset-name" placeholder="输入预设名称" maxlength="20" data-i18n-placeholder="app:enterPresetName">
+                                <button class="preset-action-btn save-btn" id="save-preset-btn" data-i18n="app:save">保存</button>
                             </div>
                         </div>
 
                         <!-- 自定义预设列表 -->
                         <div class="custom-presets-list">
-                            <h4>已保存的预设</h4>
+                            <h4 data-i18n="app:savedPresets">已保存的预设</h4>
                             <div class="presets-list-container" id="custom-presets-list">
                                 <!-- 动态生成的预设列表 -->
                             </div>
@@ -1824,8 +1826,8 @@
 
                 <!-- 控制按钮 -->
                 <div class="equalizer-controls">
-                    <button class="equalizer-button secondary" id="equalizer-reset">重置</button>
-                    <button class="equalizer-button primary" id="equalizer-apply">应用</button>
+                    <button class="equalizer-button secondary" id="equalizer-reset" data-i18n="app:reset">重置</button>
+                    <button class="equalizer-button primary" id="equalizer-apply" data-i18n="app:apply">应用</button>
                 </div>
             </div>
         </div>
@@ -1835,7 +1837,7 @@
     <div id="plugin-manager-modal" class="modal-overlay" style="display: none;">
         <div class="modal-dialog modal-dialog-large">
             <div class="modal-header">
-                <h3 class="modal-title">插件管理</h3>
+                <h3 class="modal-title" data-i18n="app:extensions">插件管理</h3>
                 <button class="modal-close-btn" id="plugin-manager-modal-close">
                     <svg class="icon" viewBox="0 0 24 24">
                         <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1855,7 +1857,7 @@
 
                 <!-- 插件列表容器 -->
                 <div id="plugin-list-container" class="plugin-list-container">
-                    <div id="plugin-list-loading" class="plugin-list-loading">
+                    <div id="plugin-list-loading" class="plugin-list-loading" data-i18n="app:loading">
                         加载中...
                     </div>
                     <div id="plugin-list" class="plugin-list">
@@ -1865,8 +1867,8 @@
                         <svg class="icon" viewBox="0 0 24 24">
                             <path d="M20 7h-4V5c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM10 5h4v2h-4V5zm10 15H4V9h16v11z" fill="currentColor"/>
                         </svg>
-                        <p class="empty-title">暂无已安装的插件</p>
-                        <p class="empty-description">点击上方"从文件安装"按钮安装插件</p>
+                        <p class="empty-title" data-i18n="app:noExtensionsInstalled">暂无已安装的插件</p>
+                        <p class="empty-description" data-i18n="app:useInstallFromFileAboveToInstallAnExtension">点击上方"从文件安装"按钮安装插件</p>
                     </div>
                 </div>
             </div>
@@ -1878,28 +1880,28 @@
         <div class="parametric-equalizer-modal-content">
             <div class="parametric-equalizer-header">
                 <div class="header-left">
-                    <h2>参量均衡器</h2>
-                    <span class="header-subtitle">专业级音频调节</span>
+                    <h2 data-i18n="app:parametricEqualizer">参量均衡器</h2>
+                    <span class="header-subtitle" data-i18n="app:advancedAudioAdjustments">专业级音频调节</span>
                 </div>
                 <div class="header-controls">
-                    <select id="peq-preset-selector" class="peq-preset-selector" title="选择预设">
-                        <option value="">选择预设...</option>
+                    <select id="peq-preset-selector" class="peq-preset-selector" title="选择预设" data-i18n-title="app:choosePreset">
+                        <option value="" data-i18n="app:chooseAPreset">选择预设...</option>
                     </select>
-                    <button class="peq-btn peq-btn-icon" id="peq-save-preset" title="保存当前设置为预设">
+                    <button class="peq-btn peq-btn-icon" id="peq-save-preset" title="保存当前设置为预设" data-i18n-title="app:saveCurrentSettingsAsPreset">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 1H3C2.46957 1 1.96086 1.21071 1.58579 1.58579C1.21071 1.96086 1 2.46957 1 3V13C1 13.5304 1.21071 14.0391 1.58579 14.4142C1.96086 14.7893 2.46957 15 3 15H13C13.5304 15 14.0391 14.7893 14.4142 14.4142C14.7893 14.0391 15 13.5304 15 13V4L12 1Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M11 15V9H5V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M5 1V5H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
-                    <button class="peq-btn peq-btn-icon" id="peq-import" title="从文件导入设置">
+                    <button class="peq-btn peq-btn-icon" id="peq-import" title="从文件导入设置" data-i18n-title="app:importSettingsFromFile">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M4.66663 6.66667L7.99996 10L11.3333 6.66667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M8 10V2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
-                    <button class="peq-btn peq-btn-icon" id="peq-export" title="导出当前设置到文件">
+                    <button class="peq-btn peq-btn-icon" id="peq-export" title="导出当前设置到文件" data-i18n-title="app:exportSettingsToFile">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M11.3333 5.33333L7.99996 2L4.66663 5.33333" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1907,19 +1909,19 @@
                         </svg>
                     </button>
                     <div class="peq-btn-divider"></div>
-                    <button class="peq-btn peq-btn-add" id="peq-add-band" title="添加频段">
+                    <button class="peq-btn peq-btn-add" id="peq-add-band" title="添加频段" data-i18n-title="app:addBand">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
-                        <span>添加频段</span>
+                        <span data-i18n="app:addBand">添加频段</span>
                     </button>
-                    <button class="peq-btn peq-btn-reset" id="peq-reset" title="重置所有参数">
+                    <button class="peq-btn peq-btn-reset" id="peq-reset" title="重置所有参数" data-i18n-title="app:resetAllParameters">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M13 3L3 13M3 3L13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
-                        <span>重置</span>
+                        <span data-i18n="app:reset">重置</span>
                     </button>
-                    <button class="peq-btn-close" id="peq-close" title="关闭">×</button>
+                    <button class="peq-btn-close" id="peq-close" title="关闭" data-i18n-title="app:close">×</button>
                 </div>
             </div>
 
@@ -1964,7 +1966,7 @@
     <div id="input-dialog-modal" class="input-dialog-modal" style="display: none;">
         <div class="input-dialog-content">
             <div class="input-dialog-header">
-                <h3 id="input-dialog-title" class="input-dialog-title">输入</h3>
+                <h3 id="input-dialog-title" class="input-dialog-title" data-i18n="app:input">输入</h3>
                 <button class="input-dialog-close" id="input-dialog-close">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -1976,8 +1978,8 @@
                 <input type="text" id="input-dialog-input" class="input-dialog-input" />
             </div>
             <div class="input-dialog-footer">
-                <button class="input-dialog-btn input-dialog-btn-cancel" id="input-dialog-cancel">取消</button>
-                <button class="input-dialog-btn input-dialog-btn-confirm" id="input-dialog-confirm">确定</button>
+                <button class="input-dialog-btn input-dialog-btn-cancel" id="input-dialog-cancel" data-i18n="app:cancel">取消</button>
+                <button class="input-dialog-btn input-dialog-btn-confirm" id="input-dialog-confirm" data-i18n="app:confirm">确定</button>
             </div>
         </div>
     </div>

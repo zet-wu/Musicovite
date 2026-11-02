@@ -1,3 +1,4 @@
+import {setLocalizedText} from '@/shared/i18n';
 import {playbackUiStateService} from "@/features/playback/service/PlaybackUiStateService";
 import type {PlaybackState, PlaybackStoreChange, Unsubscribe} from "@/features/playback/PlaybackStore";
 import type {PlayMode} from "@api/types/playback";
@@ -127,19 +128,19 @@ class PlayerPlaybackController {
         switch (mode) {
             case 'sequence':
                 if (this.modeSequenceIcon) this.modeSequenceIcon.style.display = 'block';
-                this.playModeBtn.title = '顺序播放';
+                setLocalizedText(this.playModeBtn, 'app:sequential', {}, 'title');
                 break;
             case 'shuffle':
                 if (this.modeShuffleIcon) this.modeShuffleIcon.style.display = 'block';
-                this.playModeBtn.title = '随机播放';
+                setLocalizedText(this.playModeBtn, 'app:shuffle', {}, 'title');
                 break;
             case 'repeat-one':
                 if (this.modeRepeatOneIcon) this.modeRepeatOneIcon.style.display = 'block';
-                this.playModeBtn.title = '单曲循环';
+                setLocalizedText(this.playModeBtn, 'app:repeatOne', {}, 'title');
                 break;
             default:
                 if (this.modeSequenceIcon) this.modeSequenceIcon.style.display = 'block';
-                this.playModeBtn.title = '顺序播放';
+                setLocalizedText(this.playModeBtn, 'app:sequential', {}, 'title');
                 break;
         }
     }

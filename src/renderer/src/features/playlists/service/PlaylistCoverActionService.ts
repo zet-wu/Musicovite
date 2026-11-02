@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {mediaFileDialogService} from "@/features/media/service";
 import {appConfirmationService, appNotificationService} from "@/features/appShell/service";
 import {libraryDataService} from "@/features/library/service/LibraryDataService";
@@ -18,7 +20,7 @@ class PlaylistCoverActionService {
             return await this.setCover(playlistId, imagePath);
         } catch (error) {
             console.error('❌ PlaylistCoverActionService: 选择图片失败', error);
-            appNotificationService.showError('选择图片失败，请重试');
+            appNotificationService.showError(t('messages:couldNotSelectImagePleaseTryAgain'));
             return {changed: false};
         }
     }
@@ -35,20 +37,20 @@ class PlaylistCoverActionService {
     async setCover(playlistId: string, imagePath: string): Promise<PlaylistCoverActionResult> {
         try {
             if (!this.isValidImageFile(imagePath)) {
-                throw new Error('不支持的图片格式，请选择 JPG、PNG、GIF、WebP 或 BMP 格式的图片');
+                throw new Error(t('audit:unsupportedArtwork'));
             }
 
             console.log(`🖼️ 设置歌单封面: ${playlistId} -> ${imagePath}`);
             const result = await libraryDataService.updatePlaylistCover(playlistId, imagePath);
 
             if (result.success) {
-                appNotificationService.showInfo('歌单封面设置成功');
+                appNotificationService.showInfo(t('messages:playlistArtworkUpdated'));
                 return {changed: true, coverImage: result.coverPath || null};
             }
 
-            throw new Error(result.error || '设置封面失败');
+            throw new Error(result.error || t('audit:setArtworkFailed'));
         } catch (error) {
-            appNotificationService.showError(getErrorMessage(error) || '设置封面失败，请重试');
+            appNotificationService.showError(getErrorMessage(error) || t('messages:couldNotSetArtworkPleaseTryAgain'));
             return {changed: false};
         }
     }
@@ -56,9 +58,9 @@ class PlaylistCoverActionService {
     async removeCover(playlistId: string): Promise<PlaylistCoverActionResult> {
         try {
             const confirmed = await appConfirmationService.confirm({
-                title: '移除歌单封面',
-                message: '确定要移除歌单封面吗？',
-                confirmText: '移除',
+                title: t('messages:removePlaylistArtwork'),
+                message: t('messages:removePlaylistArtworkMessage'),
+                confirmText: t('messages:remove'),
                 type: 'warning'
             });
 
@@ -70,13 +72,13 @@ class PlaylistCoverActionService {
             const result = await libraryDataService.removePlaylistCover(playlistId);
 
             if (result.success) {
-                appNotificationService.showInfo('歌单封面已移除');
+                appNotificationService.showInfo(t('messages:playlistArtworkRemoved'));
                 return {changed: true, coverImage: null};
             }
 
             throw new Error(result.error || '移除封面失败');
         } catch (error) {
-            appNotificationService.showError(getErrorMessage(error) || '移除封面失败，请重试');
+            appNotificationService.showError(getErrorMessage(error) || t('messages:couldNotRemoveArtworkPleaseTryAgain'));
             return {changed: false};
         }
     }
@@ -85,12 +87,12 @@ class PlaylistCoverActionService {
         try {
             const result = await libraryDataService.setPlaylistCoverFromTrack(playlistId, trackId);
             if (result.success && result.coverPath) {
-                appNotificationService.showInfo('已使用歌曲内嵌封面');
+                appNotificationService.showInfo(t('messages:embeddedTrackArtworkApplied'));
                 return {changed: true, coverImage: result.coverPath};
             }
-            throw new Error(result.error || '从歌曲设置封面失败');
+            throw new Error(result.error || t('audit:trackArtworkFailed'));
         } catch (error) {
-            appNotificationService.showError(getErrorMessage(error) || '从歌曲设置封面失败，请重试');
+            appNotificationService.showError(getErrorMessage(error) || t('messages:couldNotUseTrackArtworkPleaseTryAgain'));
             return {changed: false};
         }
     }

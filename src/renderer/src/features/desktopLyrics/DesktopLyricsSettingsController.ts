@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {desktopLyricsWindowService} from './service';
 import type {DesktopLyricsLockController} from './DesktopLyricsLockController';
 import type {DesktopLyricsElements, DesktopLyricsSettings} from './DesktopLyricsTypes';
@@ -62,7 +64,7 @@ export class DesktopLyricsSettingsController {
 
         await this.applyWindowOperation(
             () => this.windowService.setOpacity(opacity),
-            '设置透明度失败'
+            t('messages:couldNotSetOpacity')
         );
 
         if (layoutMode === 'center') {
@@ -87,15 +89,15 @@ export class DesktopLyricsSettingsController {
 
         await this.applyWindowOperation(
             () => this.windowService.setAlwaysOnTop(false),
-            '设置置顶状态失败'
+            t('messages:couldNotSetAlwaysontopState')
         );
         await this.applyWindowOperation(
             () => this.windowService.setIgnoreMouseEvents(true, {forward: true}),
-            '设置鼠标穿透失败'
+            t('messages:couldNotSetClickthroughState')
         );
         await this.applyWindowOperation(
             () => this.windowService.centerOnScreen(),
-            '居中窗口失败'
+            t('messages:couldNotCenterWindow')
         );
 
         this.lockController.forceUnlocked();
@@ -106,11 +108,11 @@ export class DesktopLyricsSettingsController {
 
         await this.applyWindowOperation(
             () => this.windowService.setAlwaysOnTop(true),
-            '设置置顶状态失败'
+            t('messages:couldNotSetAlwaysontopState')
         );
         await this.applyWindowOperation(
             () => this.lockController.applyMousePassthrough(),
-            '设置鼠标穿透失败'
+            t('messages:couldNotSetClickthroughState')
         );
     }
 

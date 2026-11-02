@@ -1,3 +1,4 @@
+import {setLocalizedText} from '@/shared/i18n';
 import {playbackUiStateService} from "@/features/playback/service/PlaybackUiStateService";
 import type {PlayMode} from "@api/types/playback";
 import type {AddLyricsDomListener} from "@ui/widgets/lyrics/LyricsDomEvents";
@@ -67,19 +68,19 @@ class LyricsPlaybackButtonController {
         switch (mode) {
             case 'sequence':
                 this.elements.modeSequenceIcon.style.display = 'block';
-                this.elements.playModeBtn.title = '顺序播放';
+                setLocalizedText(this.elements.playModeBtn, 'app:sequential', {}, 'title');
                 break;
             case 'shuffle':
                 this.elements.modeShuffleIcon.style.display = 'block';
-                this.elements.playModeBtn.title = '随机播放';
+                setLocalizedText(this.elements.playModeBtn, 'app:shuffle', {}, 'title');
                 break;
             case 'repeat-one':
                 this.elements.modeRepeatOneIcon.style.display = 'block';
-                this.elements.playModeBtn.title = '单曲循环';
+                setLocalizedText(this.elements.playModeBtn, 'app:repeatOne', {}, 'title');
                 break;
             default:
                 this.elements.modeSequenceIcon.style.display = 'block';
-                this.elements.playModeBtn.title = '顺序播放';
+                setLocalizedText(this.elements.playModeBtn, 'app:sequential', {}, 'title');
                 break;
         }
     }

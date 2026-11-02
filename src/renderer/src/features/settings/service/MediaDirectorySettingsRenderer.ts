@@ -1,3 +1,4 @@
+import {setLocalizedText} from '@/shared/i18n';
 export interface MediaDirectoryElements {
     lyricsFolderPath: HTMLElement | null;
     coverCacheFolderPath: HTMLElement | null;
@@ -21,7 +22,7 @@ class MediaDirectorySettingsRenderer {
             return;
         }
 
-        element.textContent = '未选择';
+        setLocalizedText(element, 'app:notSelected', {}, 'textContent');
         element.classList.remove('selected');
     }
 }

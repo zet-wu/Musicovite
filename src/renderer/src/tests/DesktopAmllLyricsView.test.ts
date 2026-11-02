@@ -3,7 +3,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 function fakeElement() {
     return {
         hidden: false,
-        textContent: '',
+        textContent: '', setAttribute: vi.fn(), removeAttribute: vi.fn(),
         className: '',
         dataset: {},
         replaceChildren: vi.fn()

@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * 参量均衡器预设管理器
  * 提供专业的参量均衡器预设和导入/导出功能
@@ -207,7 +208,7 @@ class ParametricEqualizerPresets {
      */
     getAllPresets(): {builtin: ParametricPresetMap; custom: ParametricPresetMap} {
         return {
-            builtin: this.builtInPresets,
+            builtin: Object.fromEntries(Object.entries(this.builtInPresets).map(([id, preset]) => [id, {...preset, name: t(`presets:${id}Name`), description: t(`presets:${id}Description`)}])),
             custom: this.customPresets
         };
     }
@@ -219,7 +220,8 @@ class ParametricEqualizerPresets {
         if (isCustom) {
             return this.customPresets[id];
         }
-        return this.builtInPresets[id];
+        const preset = this.builtInPresets[id];
+        return preset ? {...preset, name: t(`presets:${id}Name`), description: t(`presets:${id}Description`)} : undefined;
     }
 
     /**
@@ -252,7 +254,7 @@ class ParametricEqualizerPresets {
 
             // 验证预设格式
             if (!this.validatePreset(preset)) {
-                throw new Error('预设格式无效');
+                throw new Error(t('audit:invalidPreset'));
             }
 
             return preset;

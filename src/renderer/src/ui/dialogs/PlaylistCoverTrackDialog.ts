@@ -1,3 +1,5 @@
+import {bindLocalizedText, th, setLocalizedText, t} from '@/shared/i18n';
+
 import type {Track} from '@api/types/library';
 import {libraryDataService} from '@/features/library/service/LibraryDataService';
 import {playlistCoverActionService, type PlaylistCoverActionResult} from '@/features/playlists/service/PlaylistCoverActionService';
@@ -67,17 +69,17 @@ export class PlaylistCoverTrackDialog extends Component {
                 <div class="modal-dialog modal-dialog-large playlist-cover-track-dialog">
                     <div class="modal-header">
                         <div>
-                            <h3 class="modal-title">从歌曲选择封面</h3>
-                            <p class="playlist-cover-track-subtitle">仅使用音频文件中真实的内嵌封面，并保存为独立快照。</p>
+                            <h3 class="modal-title" data-i18n="messages:chooseArtworkFromTrack">${th('messages:chooseArtworkFromTrack')}</h3>
+                            <p class="playlist-cover-track-subtitle" data-i18n="messages:useEmbeddedArtworkFromAnAudioFileAndSaveAn">${th('messages:useEmbeddedArtworkFromAnAudioFileAndSaveAn')}</p>
                         </div>
-                        <button class="modal-close-btn" data-cover-dialog-action="close" aria-label="关闭">×</button>
+                        <button class="modal-close-btn" data-cover-dialog-action="close" aria-label="${th('app:close')}" data-i18n-aria-label="app:close">×</button>
                     </div>
                     <div class="modal-body">
                         <div class="playlist-cover-track-list"></div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" data-cover-dialog-action="close">取消</button>
-                        <button class="btn btn-primary" data-cover-dialog-action="confirm" disabled>使用此封面</button>
+                        <button class="btn btn-secondary" data-cover-dialog-action="close" data-i18n="app:cancel">${th('app:cancel')}</button>
+                        <button class="btn btn-primary" data-cover-dialog-action="confirm" disabled data-i18n="messages:useThisArtwork">${th('messages:useThisArtwork')}</button>
                     </div>
                 </div>
             </div>
@@ -95,8 +97,8 @@ export class PlaylistCoverTrackDialog extends Component {
         if (this.tracks.length === 0) {
             this.list.innerHTML = `
                 <div class="playlist-cover-track-empty">
-                    <strong>歌单中没有可选择的歌曲</strong>
-                    <span>请先向歌单添加歌曲。</span>
+                    <strong><span data-i18n="messages:noTracksToChooseFrom">${th('messages:noTracksToChooseFrom')}</span></strong>
+                    <span data-i18n="messages:addTracksToThePlaylistFirst">${th('messages:addTracksToThePlaylistFirst')}</span>
                 </div>
             `;
             return;
@@ -110,10 +112,10 @@ export class PlaylistCoverTrackDialog extends Component {
                     <img alt="" hidden>
                 </span>
                 <span class="playlist-cover-track-info">
-                    <strong>${this.escapeHtml(track.title || track.fileName || '未知歌曲')}</strong>
-                    <span>${this.escapeHtml(track.artist || '未知艺术家')}</span>
+                    <strong>${this.escapeHtml(track.title || track.fileName || t('messages:unknownTrack'))}</strong>
+                    <span>${this.escapeHtml(track.artist || t('app:unknownArtist'))}</span>
                 </span>
-                <span class="playlist-cover-track-status">正在检查内嵌封面…</span>
+                <span class="playlist-cover-track-status" data-i18n="messages:checkingEmbeddedArtwork">${th('messages:checkingEmbeddedArtwork')}</span>
             </button>
         `).join('');
     }
@@ -143,7 +145,7 @@ export class PlaylistCoverTrackDialog extends Component {
             const cover = await this.getTrackCoverWithTimeout(track.filePath);
             if (generation !== this.generation) return;
             if (!cover?.data) {
-                if (status) status.textContent = '无内嵌封面';
+                if (status) setLocalizedText(status, 'messages:noEmbeddedArtwork', {}, 'textContent');
                 return;
             }
             const bytes = cover.data instanceof Uint8Array ? cover.data : new Uint8Array(cover.data);
@@ -158,13 +160,13 @@ export class PlaylistCoverTrackDialog extends Component {
                 image.hidden = false;
             }
             item.querySelector<HTMLElement>('.playlist-cover-track-placeholder')?.setAttribute('hidden', '');
-            if (status) status.textContent = '可用';
+            if (status) setLocalizedText(status, 'messages:available', {}, 'textContent');
             item.disabled = false;
         } catch (error) {
             console.warn('⚠️ 检查歌曲内嵌封面失败:', error);
             if (generation !== this.generation) return;
             if (status) {
-                status.textContent = error instanceof CoverPreviewTimeoutError ? '检测超时' : '检测失败';
+                bindLocalizedText(status, () => error instanceof CoverPreviewTimeoutError ? t('messages:detectionTimedOut') : t('messages:detectionFailed'), 'textContent');
             }
         }
     }
@@ -176,7 +178,7 @@ export class PlaylistCoverTrackDialog extends Component {
                 libraryDataService.getTrackCover(filePath),
                 new Promise<never>((_resolve, reject) => {
                     timeoutId = setTimeout(() => {
-                        reject(new CoverPreviewTimeoutError('内嵌封面检测超时'));
+                        reject(new CoverPreviewTimeoutError(t('messages:embeddedArtworkDetectionTimedOut')));
                     }, COVER_PREVIEW_TIMEOUT_MS);
                 })
             ]);
@@ -209,9 +211,9 @@ export class PlaylistCoverTrackDialog extends Component {
     private async confirmSelection(): Promise<void> {
         if (!this.selectedTrackId || this.confirmButton.disabled) return;
         this.confirmButton.disabled = true;
-        this.confirmButton.textContent = '正在保存…';
+        setLocalizedText(this.confirmButton, 'messages:savingMessage', {}, 'textContent');
         const result = await playlistCoverActionService.setCoverFromTrack(this.playlistId, this.selectedTrackId);
-        this.confirmButton.textContent = '使用此封面';
+        setLocalizedText(this.confirmButton, 'messages:useThisArtwork', {}, 'textContent');
         if (result.changed) {
             this.hide(result);
             return;

@@ -1,3 +1,5 @@
+import {getLocaleState, setLocalePreference, t, type LocalePreference} from '@/shared/i18n';
+
 import {showToast} from "@utils/index.js";
 import {displayModeSettingsController} from "./DisplayModeSettingsController";
 import {appModalService} from "@/features/appShell/service";
@@ -60,10 +62,18 @@ class GeneralSettingsController {
     }
 
     private bindSimpleSettings(elements: GeneralSettingsElements, callbacks: GeneralSettingsCallbacks, scope: SettingsListenerScope): void {
-        scope.listen(elements.languageSelect, 'change', () => {
-            const value = elements.languageSelect?.value || 'zh-CN';
-            callbacks.updateSetting('language', value);
-            callbacks.emit('languageChanged', value);
+        scope.listen(elements.languageSelect, 'change', async () => {
+            const select = elements.languageSelect;
+            if (!select) return;
+            select.disabled = true;
+            try { await setLocalePreference(select.value as LocalePreference); }
+            catch (error) {
+                console.error('❌ 语言设置保存失败:', error);
+                showToast(t('settings:languageSaveFailed'), 'error');
+            } finally {
+                select.value = getLocaleState().preference;
+                select.disabled = false;
+            }
         });
 
         this.bindCheckedSetting(elements.autoplayToggle, 'autoplay', callbacks, scope);
@@ -108,12 +118,12 @@ class GeneralSettingsController {
                 const saved = await playlistAutoCoverPreferenceService.save(requestedValue);
                 if (!saved) {
                     toggle.checked = !requestedValue;
-                    showToast('保存自动歌单封面设置失败', 'error');
+                    showToast(t('messages:couldNotSaveAutomaticPlaylistArtworkSetting'), 'error');
                 }
             } catch (error) {
                 console.error('❌ GeneralSettingsController: 保存自动歌单封面设置失败', error);
                 toggle.checked = !requestedValue;
-                showToast('保存自动歌单封面设置失败', 'error');
+                showToast(t('messages:couldNotSaveAutomaticPlaylistArtworkSetting'), 'error');
             } finally {
                 toggle.disabled = false;
             }
@@ -147,7 +157,7 @@ class GeneralSettingsController {
     private bindNetworkDriveModal(elements: GeneralSettingsElements, scope: SettingsListenerScope): void {
         scope.listen(elements.addNetworkDriveButton, 'click', () => {
             if (!appModalService.showNetworkDriveModal()) {
-                showToast('网络磁盘功能不可用', 'error');
+                showToast(t('messages:networkDrivesAreUnavailable'), 'error');
             }
         });
     }

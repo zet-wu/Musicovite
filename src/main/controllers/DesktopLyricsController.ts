@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // 桌面歌词控制器
 
 import {BaseController, Controller, IpcHandle} from '../decorators/IpcHandler';
@@ -110,14 +111,14 @@ export class DesktopLyricsController extends BaseController {
             try {
                 const posX = parseInt(String(x));
                 const posY = parseInt(String(y));
-                if (isNaN(posX) || isNaN(posY)) return {success: false, error: '无效的窗口位置参数'};
+                if (isNaN(posX) || isNaN(posY)) return {success: false, error: nativeT('errors:invalidWindowPosition')};
                 win.setPosition(posX, posY);
                 return {success: true};
             } catch (error: any) {
                 return {success: false, error: error.message};
             }
         }
-        return {success: false, error: '桌面歌词窗口不存在'};
+        return {success: false, error: nativeT('errors:desktopLyricsWindowDoesNotExist')};
     }
 
     @IpcHandle('desktopLyrics:getPosition')
@@ -135,7 +136,7 @@ export class DesktopLyricsController extends BaseController {
                 const w = parseInt(String(width));
                 const h = parseInt(String(height));
                 if (isNaN(w) || isNaN(h) || w < 10 || h < 10 || w > 2000 || h > 1500) {
-                    return {success: false, error: '窗口尺寸超出限制范围 (10-2000 x 10-1500)'};
+                    return {success: false, error: nativeT('errors:windowSizeMustBeWithin102000101500')};
                 }
                 win.setSize(w, h);
                 return {success: true};
@@ -143,14 +144,14 @@ export class DesktopLyricsController extends BaseController {
                 return {success: false, error: error.message};
             }
         }
-        return {success: false, error: '桌面歌词窗口不存在'};
+        return {success: false, error: nativeT('errors:desktopLyricsWindowDoesNotExist')};
     }
 
     @IpcHandle('desktopLyrics:getSize')
     getSize(): { success: boolean; size?: number[]; error?: string } {
         const win = this.windowManager.getDesktopLyricsWindow();
         if (win && !win.isDestroyed()) return {success: true, size: win.getSize()};
-        return {success: false, error: '桌面歌词窗口不存在'};
+        return {success: false, error: nativeT('errors:desktopLyricsWindowDoesNotExist')};
     }
 
     @IpcHandle('desktopLyrics:setOpacity')
@@ -172,7 +173,7 @@ export class DesktopLyricsController extends BaseController {
                 return {success: false, error: error.message};
             }
         }
-        return {success: false, error: '桌面歌词窗口不存在'};
+        return {success: false, error: nativeT('errors:desktopLyricsWindowDoesNotExist')};
     }
 
     @IpcHandle('desktopLyrics:setIgnoreMouseEvents')
@@ -187,7 +188,7 @@ export class DesktopLyricsController extends BaseController {
                 return {success: false, error: error.message};
             }
         }
-        return {success: false, error: '桌面歌词窗口不存在'};
+        return {success: false, error: nativeT('errors:desktopLyricsWindowDoesNotExist')};
     }
 
     @IpcHandle('desktopLyrics:centerOnScreen')
@@ -207,6 +208,6 @@ export class DesktopLyricsController extends BaseController {
                 return {success: false, error: error.message};
             }
         }
-        return {success: false, error: '桌面歌词窗口不存在'};
+        return {success: false, error: nativeT('errors:desktopLyricsWindowDoesNotExist')};
     }
 }

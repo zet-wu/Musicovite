@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 /**
  * 本地封面文件管理器
  * 负责本地封面文件的缓存、检索和管理逻辑
@@ -114,7 +116,7 @@ class LocalCoverManager {
     async checkLocalCover(title: string, artist: string, album = ''): Promise<LocalCoverResult> {
         try {
             if (!this.coverDirectory) {
-                return {success: false, error: '未设置封面缓存目录'};
+                return {success: false, error: t('messages:artworkCacheFolderIsNotConfigured')};
             }
 
             const cacheKey = this.generateCacheKey(title, artist, album);
@@ -141,7 +143,7 @@ class LocalCoverManager {
                     if (!ok) {
                         // 根据是否有专辑名称确定错误类型
                         const errorType = album ? 'album-only' : 'artist-only';
-                        return {success: false, error: `未找到本地封面缓存（${errorType} 过滤）`};
+                        return {success: false, error: t('dynamic:artworkCacheNotFound', {filter: errorType})};
                     }
                 }
                 // 添加到内存缓存
@@ -159,7 +161,7 @@ class LocalCoverManager {
                     album,
                     error: searchResult.error
                 });
-                return {success: false, error: '未找到本地封面缓存'};
+                return {success: false, error: t('messages:noCachedArtworkFound')};
             }
         } catch (error) {
             console.error('❌ LocalCoverManager: 检查本地封面缓存失败:', error);
@@ -185,7 +187,7 @@ class LocalCoverManager {
     ): Promise<LocalCoverResult> {
         try {
             if (!this.coverDirectory) {
-                return {success: false, error: '未设置封面缓存目录'};
+                return {success: false, error: t('messages:artworkCacheFolderIsNotConfigured')};
             }
             console.log(`💾 LocalCoverManager: 保存封面到本地缓存 - ${title} by ${artist}`);
 
@@ -218,7 +220,7 @@ class LocalCoverManager {
                 processedImageData = imageData;
                 dataType = 'string';
             } else {
-                return {success: false, error: '不支持的图片数据格式'};
+                return {success: false, error: t('messages:unsupportedImageFormat')};
             }
 
             // 调用主进程保存文件

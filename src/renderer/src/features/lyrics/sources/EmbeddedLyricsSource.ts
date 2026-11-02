@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {lyricsGateway} from '@/infrastructure/electron';
 import type {ProviderLyricsPayload, TrackLyricsQuery} from '../domain/types';
 
@@ -18,7 +20,7 @@ export class EmbeddedLyricsSource {
         return (result.candidates ?? (result.lyrics ? [result.lyrics] : [])).map((embedded, index) => {
             const candidate: EmbeddedCandidate = {
                 candidateId: String(embedded.candidateId ?? 'legacy:' + index),
-                title: [embedded.type, embedded.language, embedded.description].filter(Boolean).join(' · ') || '内嵌歌词',
+                title: [embedded.type, embedded.language, embedded.description].filter(Boolean).join(' · ') || t('messages:embeddedLyrics'),
                 contentHash: typeof embedded.contentHash === 'string' ? embedded.contentHash : undefined,
                 stpp: embedded.type === 'STPP'
             };
@@ -30,7 +32,7 @@ export class EmbeddedLyricsSource {
                 candidate.payload = {kind: 'lrc', lyrics: text};
             } else if (embedded.synchronized && embedded.timestamps?.length) {
                 candidate.payload = {kind: 'lrc', lyrics: embedded.timestamps.map(item => '[' + formatTimestamp(item.time) + ']' + item.text).join('\n')};
-            } else candidate.error = '未包含受支持的定时歌词';
+            } else candidate.error = t('messages:noSupportedTimedLyricsFound');
             return candidate;
         });
     }

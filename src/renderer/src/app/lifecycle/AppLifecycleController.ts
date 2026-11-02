@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {updateNotificationService} from '@/features/appShell/service';
 import {cacheManager} from '@/shared/cache';
 import type {PlaybackUIFacade} from '@/app/runtime/ui/PlaybackUIFacade';
@@ -70,7 +71,7 @@ export class AppLifecycleController {
 
             return {status: true};
         } catch (error) {
-            app.showFatalError('应用初始化失败');
+            app.showFatalError(t('audit:startupFailed'));
             return {
                 status: false,
                 error

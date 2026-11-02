@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import type {Playlist, Track} from "@api/types/library";
 import {libraryDataService} from "@/features/library/service/LibraryDataService";
 
@@ -32,7 +34,7 @@ export class PlaylistDialogActionService {
         playlists: Playlist[]
     ): Promise<AddToPlaylistActionResult> {
         const trackIds = tracks.flatMap(track => track.fileId ? [track.fileId] : []);
-        if (trackIds.length === 0) return {success: false, addedCount: 0, error: '所选歌曲缺少文件标识'};
+        if (trackIds.length === 0) return {success: false, addedCount: 0, error: t('messages:selectedTracksHaveNoFileIdentifier')};
 
         const result = await libraryDataService.addToPlaylist(playlistId, trackIds) as {
             success: boolean;
@@ -45,7 +47,7 @@ export class PlaylistDialogActionService {
             success: addedCount > 0,
             playlist: playlists.find(p => p.id === playlistId),
             addedCount,
-            error: addedCount > 0 ? undefined : (result.error || '所选歌曲已在歌单中')
+            error: addedCount > 0 ? undefined : (result.error || t('messages:selectedTracksAreAlreadyInThePlaylist'))
         };
     }
 
@@ -79,7 +81,7 @@ export class PlaylistDialogActionService {
                 return {
                     success: false,
                     playlist: result.playlist,
-                    bindingError: bindingResult.error || '绑定歌单失败'
+                    bindingError: bindingResult.error || t('messages:couldNotBindPlaylist')
                 };
             }
         }

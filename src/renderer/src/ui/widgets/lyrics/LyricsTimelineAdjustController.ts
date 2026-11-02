@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import type {LyricsDocument} from '@/features/lyrics/domain/types';
 import {constrainTimelineDelta} from '@/features/lyrics/format/TtmlTimelineEditor';
 import {getLyricsService} from '@/features/lyrics/service/defaultLyricsServices';
@@ -221,7 +222,7 @@ export class LyricsTimelineAdjustController {
         this.updateAvailability();
         try {
             const result = await this.service.shiftCanonicalTimeline(query, deltaMs);
-            if (!result.document) throw new Error(result.error ?? '歌词时间轴调整失败');
+            if (!result.document) throw new Error(result.error ?? t('messages:couldNotAdjustLyricsTiming'));
 
             this.clearTimelinePreview({refresh: false});
             this.dispatchDocumentApplied(query.trackId, result.document);

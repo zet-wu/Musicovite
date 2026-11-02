@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {LyricPlayer, type LyricLineMouseEvent} from '@applemusic-like-lyrics/core';
 import '@applemusic-like-lyrics/core/style.css';
 import type {LyricsDocument} from '../domain/types';
@@ -74,14 +75,14 @@ export class AmllLyricsView {
         this.clearTimelinePreview({refresh: false});
         this.currentDocument = null;
         this.player.setLyricLines([]);
-        this.showState('正在加载歌词...');
+        this.showState(t('messages:loadingLyrics'));
     }
 
     showNoLyrics(): void {
         this.clearTimelinePreview({refresh: false});
         this.currentDocument = null;
         this.player.setLyricLines([]);
-        this.showState('暂无歌词', '请欣赏音乐');
+        this.showState(t('messages:noLyricsAvailable'), t('messages:enjoyTheMusic'));
     }
 
     handlePlaybackPositionChanged(positionSeconds: number, isSeek = false): void {

@@ -1,3 +1,4 @@
+import {initializeLocale} from '@/shared/i18n';
 import {resolveDesktopLyricsElements} from './DesktopLyricsElements';
 import {DesktopLyricsEventBinder} from './DesktopLyricsEventBinder';
 import {DesktopLyricsLockController} from './DesktopLyricsLockController';
@@ -47,11 +48,10 @@ class DesktopLyrics {
     }
 
     destroy(): void {
+        this.lockController.destroy();
         this.eventBinder.destroy();
         this.lyricsView.destroy();
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    new DesktopLyrics();
-});
+void initializeLocale().then(() => { new DesktopLyrics(); });

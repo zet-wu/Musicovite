@@ -1,3 +1,5 @@
+import {t, setLocalizedText} from '@/shared/i18n';
+
 import {showToast} from '@utils/index.js';
 import {libraryDataService} from "@/features/library/service/LibraryDataService";
 
@@ -44,7 +46,7 @@ export class FileImportController {
         try {
             await this.selectAndScanDirectories();
         } catch (error) {
-            showToast('音乐目录扫描失败', 'error');
+            showToast(t('messages:musicFolderScanFailed'), 'error');
         }
     }
 
@@ -65,13 +67,13 @@ export class FileImportController {
                 }
 
                 if (successCount > 0) {
-                    showToast(`成功添加 ${successCount} 首音乐`, 'success');
+                    showToast(t('dynamic:musicAdded', {count: successCount}), 'success');
                 } else {
-                    showToast('添加音乐失败', 'error');
+                    showToast(t('messages:couldNotAddMusic'), 'error');
                 }
             }
         } catch (error) {
-            showToast('添加音乐失败', 'error');
+            showToast(t('messages:couldNotAddMusic'), 'error');
         }
     }
 
@@ -122,7 +124,7 @@ export class FileImportController {
         try {
             await this.selectAndScanDirectories();
         } catch (error) {
-            this.app.showError('无法打开目录选择框');
+            this.app.showError(t('messages:couldNotOpenFolderPicker'));
         }
     }
 
@@ -133,10 +135,10 @@ export class FileImportController {
                 await this.integrations.play();
                 this.app.showSuccess(`正常播放: ${filePath.split(/[/\\]/).pop()}`);
             } else {
-                this.app.showError(`无法加载文件: ${filePath}`);
+                this.app.showError(t('dynamic:fileLoadFailed', {path: filePath}));
             }
         } catch (error) {
-            this.app.showError('无法加载音乐文件');
+            this.app.showError(t('messages:couldNotLoadMusicFiles'));
         }
     }
 
@@ -158,16 +160,16 @@ export class FileImportController {
 
     async scanDirectory(directoryPath: string): Promise<void> {
         try {
-            this.app.showInfo('扫描音乐文件...');
+            this.app.showInfo(t('messages:scanningMusicFiles'));
             const success = await libraryDataService.scanDirectory(directoryPath);
             if (success) {
-                this.app.showSuccess('音乐目录扫描完成');
+                this.app.showSuccess(t('messages:musicFolderScanComplete'));
             } else {
-                this.app.showError('扫描失败');
+                this.app.showError(t('messages:scanFailed'));
             }
         } catch (error) {
             console.error('扫描失败：', error);
-            this.app.showError('扫描失败');
+            this.app.showError(t('messages:scanFailed'));
         }
     }
 
@@ -185,11 +187,11 @@ export class FileImportController {
             }
 
             if (successCount === directories.length) {
-                this.app.showSuccess(`已添加并扫描 ${successCount} 个音乐文件夹`);
+                this.app.showSuccess(t('dynamic:musicFoldersAdded', {count: successCount}));
             } else if (successCount > 0) {
-                this.app.showError(`已扫描 ${successCount} 个文件夹，${directories.length - successCount} 个失败`);
+                this.app.showError(t('dynamic:foldersScannedWithFailures', {scanned: successCount, failed: directories.length - successCount}));
             } else {
-                this.app.showError('音乐文件夹扫描失败');
+                this.app.showError(t('messages:musicFolderScanFailedMessage'));
             }
         } finally {
             this.app.hideScanProgress();
@@ -199,7 +201,7 @@ export class FileImportController {
     addFileMenuItems(): void {
         const searchInput = document.getElementById('search-input') as HTMLInputElement | null;
         if (searchInput) {
-            searchInput.placeholder = '搜索... (Ctrl+O 添加音乐, Ctrl+Shift+O 添加音乐目录)';
+            setLocalizedText(searchInput, 'messages:searchCtrloAddMusicCtrlshiftoAddFolder', {}, 'placeholder');
         }
     }
 }

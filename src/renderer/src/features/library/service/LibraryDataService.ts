@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {libraryGateway} from '@/infrastructure/electron';
 import type {Result, Unsubscribe} from '@api/types/common';
 import type {
@@ -39,7 +41,7 @@ export type PlaylistCoverDataResult = {
 
 class LibraryInputError extends Error {
     constructor(paramName: string, expectedType: string, actualValue: unknown) {
-        super(`参数 "${paramName}" 验证失败: 期望 ${expectedType}, 实际收到 ${typeof actualValue}`);
+        super(t('audit:parameterInvalid', {name: paramName, expected: expectedType, actual: typeof actualValue}));
         this.name = 'LibraryInputError';
     }
 }
@@ -110,11 +112,11 @@ export class LibraryDataService {
         );
     }
 
-    async updateTrackMetadata(data: unknown): Promise<Result & {updatedMetadata?: Track}> {
+    async updateTrackMetadata(data: unknown): Promise<{success: boolean; code?: string; details?: string; updatedMetadata?: Track}> {
         return await this.callGateway(
             () => libraryGateway.updateTrackMetadata(data),
             'library.updateTrackMetadata',
-            {success: false, error: '更新歌曲信息失败'}
+            {success: false, code: 'METADATA_UPDATE_FAILED'}
         );
     }
 
@@ -127,7 +129,7 @@ export class LibraryDataService {
 
             return stats || null;
         } catch (error) {
-            this.logError('获取缓存统计失败', error);
+            this.logError(t('messages:couldNotGetCacheStatistics'), error);
             return null;
         }
     }
@@ -137,7 +139,7 @@ export class LibraryDataService {
             const stats = await this.getCacheStatistics();
             return stats !== null && stats.totalTracks > 0;
         } catch (error) {
-            this.logError('检查缓存状态失败', error);
+            this.logError(t('messages:couldNotCheckCacheStatus'), error);
             return false;
         }
     }
@@ -158,7 +160,7 @@ export class LibraryDataService {
                 rebuiltTrackCount: 0,
                 failedSources: [],
                 failedFolders: [],
-                error: '重建音乐库索引失败'
+                error: t('messages:couldNotRebuildLibraryIndex')
             }
         );
     }
@@ -167,7 +169,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.clearIgnoreList(),
             'library.clearIgnoreList',
-            {success: false, error: '清空忽略列表失败'}
+            {success: false, error: t('messages:couldNotClearIgnoredTracks')}
         );
     }
 
@@ -185,7 +187,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.createPlaylist(name, description),
             'library.createPlaylist',
-            {success: false, error: '创建歌单失败'}
+            {success: false, error: t('messages:couldNotCreatePlaylist')}
         );
     }
 
@@ -195,7 +197,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.deletePlaylist(playlistId),
             'library.deletePlaylist',
-            {success: false, error: '删除歌单失败'}
+            {success: false, error: t('messages:couldNotDeletePlaylist')}
         );
     }
 
@@ -206,7 +208,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.renamePlaylist(playlistId, newName, description),
             'library.renamePlaylist',
-            {success: false, error: '重命名歌单失败'}
+            {success: false, error: t('messages:couldNotRenamePlaylist')}
         );
     }
 
@@ -216,7 +218,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.addToPlaylist(playlistId, trackIds),
             'library.addToPlaylist',
-            {success: false, error: '添加到歌单失败'}
+            {success: false, error: t('messages:couldNotAddToPlaylist')}
         );
     }
 
@@ -226,7 +228,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.removeFromPlaylist(playlistId, trackIds),
             'library.removeFromPlaylist',
-            {success: false, error: '从歌单移除失败'}
+            {success: false, error: t('messages:couldNotRemoveFromPlaylist')}
         );
     }
 
@@ -236,7 +238,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.removeTrack(trackFileId),
             'library.removeTrack',
-            {success: false, error: '删除歌曲失败'}
+            {success: false, error: t('messages:couldNotDeleteTrack')}
         );
     }
 
@@ -261,7 +263,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.importLibraryFiles(paths, targetPlaylistId),
             'library.importLibraryFiles',
-            {success: false, tracks: [], failedPaths: paths, error: '导入音乐文件失败'}
+            {success: false, tracks: [], failedPaths: paths, error: t('messages:couldNotImportMusicFiles')}
         );
     }
 
@@ -289,7 +291,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.registerLibraryDirectory(directoryPath),
             'library.registerLibraryDirectory',
-            {success: false, error: '登记音乐文件夹来源失败'}
+            {success: false, error: t('messages:couldNotRegisterMusicFolderSource')}
         );
     }
 
@@ -300,7 +302,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.removeLibraryDirectory(directoryPath),
             'library.removeLibraryDirectory',
-            {success: false, error: '移除音乐文件夹来源失败'}
+            {success: false, error: t('messages:couldNotRemoveMusicFolderSource')}
         );
     }
 
@@ -311,7 +313,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.removeLibrarySource(sourceId),
             'library.removeLibrarySource',
-            {success: false, error: '移除音乐库来源失败'}
+            {success: false, error: t('messages:couldNotRemoveLibrarySource')}
         );
     }
 
@@ -320,7 +322,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.rescanLibrarySource(sourceId),
             'library.rescanLibrarySource',
-            {success: false, error: '重新扫描音乐文件夹失败'}
+            {success: false, error: t('messages:couldNotRescanMusicFolder')}
         );
     }
 
@@ -333,7 +335,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.bindDirectoryToPlaylist(playlistId, directoryPath),
             'library.bindDirectoryToPlaylist',
-            {success: false, error: '绑定文件夹失败'}
+            {success: false, error: t('messages:couldNotBindFolder')}
         );
     }
 
@@ -346,7 +348,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.bindLibrarySourceToPlaylist(playlistId, sourceId),
             'library.bindLibrarySourceToPlaylist',
-            {success: false, error: '绑定音乐文件夹来源失败'}
+            {success: false, error: t('messages:couldNotBindMusicFolderSource')}
         );
     }
 
@@ -362,7 +364,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.unbindDirectoryFromPlaylist(bindingId, mode),
             'library.unbindDirectoryFromPlaylist',
-            {success: false, error: '解绑文件夹失败'}
+            {success: false, error: t('messages:couldNotUnbindFolder')}
         );
     }
 
@@ -371,7 +373,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.rescanPlaylistBinding(bindingId),
             'library.rescanPlaylistBinding',
-            {success: false, error: '重新扫描绑定文件夹失败'}
+            {success: false, error: t('messages:couldNotRescanBoundFolder')}
         );
     }
 
@@ -382,7 +384,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.restorePlaylistBindingExclusions(bindingId),
             'library.restorePlaylistBindingExclusions',
-            {success: false, error: '恢复排除歌曲失败'}
+            {success: false, error: t('messages:couldNotRestoreExcludedTracks')}
         );
     }
 
@@ -400,7 +402,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.scanSingleFile(networkPath),
             'library.scanSingleFile',
-            {success: false, error: '扫描单个文件失败'}
+            {success: false, error: t('messages:couldNotScanFile')}
         );
     }
 
@@ -408,7 +410,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.addTrackToLibrary(audioFile),
             'library.addTrackToLibrary',
-            {success: false, error: '添加歌曲到音乐库失败'}
+            {success: false, error: t('messages:couldNotAddTrackToLibrary')}
         );
     }
 
@@ -428,7 +430,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.removeTracksByDrive(driveId),
             'library.removeTracksByDrive',
-            {success: false, error: '移除网络磁盘音乐失败'}
+            {success: false, error: t('messages:couldNotRemoveNetworkDriveTracks')}
         );
     }
 
@@ -438,7 +440,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.getPlaylistDetail(playlistId),
             'library.getPlaylistDetail',
-            {success: false, error: '获取歌单详情失败'}
+            {success: false, error: t('messages:couldNotRetrievePlaylistDetails')}
         );
     }
 
@@ -449,7 +451,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.updatePlaylistCover(playlistId, imagePath),
             'library.updatePlaylistCover',
-            {success: false, error: '更新歌单封面失败'}
+            {success: false, error: t('messages:couldNotUpdatePlaylistArtwork')}
         );
     }
 
@@ -460,7 +462,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.setPlaylistCoverFromTrack(playlistId, trackId),
             'library.setPlaylistCoverFromTrack',
-            {success: false, error: '从歌曲设置歌单封面失败'}
+            {success: false, error: t('messages:couldNotSetPlaylistArtworkFromTrack')}
         );
     }
 
@@ -470,7 +472,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.getPlaylistCover(playlistId),
             'library.getPlaylistCover',
-            {success: false, error: '获取歌单封面失败'}
+            {success: false, error: t('messages:couldNotRetrievePlaylistArtwork')}
         );
     }
 
@@ -480,7 +482,7 @@ export class LibraryDataService {
         return await this.callGateway(
             () => libraryGateway.removePlaylistCover(playlistId),
             'library.removePlaylistCover',
-            {success: false, error: '移除歌单封面失败'}
+            {success: false, error: t('messages:couldNotRemovePlaylistArtwork')}
         );
     }
 
@@ -554,7 +556,7 @@ export class LibraryDataService {
         try {
             return await operation();
         } catch (error) {
-            this.logError(`${operationName} 失败`, error);
+            this.logError(t('dynamic:operationFailed', {operation: operationName}), error);
 
             if (arguments.length >= 3) {
                 return fallbackValue as T;

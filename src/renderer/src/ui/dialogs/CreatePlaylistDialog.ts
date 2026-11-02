@@ -1,3 +1,5 @@
+import {t, setLocalizedText} from '@/shared/i18n';
+
 /**
  * 创建歌单对话框组件
  */
@@ -129,7 +131,7 @@ class CreatePlaylistDialog extends Component {
         this.confirmBtn.disabled = !isValid;
 
         if (name.length > 50) {
-            this.showError('歌单名称不能超过50个字符');
+            this.showError(t('messages:playlistNamesMustBeAtMost50Characters'));
         } else {
             this.hideError();
         }
@@ -157,7 +159,7 @@ class CreatePlaylistDialog extends Component {
         try {
             // 显示加载状态
             this.confirmBtn.disabled = true;
-            this.confirmBtn.textContent = '创建中...';
+            setLocalizedText(this.confirmBtn, 'messages:creating', {}, 'textContent');
             const result = await playlistDialogActionService.createPlaylist(
                 name,
                 description,
@@ -169,8 +171,8 @@ class CreatePlaylistDialog extends Component {
                 this.emit('playlistCreated', result.playlist);
                 this.hide();
                 const message = bindSource
-                    ? `歌单 "${name}" 已创建并绑定到文件夹`
-                    : `歌单 "${name}" 创建成功`;
+                    ? t('dynamic:playlistCreatedBound', {name: name})
+                    : t('dynamic:playlistCreated', {name: name});
                 this.emit('notification', {type: 'success', message});
             } else if (result.playlist && result.bindingError) {
                 // 歌单已经创建，绑定失败时保留歌单并刷新导航。
@@ -178,17 +180,17 @@ class CreatePlaylistDialog extends Component {
                 this.hide();
                 this.emit('notification', {
                     type: 'error',
-                    message: `歌单 "${name}" 已创建，但文件夹绑定失败：${result.bindingError}`
+                    message: t('dynamic:playlistCreatedBindingFailed', {name: name, details: result.bindingError})
                 });
             } else {
-                this.showError(result.error || '创建歌单失败');
+                this.showError(result.error || t('messages:couldNotCreatePlaylist'));
             }
         } catch (error) {
             console.error('❌ 创建歌单失败:', error);
-            this.showError('创建歌单失败，请重试');
+            this.showError(t('messages:couldNotCreatePlaylistPleaseTryAgain'));
         } finally {
             this.confirmBtn.disabled = false;
-            this.confirmBtn.textContent = '创建';
+            setLocalizedText(this.confirmBtn, 'app:create', {}, 'textContent');
         }
     }
 }

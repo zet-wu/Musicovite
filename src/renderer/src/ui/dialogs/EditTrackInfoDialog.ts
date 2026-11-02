@@ -1,3 +1,5 @@
+import {t, setLocalizedText} from '@/shared/i18n';
+
 /**
  * 编辑歌曲信息对话框组件
  */
@@ -258,7 +260,7 @@ class EditTrackInfoDialog extends Component {
                     const dataUrl = e.target?.result;
                     if (typeof dataUrl !== 'string') {
                         this.setDefaultCover();
-                        this.showError('封面预览加载失败');
+                        this.showError(t('messages:couldNotLoadArtworkPreview'));
                         return;
                     }
                     console.log('✅ EditTrackInfoDialog: FileReader生成Data URL成功', dataUrl.substring(0, 50) + '...');
@@ -270,7 +272,7 @@ class EditTrackInfoDialog extends Component {
                     console.error('❌ EditTrackInfoDialog: FileReader读取失败', e);
                     console.log('🔄 EditTrackInfoDialog: 即将设置coverPreview.src = default-cover.svg');
                     this.coverPreview.src = 'assets/images/default-cover.svg';
-                    this.showError('封面预览加载失败');
+                    this.showError(t('messages:couldNotLoadArtworkPreview'));
                 };
                 reader.readAsDataURL(this.selectedCoverFile);
             } else if (this.currentTrack?.cover) {
@@ -532,7 +534,7 @@ class EditTrackInfoDialog extends Component {
                         imageData = new Uint8Array(imageData);
                         console.log('✅ EditTrackInfoDialog: 降级转换成功');
                     } else {
-                        throw new Error('无法转换数据类型');
+                        throw new Error(t('audit:unsupportedCoverData'));
                     }
                 } catch (conversionError) {
                     console.error('❌ EditTrackInfoDialog: 降级转换失败', conversionError);
@@ -613,7 +615,7 @@ class EditTrackInfoDialog extends Component {
             }
         } catch (error) {
             console.error('❌ EditTrackInfoDialog: 选择封面失败', error);
-            this.showError(`选择封面失败：${getErrorMessage(error) || '未知错误'}`);
+            this.showError(t('dynamic:artworkSelectionFailed', {details: getErrorMessage(error) || t('messages:unknownError')}));
         }
     }
 
@@ -631,27 +633,27 @@ class EditTrackInfoDialog extends Component {
         // 验证歌曲名称
         const title = this.titleInput.value.trim();
         if (!title) {
-            this.showFieldError('title', '歌曲名称不能为空');
+            this.showFieldError('title', t('messages:trackNameIsRequired'));
             isValid = false;
         } else if (title.length > 100) {
-            this.showFieldError('title', '歌曲名称不能超过100个字符');
+            this.showFieldError('title', t('messages:trackNamesMustBeAtMost100Characters'));
             isValid = false;
         }
 
         // 验证艺术家
         const artist = this.artistInput.value.trim();
         if (!artist) {
-            this.showFieldError('artist', '艺术家不能为空');
+            this.showFieldError('artist', t('messages:artistIsRequired'));
             isValid = false;
         } else if (artist.length > 100) {
-            this.showFieldError('artist', '艺术家名称不能超过100个字符');
+            this.showFieldError('artist', t('messages:artistNamesMustBeAtMost100Characters'));
             isValid = false;
         }
 
         // 验证专辑（可选）
         const album = this.albumInput.value.trim();
         if (album.length > 100) {
-            this.showFieldError('album', '专辑名称不能超过100个字符');
+            this.showFieldError('album', t('messages:albumNamesMustBeAtMost100Characters'));
             isValid = false;
         }
 
@@ -659,7 +661,7 @@ class EditTrackInfoDialog extends Component {
         const year = this.yearInput.value.trim();
         const yearNumber = Number(year);
         if (year && (Number.isNaN(yearNumber) || yearNumber < 1900 || yearNumber > 2099)) {
-            this.showFieldError('year', '请输入有效的年份（1900-2099）');
+            this.showFieldError('year', t('messages:enterAValidYear19002099'));
             isValid = false;
         }
 
@@ -741,7 +743,7 @@ class EditTrackInfoDialog extends Component {
 
         try {
             this.confirmBtn.disabled = true;
-            this.confirmBtn.textContent = '保存中...';
+            setLocalizedText(this.confirmBtn, 'messages:saving', {}, 'textContent');
 
             const track = this.currentTrack;
             const updatedData: MetadataUpdatePayload = {
@@ -764,23 +766,19 @@ class EditTrackInfoDialog extends Component {
         } catch (error) {
             console.error('❌ EditTrackInfoDialog: 保存失败', error);
 
-            // 根据错误类型提供更具体的错误信息
-            let errorMessage = '保存失败：';
-            const message = getErrorMessage(error);
-            if (message.includes('权限')) {
-                errorMessage += '文件没有写入权限，请检查文件是否被其他程序占用';
-            } else if (message.includes('格式')) {
-                errorMessage += '文件格式不支持元数据编辑';
-            } else if (message.includes('网络')) {
-                errorMessage += '网络文件访问失败，请检查网络连接';
-            } else {
-                errorMessage += message;
-            }
-
+            const code = (error as {code?: string})?.code;
+            const summaries: Record<string, string> = {
+                METADATA_PERMISSION_DENIED: 'messages:cannotWriteToTheFileCheckWhetherAnotherApplicationIs',
+                METADATA_UNSUPPORTED_FORMAT: 'messages:thisFileFormatDoesNotSupportMetadataEditing',
+                METADATA_NETWORK_FAILED: 'messages:cannotAccessTheNetworkFileCheckYourConnection'
+            };
+            const summary = t(summaries[code || ''] || 'messages:couldNotUpdateTrackInformation');
+            const details = getErrorMessage(error);
+            const errorMessage = details ? summary + '\n' + details : summary;
             this.showError(errorMessage);
         } finally {
             this.confirmBtn.disabled = false;
-            this.confirmBtn.textContent = '保存更改';
+            setLocalizedText(this.confirmBtn, 'app:saveChanges', {}, 'textContent');
         }
     }
 }

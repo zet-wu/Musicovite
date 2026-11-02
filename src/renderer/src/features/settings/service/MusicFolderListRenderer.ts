@@ -1,3 +1,4 @@
+import {setLocalizedText} from '@/shared/i18n';
 interface MusicFolderListRenderOptions {
     container: HTMLElement | null | undefined;
     list: HTMLElement | null | undefined;
@@ -40,7 +41,7 @@ class MusicFolderListRenderer {
 
         const removeButton = document.createElement('button');
         removeButton.className = 'folder-remove-btn';
-        removeButton.textContent = '移除';
+        setLocalizedText(removeButton, 'messages:remove', {}, 'textContent');
         removeButton.dataset.folderPath = folder;
 
         item.appendChild(pathText);

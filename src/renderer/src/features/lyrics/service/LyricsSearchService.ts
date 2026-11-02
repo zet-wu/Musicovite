@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import type {LyricsCandidate, TrackLyricsQuery} from '../domain/types';
 import type {LyricsProviderRegistry} from '../providers/LyricsProviderRegistry';
 
@@ -21,7 +22,7 @@ export class LyricsSearchService {
     ): Promise<ProviderSearchResult> {
         const provider = this.registry.get(providerId);
         if (!provider) {
-            return {providerId, displayName: providerId, state: 'error', candidates: [], error: '未知歌词来源'};
+            return {providerId, displayName: providerId, state: 'error', candidates: [], error: t('messages:unknownLyricsSource')};
         }
         try {
             const candidates = await provider.search(query, signal);

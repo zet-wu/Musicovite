@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {cacheManager} from '@/shared/cache';
 import type {MusicBoxSettings, WasapiShareMode} from '@api/types/settings';
 import {AudioEngineManager} from './audioEngine';
@@ -70,7 +72,7 @@ export class AudioEngineAdapter {
             const wasapiShareMode = settings.wasapiShareMode || 'exclusive';
             const engineType: AudioEngineType = exclusiveMode ? 'wasapi' : 'webaudio';
 
-            console.log(`🎵 API: 初始化音频引擎，类型: ${engineType}${exclusiveMode ? ` (${wasapiShareMode === 'exclusive' ? '独占' : '共享'}模式)` : ''}`);
+            console.log(`🎵 API: 初始化音频引擎，类型: ${engineType}${exclusiveMode ? t('dynamic:audioModeSuffix', {mode: wasapiShareMode === 'exclusive' ? t('messages:exclusive') : t('messages:shared')}) : ''}`);
 
             this.audioEngine = new AudioEngineManager() as AudioEngineManagerBridge;
             const initialized = await this.audioEngine.initialize(engineType);

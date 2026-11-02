@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {cacheMaintenanceService} from "./CacheMaintenanceService";
 
 interface CacheStatisticsDisplay {
@@ -19,7 +21,7 @@ class CacheSettingsService {
         if (!stats) {
             return {
                 success: false,
-                error: '获取缓存统计失败'
+                error: t('messages:couldNotGetCacheStatistics')
             };
         }
 
@@ -28,8 +30,8 @@ class CacheSettingsService {
 
         return {
             success: true,
-            description: `缓存了 ${stats.totalTracks} 个音乐文件，总大小 ${totalSizeMB} MB，已扫描 ${stats.scannedDirectories || 0} 个目录，缓存时间 ${cacheAgeDays} 天`,
-            toastMessage: `缓存统计: ${stats.totalTracks} 个文件，${totalSizeMB} MB`
+            description: t('dynamic:cacheSummary', {tracks: stats.totalTracks, size: totalSizeMB, directories: stats.scannedDirectories || 0, days: cacheAgeDays}),
+            toastMessage: t('dynamic:cacheStatistics', {files: stats.totalTracks, size: totalSizeMB})
         };
     }
 
@@ -38,13 +40,13 @@ class CacheSettingsService {
         if (!result) {
             return {
                 success: false,
-                message: '缓存验证失败'
+                message: t('messages:cacheValidationFailed')
             };
         }
 
         return {
             success: true,
-            message: `缓存验证完成 - 有效: ${result.valid}, 无效: ${result.invalid}, 已修改: ${result.modified}`
+            message: t('dynamic:cacheValidated', {valid: result.valid, invalid: result.invalid, modified: result.modified})
         };
     }
 
@@ -53,26 +55,26 @@ class CacheSettingsService {
         if (result.state === 'no_sources') {
             return {
                 success: true,
-                message: '音乐库索引已清除',
-                description: '未配置持续文件夹或精确文件来源，当前音乐库为空；歌单、收藏、忽略列表和原始音乐文件均已保留。'
+                message: t('messages:libraryIndexCleared'),
+                description: t('messages:noFoldersOrFileSourcesAreConfiguredTheLibraryIs')
             };
         }
 
         if (result.state === 'partial') {
             return {
                 success: true,
-                message: `音乐库索引已部分重建，恢复 ${result.rebuiltTrackCount} 首歌曲`,
-                description: `${result.scannedSourceCount}/${result.configuredSourceCount} 个音乐库来源扫描成功；失败来源：${result.failedSources.join('、')}`
+                message: t('dynamic:indexPartiallyRebuilt', {count: result.rebuiltTrackCount}),
+                description: t('dynamic:sourcesScanned', {scanned: result.scannedSourceCount, total: result.configuredSourceCount, failed: result.failedSources.join('、')})
             };
         }
 
         return {
             success: result.success,
             message: result.success
-                ? `音乐库索引已重建，共恢复 ${result.rebuiltTrackCount} 首歌曲`
-                : result.error || '重建音乐库索引失败',
+                ? t('dynamic:indexRebuilt', {count: result.rebuiltTrackCount})
+                : result.error || t('messages:couldNotRebuildLibraryIndex'),
             description: result.success
-                ? `已扫描 ${result.directorySourceCount} 个持续文件夹和 ${result.fileSourceCount} 个精确文件来源；歌单、收藏、忽略列表和原始音乐文件均已保留。`
+                ? t('dynamic:indexSourcesPreserved', {folders: result.directorySourceCount, files: result.fileSourceCount})
                 : undefined
         };
     }
@@ -82,11 +84,11 @@ class CacheSettingsService {
         return {
             success: result.success,
             message: result.success
-                ? `封面缓存已清除，共删除 ${result.deletedFileCount} 个磁盘缓存项`
-                : result.error || '清除封面缓存失败',
+                ? t('dynamic:artworkCacheCleared', {count: result.deletedFileCount})
+                : result.error || t('messages:couldNotClearArtworkCache'),
             description: result.success && result.preservedUnknownFileCount > 0
-                ? `已保留 ${result.preservedUnknownFileCount} 个无法确认归属的文件。`
-                : result.success ? '内存封面、Blob URL 和应用管理的磁盘封面缓存已释放。' : undefined
+                ? t('dynamic:unknownCacheFilesPreserved', {count: result.preservedUnknownFileCount})
+                : result.success ? t('messages:artworkMemoryBlobUrlsAndManagedDiskCachesWereCleared') : undefined
         };
     }
 }

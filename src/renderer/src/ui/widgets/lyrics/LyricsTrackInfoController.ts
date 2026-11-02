@@ -1,3 +1,4 @@
+import {bindLocalizedText, t} from '@/shared/i18n';
 import {getLyricsTrackIdentity, type LyricsTrack} from "@ui/widgets/lyrics/LyricsTypes";
 
 interface LyricsTrackInfoElements {
@@ -65,8 +66,8 @@ class LyricsTrackInfoController {
         try {
             console.log('🎵 Lyrics: 开始更新歌曲信息', track.title, '时间戳:', Date.now());
 
-            this.elements.trackTitle.textContent = track.title || '未知歌曲';
-            this.elements.trackArtist.textContent = track.artist || '未知艺术家';
+            bindLocalizedText(this.elements.trackTitle, () => track.title || t('messages:unknownTrack'), 'textContent');
+            bindLocalizedText(this.elements.trackArtist, () => track.artist || t('app:unknownArtist'), 'textContent');
 
             this.updateTrackDuration(track.duration);
             await Promise.all([

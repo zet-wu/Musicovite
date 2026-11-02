@@ -1,3 +1,5 @@
+import {htmlT, t, th} from '@/shared/i18n';
+
 /**
  * 添加到歌单对话框组件
  */
@@ -101,7 +103,7 @@ class AddToPlaylistDialog extends Component {
         if (this.playlists.length === 0) {
             this.playlistList.innerHTML = `
                 <div class="empty-state">
-                    <p>暂无歌单，请先创建一个歌单</p>
+                    <p data-i18n="messages:createAPlaylistFirst">${th('messages:createAPlaylistFirst')}</p>
                 </div>
             `;
             return;
@@ -114,7 +116,7 @@ class AddToPlaylistDialog extends Component {
                 </svg>
                 <div class="playlist-info">
                     <div class="playlist-name">${this.escapeHtml(playlist.name)}</div>
-                    <div class="playlist-count">${playlist.resolvedTrackCount ?? 0} 首歌曲</div>
+                    <div class="playlist-count">${htmlT('common:tracks', {count: playlist.resolvedTrackCount ?? 0})}</div>
                 </div>
             </div>
         `).join('');
@@ -133,7 +135,7 @@ class AddToPlaylistDialog extends Component {
     async addToPlaylist(playlistId: string): Promise<void> {
         const validTracks = this.currentTracks.filter(track => track.fileId);
         if (validTracks.length === 0) {
-            this.emit('notification', {type: 'error', message: '所选歌曲缺少文件标识，无法添加到歌单'});
+            this.emit('notification', {type: 'error', message: t('messages:selectedTracksHaveNoFileIdentifierAndCannotBeAdded')});
             return;
         }
 
@@ -147,8 +149,8 @@ class AddToPlaylistDialog extends Component {
                 const playlist = result.playlist;
                 const skippedCount = this.currentTracks.length - result.addedCount;
                 const message = skippedCount > 0
-                    ? `已添加 ${result.addedCount} 首，跳过 ${skippedCount} 首`
-                    : `已添加 ${result.addedCount} 首到歌单 "${playlist?.name || '未知'}"`;
+                    ? t('dynamic:tracksAddedSkipped', {added: result.addedCount, skipped: skippedCount})
+                    : t('dynamic:tracksAddedToNamedPlaylist', {count: result.addedCount, name: playlist?.name || t('messages:unknown')});
                 this.emit('notification', {type: 'info', message});
 
                 // 触发添加成功事件
@@ -156,11 +158,11 @@ class AddToPlaylistDialog extends Component {
                 this.hide();
             } else {
                 console.error('❌ 添加到歌单失败:', result.error);
-                this.emit('notification', {type: 'error', message: result.error || '添加到歌单失败'});
+                this.emit('notification', {type: 'error', message: result.error || t('messages:couldNotAddToPlaylist')});
             }
         } catch (error) {
             console.error('❌ 添加到歌单失败:', error);
-            this.emit('notification', {type: 'error', message: '添加到歌单失败，请重试'});
+            this.emit('notification', {type: 'error', message: t('messages:couldNotAddToPlaylistPleaseTryAgain')});
         }
     }
 

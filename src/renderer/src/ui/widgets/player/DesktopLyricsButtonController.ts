@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {cacheManager} from "@/shared/cache";
 import {desktopLyricsService} from "@/features/desktopLyrics/service/DesktopLyricsService";
 import {showToast} from "@/utils";
@@ -77,13 +78,13 @@ class DesktopLyricsButtonController {
 
             if (result.success) {
                 this.updateButton(result.visible);
-                showToast(result.visible ? '桌面歌词已显示' : '桌面歌词已隐藏', result.visible ? 'success' : 'info');
+                showToast(result.visible ? t('messages:desktopLyricsShown') : t('messages:desktopLyricsHidden'), result.visible ? 'success' : 'info');
                 return;
             }
 
-            showToast('桌面歌词操作失败', 'error');
+            showToast(t('messages:desktopLyricsOperationFailed'), 'error');
         } catch (error) {
-            showToast('桌面歌词操作异常', 'error');
+            showToast(t('messages:desktopLyricsOperationFailedUnexpectedly'), 'error');
         }
     }
 

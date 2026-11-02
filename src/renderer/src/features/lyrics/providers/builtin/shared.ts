@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import type {LyricsCandidate, TrackLyricsQuery} from '../../domain/types';
 import {rankLyricsCandidates} from '../../domain/candidateMatching';
 import {lyricsGateway} from '@/infrastructure/electron';
@@ -52,7 +53,7 @@ export class LyricsHttpError extends Error {
     readonly retryable: boolean;
 
     constructor(readonly status: number, readonly retryAfterMs?: number) {
-        super(`歌词请求失败: HTTP ${status}`);
+        super(t('dynamic:lyricsHttpFailed', {status: status}));
         this.name = 'LyricsHttpError';
         this.retryable = [408, 425, 429, 500, 502, 503, 504].includes(status);
     }

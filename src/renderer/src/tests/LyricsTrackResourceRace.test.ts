@@ -37,8 +37,8 @@ describe('歌词页歌曲资源切换', () => {
             .mockReturnValueOnce(firstLoad)
             .mockResolvedValue(undefined);
         const updateCoverArt = vi.fn().mockResolvedValue(undefined);
-        const title = {textContent: ''} as HTMLElement;
-        const artist = {textContent: ''} as HTMLElement;
+        const title = {textContent: '', removeAttribute: vi.fn(), setAttribute: vi.fn()} as unknown as HTMLElement;
+        const artist = {textContent: '', removeAttribute: vi.fn(), setAttribute: vi.fn()} as unknown as HTMLElement;
         const controller = new LyricsTrackInfoController({
             elements: {trackTitle: title, trackArtist: artist},
             updateTrackDuration: vi.fn(),

@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // 封面控制器
 
 import * as fs from 'fs';
@@ -53,7 +54,7 @@ async function downloadImageFromUrl(url: string, filePath: string): Promise<{ su
         req.on('error', (e: any) => resolve({success: false, error: e.message}));
         req.setTimeout(10000, () => {
             req.destroy();
-            resolve({success: false, error: '下载超时'});
+            resolve({success: false, error: nativeT('errors:downloadTimedOut')});
         });
     });
 }
@@ -118,7 +119,7 @@ export class CoversController extends BaseController {
             try {
                 await fs.promises.access(coverDir);
             } catch {
-                return {success: false, error: '封面缓存目录不存在'};
+                return {success: false, error: nativeT('errors:artworkCacheFolderDoesNotExist')};
             }
 
             const files = await this.getCachedDir(coverDir);
@@ -135,14 +136,14 @@ export class CoversController extends BaseController {
                 if (matched) {
                     return {success: true, filePath: path.join(coverDir, matched), fileName: matched};
                 }
-                return {success: false, error: '未找到匹配的封面文件'};
+                return {success: false, error: nativeT('errors:noMatchingArtworkFile')};
             } else {
                 const searchPatterns = generateCoverSearchPatterns(title, artist, album);
                 const matched = findBestCoverMatch(imageFiles, searchPatterns);
                 if (matched) {
                     return {success: true, filePath: path.join(coverDir, matched), fileName: matched};
                 }
-                return {success: false, error: '未找到匹配的封面文件'};
+                return {success: false, error: nativeT('errors:noMatchingArtworkFile')};
             }
         } catch (error: any) {
             return {success: false, error: error.message};
@@ -159,12 +160,12 @@ export class CoversController extends BaseController {
         try {
             const managed = await this.coverCacheStorage.assertManagedDirectory(coverDir);
             if (path.basename(fileName) !== fileName) {
-                return {success: false, error: '封面文件名无效'};
+                return {success: false, error: nativeT('errors:invalidArtworkFileName')};
             }
             await fs.promises.mkdir(managed.path, {recursive: true});
             const fullPath = path.join(managed.path, fileName);
             if (!isSafePath(fullPath, [managed.path])) {
-                return {success: false, error: '封面文件路径超出缓存目录'};
+                return {success: false, error: nativeT('errors:artworkPathIsOutsideTheCacheFolder')};
             }
             const invalidate = () => this.dirCache.delete(managed.path);
             const finalize = async () => {
@@ -208,7 +209,7 @@ export class CoversController extends BaseController {
         try {
             const mimeType = getImageMimeType(filePath);
             if (!mimeType) {
-                return {success: false, error: '不支持的封面图片格式'};
+                return {success: false, error: nativeT('errors:unsupportedArtworkFormat')};
             }
 
             const buffer = await fs.promises.readFile(filePath);

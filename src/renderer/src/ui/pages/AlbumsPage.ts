@@ -1,3 +1,5 @@
+import {th, htmlT, t} from '@/shared/i18n';
+
 /**
  * 专辑页组件
  * 营造“收藏实体专辑”的沉浸式浏览体验
@@ -417,43 +419,43 @@ class AlbumsPage extends Component {
                     <div class="left cluster">
                         <div class="title">
                             <span class="disc" aria-hidden>💿</span>
-                            <span>专辑</span>
-                            <em class="muted">${total} 张</em>
+                            <span data-i18n="app:albums">${th('app:albums')}</span>
+                            <em class="muted">${htmlT('dynamic:albumCount', {count: total})}</em>
                         </div>
-                        <div class="segmented" role="tablist" aria-label="封面尺寸">
-                            <button class="seg-btn ${this.viewSize === 's' ? 'active' : ''}" data-size="s" ${this.viewMode === 'list' ? 'disabled' : ''}>小</button>
-                            <button class="seg-btn ${this.viewSize === 'm' ? 'active' : ''}" data-size="m" ${this.viewMode === 'list' ? 'disabled' : ''}>中</button>
-                            <button class="seg-btn ${this.viewSize === 'l' ? 'active' : ''}" data-size="l" ${this.viewMode === 'list' ? 'disabled' : ''}>大</button>
+                        <div class="segmented" role="tablist" aria-label="${th('audit:artworkSize')}" data-i18n-aria-label="audit:artworkSize">
+                            <button class="seg-btn ${this.viewSize === 's' ? 'active' : ''}" data-size="s" ${this.viewMode === 'list' ? 'disabled' : ''} data-i18n="messages:small">${th('messages:small')}</button>
+                            <button class="seg-btn ${this.viewSize === 'm' ? 'active' : ''}" data-size="m" ${this.viewMode === 'list' ? 'disabled' : ''} data-i18n="messages:medium">${th('messages:medium')}</button>
+                            <button class="seg-btn ${this.viewSize === 'l' ? 'active' : ''}" data-size="l" ${this.viewMode === 'list' ? 'disabled' : ''} data-i18n="messages:large">${th('messages:large')}</button>
                         </div>
                     </div>
                     <div class="right cluster">
                         <div class="select">
-                            <select id="album-sort" aria-label="排序">
-                                <option value="name" ${this.sortBy === 'name' ? 'selected' : ''}>按专辑名</option>
-                                <option value="artist" ${this.sortBy === 'artist' ? 'selected' : ''}>按艺术家</option>
-                                <option value="tracks" ${this.sortBy === 'tracks' ? 'selected' : ''}>按歌曲数</option>
-                                <option value="year" ${this.sortBy === 'year' ? 'selected' : ''}>按年份</option>
+                            <select id="album-sort" aria-label="${th('audit:sort')}" data-i18n-aria-label="audit:sort">
+                                <option value="name" ${this.sortBy === 'name' ? 'selected' : ''} data-i18n="messages:byAlbumName">${th('messages:byAlbumName')}</option>
+                                <option value="artist" ${this.sortBy === 'artist' ? 'selected' : ''} data-i18n="messages:byArtist">${th('messages:byArtist')}</option>
+                                <option value="tracks" ${this.sortBy === 'tracks' ? 'selected' : ''} data-i18n="messages:byTrackCount">${th('messages:byTrackCount')}</option>
+                                <option value="year" ${this.sortBy === 'year' ? 'selected' : ''} data-i18n="messages:byYear">${th('messages:byYear')}</option>
                             </select>
                         </div>
                         <button class="sort-direction-btn" id="album-sort-direction" type="button"
-                                title="切换为${this.sortDirection === 'asc' ? '降序' : '升序'}"
-                                aria-label="当前${this.sortDirection === 'asc' ? '升序' : '降序'}，点击切换">
+                                title="${th('common:sortToggle')}" data-i18n-title="common:sortToggle"
+                                aria-label="${th('common:sortToggle')}" data-i18n-aria-label="common:sortToggle">
                             ${this.sortDirection === 'asc' ? '↑' : '↓'}
                         </button>
                         <div class="search-inline">
-                            <input type="text" id="album-query" value="${escapeHtmlAttribute(this.searchQuery)}" placeholder="搜索专辑或艺术家…" />
+                            <input type="text" id="album-query" value="${escapeHtmlAttribute(this.searchQuery)}" placeholder="${th('messages:searchAlbumsOrArtists')}" data-i18n-placeholder="messages:searchAlbumsOrArtists" />
                         </div>
-                        <div class="segmented" role="tablist" aria-label="视图模式">
-                            <button class="seg-btn ${this.viewMode === 'grid' ? 'active' : ''}" data-view="grid">方格</button>
-                            <button class="seg-btn ${this.viewMode === 'list' ? 'active' : ''}" data-view="list">列表</button>
+                        <div class="segmented" role="tablist" aria-label="${th('audit:viewMode')}" data-i18n-aria-label="audit:viewMode">
+                            <button class="seg-btn ${this.viewMode === 'grid' ? 'active' : ''}" data-view="grid" data-i18n="messages:grid">${th('messages:grid')}</button>
+                            <button class="seg-btn ${this.viewMode === 'list' ? 'active' : ''}" data-view="list" data-i18n="messages:list">${th('messages:list')}</button>
                         </div>
                     </div>
                 </div>
                 ${total ? `
                 <div class="album-surface-root ${this.viewMode === 'grid' ? 'albumsx-grid' : 'albumsx-list'}" style="--cover:${coverSize}px;"></div>
                 <div class="albumsx-empty albumsx-no-results" hidden>
-                    <h3>没有匹配的专辑</h3>
-                    <p>请尝试其他专辑名或艺术家</p>
+                    <h3 data-i18n="messages:noMatchingAlbums">${th('messages:noMatchingAlbums')}</h3>
+                    <p data-i18n="messages:tryAnotherAlbumNameOrArtist">${th('messages:tryAnotherAlbumNameOrArtist')}</p>
                 </div>` : this.renderEmptyState()}
             </div>`;
 
@@ -469,18 +471,19 @@ class AlbumsPage extends Component {
                 <div class="icon">
                     <svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 1,0 22,12A10,10 0 0,0 12,2M12,7A5,5 0 1,1 7,12A5,5 0 0,1 12,7Z"/></svg>
                 </div>
-                <h3>暂无专辑</h3>
-                <p>添加一些音乐后，这里会像唱片墙一样展示你的收藏</p>
+                <h3 data-i18n="messages:noAlbumsYet">${th('messages:noAlbumsYet')}</h3>
+                <p data-i18n="messages:addMusicToDisplayYourAlbumCollectionHere">${th('messages:addMusicToDisplayYourAlbumCollectionHere')}</p>
             </div>`;
     }
 
     renderAlbumTile(album: AlbumItem): string {
         const trackCount = album.tracks.length;
         const cover = album.cover || 'assets/images/default-cover.svg';
-        const title = this.escapeHtml(album.name);
-        const artist = this.escapeHtml(album.artist);
-        const subtitle = `${artist} · ${album.year || '年份未知'} · ${trackCount} 首`;
-        const tooltip = `${album.name}\n${album.artist} · ${album.year || '年份未知'} · ${trackCount} 首`;
+        const title = this.escapeHtml(album.name || t('messages:unknownAlbum'));
+        const artistName = album.variousArtists ? t('messages:variousArtists') : album.artist || t('app:unknownArtist');
+        const artist = this.escapeHtml(artistName);
+        const subtitle = th('dynamic:albumSummary', {artist: artistName, year: album.year || t('messages:unknownYear'), count: trackCount});
+        const tooltip = t('dynamic:albumTooltip', {name: album.name || t('messages:unknownAlbum'), artist: artistName, year: album.year || t('messages:unknownYear'), count: trackCount});
         return `
             <div class="albumsx-tile ${this.viewMode === 'list' ? 'albumsx-list-item' : ''}"
                  data-album-key="${escapeHtmlAttribute(album.key)}" title="${escapeHtmlAttribute(tooltip)}">
@@ -493,8 +496,8 @@ class AlbumsPage extends Component {
                 </div>
                 ${this.viewMode === 'list' ? `
                     <div class="album-list-details">
-                        <span>${album.year || '年份未知'}</span>
-                        <span>${trackCount} 首</span>
+                        <span>${album.year || t('messages:unknownYear')}</span>
+                        <span>${htmlT('common:tracks', {count: trackCount})}</span>
                         <span>${this.formatDuration(album.totalDuration)}</span>
                     </div>
                 ` : ''}
@@ -510,12 +513,12 @@ class AlbumsPage extends Component {
         this.container = this.detailRoot;
         this.trackCollectionDetail.show({
             identity: album.key,
-            title: album.name,
-            description: album.artist,
+            get title() { return album.name || t('messages:unknownAlbum'); },
+            get description() { return album.variousArtists ? t('messages:variousArtists') : album.artist || t('app:unknownArtist'); },
             cover: album.cover,
-            backLabel: '返回专辑',
+            get backLabel() { return t('messages:backToAlbums'); },
             metadata: [
-                album.year ? String(album.year) : '年份未知'
+                album.year ? String(album.year) : t('messages:unknownYear')
             ],
             tracks,
             coverArtist: tracks[0]?.albumArtist || tracks[0]?.artist || album.artist,
@@ -627,11 +630,11 @@ class AlbumsPage extends Component {
         seconds = seconds || 0;
         if (seconds < 3600) {
             const minutes = Math.floor(seconds / 60);
-            return `${minutes} 分钟`;
+            return t('dynamic:durationMinutes', {minutes: minutes});
         } else {
             const hours = Math.floor(seconds / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
-            return `${hours} 小时 ${minutes} 分钟`;
+            return t('dynamic:durationHoursMinutes', {hours: hours, minutes: minutes});
         }
     }
 

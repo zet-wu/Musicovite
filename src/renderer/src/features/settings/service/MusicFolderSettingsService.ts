@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {settingsShellService} from "@/features/appShell/service/SettingsShellService";
 import {libraryDataService} from "@/features/library/service/LibraryDataService";
 
@@ -55,7 +56,7 @@ export class MusicFolderSettingsService {
                 return {
                     success: false,
                     folders: await this.getMusicFolders(),
-                    error: sourceResult.error || '登记音乐文件夹来源失败'
+                    error: sourceResult.error || t('messages:couldNotRegisterMusicFolderSource')
                 };
             }
         }

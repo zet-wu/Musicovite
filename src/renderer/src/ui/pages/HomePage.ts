@@ -1,3 +1,5 @@
+import {setLocalizedText, th} from '@/shared/i18n';
+
 /**
  * 首页组件
  */
@@ -269,7 +271,7 @@ class HomePage extends Component {
         const updateBreathing = () => {
             switch (phase) {
                 case 'inhale':
-                    breathingText.textContent = '吸气';
+                    setLocalizedText(breathingText, 'messages:breatheIn', {}, 'textContent');
                     breathingCircle.style.transform = 'scale(1.3)';
                     if (count >= 4) {
                         phase = 'hold';
@@ -277,14 +279,14 @@ class HomePage extends Component {
                     }
                     break;
                 case 'hold':
-                    breathingText.textContent = '屏息';
+                    setLocalizedText(breathingText, 'messages:hold', {}, 'textContent');
                     if (count >= 2) {
                         phase = 'exhale';
                         count = 0;
                     }
                     break;
                 case 'exhale':
-                    breathingText.textContent = '呼气';
+                    setLocalizedText(breathingText, 'messages:breatheOut', {}, 'textContent');
                     breathingCircle.style.transform = 'scale(1)';
                     if (count >= 4) {
                         phase = 'inhale';
@@ -311,7 +313,7 @@ class HomePage extends Component {
         const breathingText = breathingCircle?.querySelector('.breathing-text') as HTMLElement | null;
         if (breathingCircle && breathingText) {
             breathingCircle.style.transform = 'scale(1)';
-            breathingText.textContent = '深呼吸';
+            setLocalizedText(breathingText, 'messages:deepBreathing', {}, 'textContent');
         }
     }
 
@@ -390,11 +392,11 @@ class HomePage extends Component {
         notification.className = 'focus-mode-notification';
         notification.innerHTML = `
             <div class="notification-content">
-                <h3>专注模式已开启</h3>
-                <p>享受沉浸式音乐体验，点击下方按钮或首页按钮可退出专注模式</p>
+                <h3 data-i18n="messages:focusModeEnabled">${th('messages:focusModeEnabled')}</h3>
+                <p data-i18n="messages:enjoyImmersiveListeningUseTheButtonBelowOrHomeTo">${th('messages:enjoyImmersiveListeningUseTheButtonBelowOrHomeTo')}</p>
                 <div class="notification-actions">
-                    <button class="exit-focus-btn">退出专注模式</button>
-                    <button class="minimize-notification-btn">我知道了</button>
+                    <button class="exit-focus-btn" data-i18n="messages:exitFocusMode">${th('messages:exitFocusMode')}</button>
+                    <button class="minimize-notification-btn" data-i18n="messages:gotIt">${th('messages:gotIt')}</button>
                 </div>
             </div>
         `;
@@ -444,10 +446,10 @@ class HomePage extends Component {
         if (!focusBtn) return;
 
         if (isInFocusMode) {
-            focusBtn.textContent = '退出专注模式';
+            setLocalizedText(focusBtn, 'messages:exitFocusMode', {}, 'textContent');
             focusBtn.classList.add('focus-mode-active');
         } else {
-            focusBtn.textContent = '开始专注';
+            setLocalizedText(focusBtn, 'messages:startFocusing', {}, 'textContent');
             focusBtn.classList.remove('focus-mode-active');
         }
     }
@@ -469,7 +471,7 @@ class HomePage extends Component {
         const saveBtn = this.container.querySelector('.save-diary-btn') as HTMLButtonElement | null;
         if (!saveBtn) return;
         const originalText = saveBtn.textContent;
-        saveBtn.textContent = '已保存';
+        setLocalizedText(saveBtn, 'messages:saved', {}, 'textContent');
         saveBtn.disabled = true;
 
         this.setTimeoutManaged(() => {
@@ -489,8 +491,8 @@ class HomePage extends Component {
                 <!-- 欢迎区域 -->
                 <div class="welcome-section">
                     <div class="welcome-content">
-                        <h1 class="welcome-title">欢迎回到 MusicBox</h1>
-                        <p class="welcome-subtitle">让音乐陪伴你的每一刻</p>
+                        <h1 class="welcome-title" data-i18n="messages:welcomeToMusicbox">${th('messages:welcomeToMusicbox')}</h1>
+                        <p class="welcome-subtitle" data-i18n="messages:musicForEveryMoment">${th('messages:musicForEveryMoment')}</p>
                     </div>
                     <div class="welcome-visual">
                         <div class="music-waves">
@@ -508,24 +510,24 @@ class HomePage extends Component {
                         <canvas id="audio-visualizer" class="audio-visualizer"></canvas>
                         <div class="breathing-guide">
                             <div class="breathing-circle" id="breathing-circle">
-                                <div class="breathing-text">深呼吸</div>
+                                <div class="breathing-text" data-i18n="messages:deepBreathing">${th('messages:deepBreathing')}</div>
                             </div>
                         </div>
                         <div class="ambient-overlay" id="ambient-overlay"></div>
                     </div>
 
                     <div class="visualization-controls">
-                        <button class="viz-control-btn" id="toggle-visualizer" title="音频可视化">
+                        <button class="viz-control-btn" id="toggle-visualizer" title="${th('messages:audioVisualization')}" data-i18n-title="messages:audioVisualization">
                             <svg viewBox="0 0 24 24">
                                 <path d="M3,2H5V22H3V2M7,12H9V22H7V12M11,6H13V22H11V6M15,9H17V22H15V9M19,13H21V22H19V13Z"/>
                             </svg>
                         </button>
-                        <button class="viz-control-btn" id="toggle-breathing" title="呼吸引导">
+                        <button class="viz-control-btn" id="toggle-breathing" title="${th('messages:breathingGuide')}" data-i18n-title="messages:breathingGuide">
                             <svg viewBox="0 0 24 24">
                                 <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6Z"/>
                             </svg>
                         </button>
-                        <button class="viz-control-btn" id="toggle-ambient" title="环境氛围">
+                        <button class="viz-control-btn" id="toggle-ambient" title="${th('messages:ambientEffects')}" data-i18n-title="messages:ambientEffects">
                             <svg viewBox="0 0 24 24">
                                 <path d="M12,18.5A6.5,6.5 0 0,1 5.5,12A6.5,6.5 0 0,1 12,5.5A6.5,6.5 0 0,1 18.5,12A6.5,6.5 0 0,1 12,18.5M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
                             </svg>
@@ -544,9 +546,9 @@ class HomePage extends Component {
                                 </svg>
                             </div>
                             <div class="feature-content">
-                                <h3>专注模式</h3>
-                                <p>进入沉浸式音乐聆听体验，屏蔽干扰，专注当下</p>
-                                <button class="focus-btn feature-btn">开始专注</button>
+                                <h3 data-i18n="messages:focusMode">${th('messages:focusMode')}</h3>
+                                <p data-i18n="messages:immerseYourselfInMusicAndFocusOnTheMoment">${th('messages:immerseYourselfInMusicAndFocusOnTheMoment')}</p>
+                                <button class="focus-btn feature-btn" data-i18n="messages:startFocusing">${th('messages:startFocusing')}</button>
                             </div>
                         </div>
 
@@ -558,15 +560,15 @@ class HomePage extends Component {
                                 </svg>
                             </div>
                             <div class="feature-content">
-                                <h3>聆听心情</h3>
-                                <p>记录每次聆听时的心情状态，让音乐与情感产生共鸣</p>
+                                <h3 data-i18n="messages:listeningMood">${th('messages:listeningMood')}</h3>
+                                <p data-i18n="messages:recordHowYouFeelAsYouListen">${th('messages:recordHowYouFeelAsYouListen')}</p>
                                 <div class="mood-buttons">
-                                    <button class="mood-btn" data-mood="happy" title="开心">😊</button>
-                                    <button class="mood-btn" data-mood="calm" title="平静">😌</button>
-                                    <button class="mood-btn" data-mood="sad" title="忧伤">😢</button>
-                                    <button class="mood-btn" data-mood="excited" title="兴奋">🤩</button>
-                                    <button class="mood-btn" data-mood="relaxed" title="放松">😎</button>
-                                    <button class="mood-btn" data-mood="nostalgic" title="怀念">🥺</button>
+                                    <button class="mood-btn" data-mood="happy" title="${th('messages:happy')}" data-i18n-title="messages:happy">😊</button>
+                                    <button class="mood-btn" data-mood="calm" title="${th('messages:calm')}" data-i18n-title="messages:calm">😌</button>
+                                    <button class="mood-btn" data-mood="sad" title="${th('messages:sad')}" data-i18n-title="messages:sad">😢</button>
+                                    <button class="mood-btn" data-mood="excited" title="${th('messages:excited')}" data-i18n-title="messages:excited">🤩</button>
+                                    <button class="mood-btn" data-mood="relaxed" title="${th('messages:relaxed')}" data-i18n-title="messages:relaxed">😎</button>
+                                    <button class="mood-btn" data-mood="nostalgic" title="${th('messages:nostalgic')}" data-i18n-title="messages:nostalgic">🥺</button>
                                 </div>
                             </div>
                         </div>
@@ -579,11 +581,11 @@ class HomePage extends Component {
                                 </svg>
                             </div>
                             <div class="feature-content">
-                                <h3>音乐日记</h3>
-                                <p>记录音乐带给你的感悟和思考，珍藏美好的聆听时光</p>
+                                <h3 data-i18n="messages:musicDiary">${th('messages:musicDiary')}</h3>
+                                <p data-i18n="messages:saveThoughtsAndMemoriesInspiredByMusic">${th('messages:saveThoughtsAndMemoriesInspiredByMusic')}</p>
                                 <div class="diary-container">
-                                    <textarea class="diary-input" placeholder="今天的音乐让我想到了..." rows="3"></textarea>
-                                    <button class="save-diary-btn feature-btn">保存感悟</button>
+                                    <textarea class="diary-input" placeholder="${th('messages:todaysMusicMadeMeThinkOf')}" data-i18n-placeholder="messages:todaysMusicMadeMeThinkOf" rows="3"></textarea>
+                                    <button class="save-diary-btn feature-btn" data-i18n="messages:saveEntry">${th('messages:saveEntry')}</button>
                                 </div>
                             </div>
                         </div>
@@ -593,20 +595,20 @@ class HomePage extends Component {
                 <!-- 快速开始区域 -->
                 <div class="quick-start-section">
                     <div class="quick-start-content">
-                        <h2 class="quick-start-title">开启你的音乐之旅</h2>
-                        <p class="quick-start-subtitle">让音乐成为生活的一部分</p>
+                        <h2 class="quick-start-title" data-i18n="messages:startListening">${th('messages:startListening')}</h2>
+                        <p class="quick-start-subtitle" data-i18n="messages:makeMusicPartOfYourLife">${th('messages:makeMusicPartOfYourLife')}</p>
                         <div class="quick-start-actions">
                             <button class="quick-start-btn primary" id="scan-folder-btn">
                                 <svg viewBox="0 0 24 24">
                                     <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
                                 </svg>
-                                <span>添加音乐文件夹</span>
+                                <span data-i18n="messages:addMusicFolder">${th('messages:addMusicFolder')}</span>
                             </button>
                             <button class="quick-start-btn secondary" id="add-files-btn">
                                 <svg viewBox="0 0 24 24">
                                     <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                                 </svg>
-                                <span>添加音乐文件</span>
+                                <span data-i18n="messages:addMusicFiles">${th('messages:addMusicFiles')}</span>
                             </button>
                         </div>
                     </div>

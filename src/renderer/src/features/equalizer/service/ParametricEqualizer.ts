@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 /**
  * 参量均衡器封装类
  * 提供对原生参量均衡器的前端接口封装
@@ -417,7 +419,7 @@ class ParametricEqualizer {
     /**
      * 导出当前设置为JSON文件
      */
-    async exportCurrentSettings(name = '我的参量均衡器设置'): Promise<{success: boolean; filePath?: string; cancelled?: boolean; error?: string}> {
+    async exportCurrentSettings(name = t('messages:myParametricEqualizerSettings')): Promise<{success: boolean; filePath?: string; cancelled?: boolean; error?: string}> {
         try {
             // 刷新频段确保数据最新
             await this.refreshBands();
@@ -453,7 +455,7 @@ class ParametricEqualizer {
             if (result.success && result.content) {
                 const preset = this.presets.importPreset(result.content);
                 if (!preset) {
-                    return {success: false, error: '无效的预设文件格式'};
+                    return {success: false, error: t('messages:invalidPresetFileFormat')};
                 }
 
                 // 清除当前所有频段

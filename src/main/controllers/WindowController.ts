@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // 窗口控制器
 
 import { ipcMain, screen } from 'electron';
@@ -118,7 +119,7 @@ export class WindowController extends BaseController {
                 return {success: false, error: error.message};
             }
         }
-        return {success: false, error: '窗口不可用或已最大化'};
+        return {success: false, error: nativeT('errors:windowIsUnavailableOrAlreadyMaximized')};
     }
 
     @IpcHandle('window:setBounds')
@@ -132,7 +133,7 @@ export class WindowController extends BaseController {
                 return {success: false, error: error.message};
             }
         }
-        return {success: false, error: '窗口不可用'};
+        return {success: false, error: nativeT('errors:windowUnavailable')};
     }
 
     @IpcHandle('window:getBounds')
@@ -185,7 +186,7 @@ export class WindowController extends BaseController {
     }): { success: boolean; size?: number[]; minimumSize?: number[]; maximumSize?: number[]; error?: string } {
         const win = this.windowManager.getMainWindow();
         if (!win) {
-            return {success: false, error: '窗口不可用'};
+            return {success: false, error: nativeT('errors:windowUnavailable')};
         }
 
         try {
@@ -261,7 +262,7 @@ export class WindowController extends BaseController {
                 return {success: false, error: error.message};
             }
         }
-        return {success: false, error: '窗口不可用'};
+        return {success: false, error: nativeT('errors:windowUnavailable')};
     }
 
     @IpcHandle('window:setSkipTaskbar')

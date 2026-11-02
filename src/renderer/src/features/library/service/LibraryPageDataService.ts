@@ -1,3 +1,4 @@
+import {t, getLocale} from '@/shared/i18n';
 import type {Track} from "@api/types/library";
 import {coverLookupService} from "@/features/mediaAssets/service/CoverLookupService";
 import {userDataService} from "@/features/userData/service";
@@ -21,6 +22,7 @@ export interface LibraryAlbumItem {
     tracks: Track[];
     totalDuration: number;
     album?: string;
+    variousArtists?: boolean;
 }
 
 export interface AlbumGroupingOptions {
@@ -114,7 +116,7 @@ export class LibraryPageDataService {
         }
 
         if (!allowNetwork) {
-            return {success: false, error: '自动联网获取封面已关闭'};
+            return {success: false, error: t('messages:automaticOnlineArtworkLookupIsDisabled')};
         }
         return await coverLookupService.getCover(
             '',
@@ -129,7 +131,7 @@ export class LibraryPageDataService {
     buildArtists(tracks: Track[]): LibraryArtistInfo[] {
         const artistMap = new Map<string, LibraryArtistInfo>();
         tracks.forEach((track) => {
-            const artistName = track.artist || '未知艺术家';
+            const artistName = track.artist || '';
 
             if (!artistMap.has(artistName)) {
                 artistMap.set(artistName, {
@@ -155,7 +157,7 @@ export class LibraryPageDataService {
         });
 
         return Array.from(artistMap.values())
-            .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+            .sort((a, b) => a.name.localeCompare(b.name, getLocale()));
     }
 
     sortArtists(
@@ -167,9 +169,9 @@ export class LibraryPageDataService {
         artists.sort((a, b) => {
             const result = sortBy === 'tracks'
                 ? a.tracks.length - b.tracks.length
-                : a.name.localeCompare(b.name, 'zh-CN');
+                : a.name.localeCompare(b.name, getLocale());
             return result === 0
-                ? a.name.localeCompare(b.name, 'zh-CN')
+                ? a.name.localeCompare(b.name, getLocale())
                 : result * multiplier;
         });
     }
@@ -178,8 +180,8 @@ export class LibraryPageDataService {
         const map = new Map<string, LibraryAlbumItem>();
         tracks.forEach(track => {
             const rawAlbumName = String(track.album || '').trim();
-            const albumName = rawAlbumName || '未知专辑';
-            const albumArtist = String(track.albumArtist || track.albumartist || track.artist || '未知艺术家').trim();
+            const albumName = rawAlbumName || '';
+            const albumArtist = String(track.albumArtist || track.albumartist || track.artist || '').trim();
             const normalizedAlbumName = this.normalizeGroupingValue(albumName);
             const normalizedArtist = this.normalizeGroupingValue(albumArtist);
             const shouldIncludeArtist = options.splitByArtist === true || !rawAlbumName;
@@ -201,7 +203,8 @@ export class LibraryPageDataService {
             const album = map.get(key)!;
             album.tracks.push(track);
             if (album.artist !== albumArtist) {
-                album.artist = '多位艺术家';
+                album.variousArtists = true;
+                album.artist = '';
             }
             album.totalDuration += track.duration || 0;
             if (!album.cover && track.cover) album.cover = track.cover;
@@ -232,20 +235,20 @@ export class LibraryPageDataService {
                 const yearA = Number(a.year || 0);
                 const yearB = Number(b.year || 0);
                 if (!yearA || !yearB) {
-                    if (!yearA && !yearB) return a.name.localeCompare(b.name, 'zh-CN');
+                    if (!yearA && !yearB) return a.name.localeCompare(b.name, getLocale());
                     return yearA ? -1 : 1;
                 }
                 const result = yearA - yearB;
-                return result === 0 ? a.name.localeCompare(b.name, 'zh-CN') : result * multiplier;
+                return result === 0 ? a.name.localeCompare(b.name, getLocale()) : result * multiplier;
             }
 
             const result = sortBy === 'artist'
-                ? a.artist.localeCompare(b.artist, 'zh-CN')
+                ? a.artist.localeCompare(b.artist, getLocale())
                 : sortBy === 'tracks'
                     ? a.tracks.length - b.tracks.length
-                    : a.name.localeCompare(b.name, 'zh-CN');
+                    : a.name.localeCompare(b.name, getLocale());
             return result === 0
-                ? a.name.localeCompare(b.name, 'zh-CN')
+                ? a.name.localeCompare(b.name, getLocale())
                 : result * multiplier;
         });
     }

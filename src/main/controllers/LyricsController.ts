@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 import {createHash} from 'node:crypto';
 import {readStppCandidates} from '../services/lyrics/StppReader';
 // 歌词控制器
@@ -29,8 +30,8 @@ interface LyricsExportResult {
 }
 
 const TTML_FILTERS: Electron.FileFilter[] = [
-    {name: 'TTML 歌词', extensions: ['ttml']},
-    {name: '所有文件', extensions: ['*']}
+    {name: nativeT('errors:ttmlLyrics'), extensions: ['ttml']},
+    {name: nativeT('errors:allFiles'), extensions: ['*']}
 ];
 
 const DIR_CACHE_TTL = 60_000; // 60 秒
@@ -52,7 +53,7 @@ export class LyricsController extends BaseController {
     async readCanonical(trackId: string) {
         try {
             const result = await this.lyricsPersistence.read(trackId);
-            return result ? {success: true, ...result} : {success: false, error: '未找到已绑定歌词'};
+            return result ? {success: true, ...result} : {success: false, error: nativeT('errors:boundLyricsNotFound')};
         } catch (error: any) {
             return {success: false, error: error.message};
         }
@@ -85,13 +86,13 @@ export class LyricsController extends BaseController {
     @IpcHandle('lyrics:exportTtml')
     async exportTtml(defaultName: string, content: string): Promise<LyricsExportResult> {
         if (typeof content !== 'string' || content.trim().length === 0) {
-            return {success: false, error: '没有可保存的 TTML 歌词'};
+            return {success: false, error: nativeT('errors:noTtmlLyricsToSave')};
         }
 
         try {
             const win = this.windowManager.getMainWindow();
             const result = await dialog.showSaveDialog(win as any, {
-                title: '保存 TTML 歌词',
+                title: nativeT('errors:saveTtmlLyrics'),
                 defaultPath: this.createTtmlFileName(defaultName),
                 filters: TTML_FILTERS
             });
@@ -124,12 +125,12 @@ export class LyricsController extends BaseController {
     ) {
         const parsedUrl = new URL(url);
         if (parsedUrl.protocol !== 'https:' || !PROVIDER_HOSTS.has(parsedUrl.hostname)) {
-            throw new Error('不允许访问该歌词来源');
+            throw new Error(nativeT('errors:accessToThisLyricsSourceIsNotAllowed'));
         }
 
         const method = (options.method ?? 'GET').toUpperCase();
-        if (method !== 'GET' && method !== 'POST') throw new Error('不支持的歌词请求方法');
-        if ((options.body?.length ?? 0) > 1024 * 1024) throw new Error('歌词请求内容过大');
+        if (method !== 'GET' && method !== 'POST') throw new Error(nativeT('errors:unsupportedLyricsRequestMethod'));
+        if ((options.body?.length ?? 0) > 1024 * 1024) throw new Error(nativeT('errors:lyricsRequestIsTooLarge'));
 
         const controller = new AbortController();
         this.providerRequests.set(requestId, controller);
@@ -141,7 +142,7 @@ export class LyricsController extends BaseController {
                 signal: controller.signal
             });
             const body = await response.text();
-            if (body.length > 10 * 1024 * 1024) throw new Error('歌词响应内容过大');
+            if (body.length > 10 * 1024 * 1024) throw new Error(nativeT('errors:lyricsResponseIsTooLarge'));
             return {
                 status: response.status,
                 statusText: response.statusText,
@@ -189,7 +190,7 @@ export class LyricsController extends BaseController {
         const mm = require('music-metadata');
         try {
             if (!filePath) {
-                return {success: false, error: '无效的文件路径参数'};
+                return {success: false, error: nativeT('errors:invalidFilePath')};
             }
 
             const isNetwork = this.networkFileAdapter.isNetworkPath(filePath);
@@ -197,7 +198,7 @@ export class LyricsController extends BaseController {
                 try {
                     await fs.promises.access(filePath);
                 } catch {
-                    return {success: false, error: '指定的音频文件不存在'};
+                    return {success: false, error: nativeT('errors:theAudioFileDoesNotExist')};
                 }
             }
 
@@ -212,7 +213,7 @@ export class LyricsController extends BaseController {
                         if (buffer) return buffer.subarray(offset, offset + length);
                         const target = Buffer.alloc(length);
                         const {bytesRead} = await handle!.read(target, 0, length, offset);
-                        if (bytesRead !== length) throw new Error('媒体文件读取不完整');
+                        if (bytesRead !== length) throw new Error(nativeT('errors:mediaFileCouldNotBeReadCompletely'));
                         return target;
                     }}));
                 } catch (error) {
@@ -253,7 +254,7 @@ export class LyricsController extends BaseController {
             try {
                 await fs.promises.access(lyricsDir);
             } catch {
-                return {success: false, error: '歌词目录不存在'};
+                return {success: false, error: nativeT('errors:lyricsFolderDoesNotExist')};
             }
 
             const files = await this.getCachedDir(lyricsDir);
@@ -264,7 +265,7 @@ export class LyricsController extends BaseController {
             if (matched) {
                 return {success: true, filePath: path.join(lyricsDir, matched), fileName: matched};
             }
-            return {success: false, error: '未找到匹配的歌词文件'};
+            return {success: false, error: nativeT('errors:noMatchingLyricsFile')};
         } catch (error: any) {
             return {success: false, error: error.message};
         }
@@ -280,7 +281,7 @@ export class LyricsController extends BaseController {
         format = 'lrc'
     ): Promise<{ success: boolean; filePath?: string; fileName?: string; error?: string }> {
         try {
-            if (!lyricsDir) return {success: false, error: '歌词目录未设置'};
+            if (!lyricsDir) return {success: false, error: nativeT('errors:lyricsFolderIsNotConfigured')};
             await fs.promises.mkdir(lyricsDir, {recursive: true});
 
             let fileName = artist?.trim()

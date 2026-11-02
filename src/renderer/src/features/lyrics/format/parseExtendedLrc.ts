@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import type {LyricLine} from '@applemusic-like-lyrics/ttml';
 
 const stamp = '(\\d{1,3}):(\\d{2})(?:[.:](\\d{1,3}))?';
@@ -30,7 +31,7 @@ export function parseExtendedLrc(text: string): LyricLine[] | null {
         let cursor = 0;
         for (const boundary of boundaries) {
             const end = milliseconds(boundary) + offset;
-            if (end < time) throw new Error('扩展 LRC 时间边界倒序');
+            if (end < time) throw new Error(t('audit:reversedLrcTiming'));
             const word = body.slice(cursor, boundary.index);
             if (word) words.push({text: word, startTime: time, endTime: end});
             time = end;

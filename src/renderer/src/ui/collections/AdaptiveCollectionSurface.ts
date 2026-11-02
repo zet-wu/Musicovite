@@ -1,4 +1,5 @@
 import {ElementVirtualizer} from '@ui/virtualization/ElementVirtualizer';
+import {onLocaleChanged} from '@/shared/i18n';
 import type {VirtualItem} from '@tanstack/virtual-core';
 import {
     COLLECTION_GRID_OVERSCAN,
@@ -35,6 +36,7 @@ export class AdaptiveCollectionSurface<T> {
     private readyFrame: number | null = null;
     private renderedKeys: CollectionItemKey[] = [];
     private pendingFocusedKey: CollectionItemKey | null = null;
+    private disposeLocale: (() => void) | null = null;
 
     constructor(
         private readonly renderer: CollectionSurfaceRenderer<T>,
@@ -51,6 +53,13 @@ export class AdaptiveCollectionSurface<T> {
 
         this.root = root;
         this.scrollElement = scrollElement;
+        this.disposeLocale = onLocaleChanged(() => {
+            if (this.suspended) return;
+            const snapshot = this.captureSnapshot();
+            // 只刷新已渲染行；保留集合身份、选中项和滚动锚点。
+            for (const key of this.getRenderedKeys()) this.invalidateItem(key);
+            void this.restoreSnapshot(snapshot, this.renderGeneration);
+        });
         this.suspended = false;
         this.shell = document.createElement('div');
         this.shell.className = 'adaptive-collection-surface';
@@ -174,6 +183,8 @@ export class AdaptiveCollectionSurface<T> {
     }
 
     destroy(): void {
+        this.disposeLocale?.();
+        this.disposeLocale = null;
         this.renderGeneration++;
         this.suspended = true;
         this.cancelReadyFrame();

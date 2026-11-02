@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 export interface CacheSettingsElements {
     viewCacheStatsButton: HTMLButtonElement | null;
     validateCacheButton: HTMLButtonElement | null;
@@ -8,19 +9,19 @@ export interface CacheSettingsElements {
 
 class CacheSettingsRenderer {
     setStatisticsLoading(elements: CacheSettingsElements, loading: boolean): void {
-        this.setButtonState(elements.viewCacheStatsButton, loading, '获取中...', '查看统计');
+        this.setButtonState(elements.viewCacheStatsButton, loading, t('messages:retrieving'), t('app:viewStatistics'));
     }
 
     setValidationLoading(elements: CacheSettingsElements, loading: boolean): void {
-        this.setButtonState(elements.validateCacheButton, loading, '验证中...', '验证缓存');
+        this.setButtonState(elements.validateCacheButton, loading, t('messages:validating'), t('app:validateCache'));
     }
 
     setClearLoading(elements: CacheSettingsElements, loading: boolean): void {
-        this.setButtonState(elements.clearCacheButton, loading, '重建中...', '重建索引');
+        this.setButtonState(elements.clearCacheButton, loading, t('messages:rebuilding'), t('app:rebuildIndex'));
     }
 
     setCoverClearLoading(elements: CacheSettingsElements, loading: boolean): void {
-        this.setButtonState(elements.clearCoverCacheButton, loading, '清除中...', '清除封面缓存');
+        this.setButtonState(elements.clearCoverCacheButton, loading, t('messages:clearing'), t('app:clearArtworkCache'));
     }
 
     updateDescription(elements: CacheSettingsElements, description: string): void {

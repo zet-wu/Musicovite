@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * API 错误定义
  * 提供统一的错误类型和错误处理机制
@@ -33,7 +34,7 @@ export class ValidationError extends APIError {
     actualValue: any;
 
     constructor(paramName: string, expectedType: string, actualValue: any) {
-        const message = `参数 "${paramName}" 验证失败: 期望 ${expectedType}, 实际收到 ${typeof actualValue}`;
+        const message = t('audit:parameterInvalid', {name: paramName, expected: expectedType, actual: typeof actualValue});
         super(message, 'VALIDATION_ERROR');
         this.name = 'ValidationError';
         this.paramName = paramName;
@@ -86,7 +87,7 @@ export class NotFoundError extends APIError {
     resourceId: string;
 
     constructor(resourceType: string, resourceId: string) {
-        super(`${resourceType} "${resourceId}" 未找到`, 'NOT_FOUND');
+        super(t('audit:resourceNotFound', {type: resourceType, id: resourceId}), 'NOT_FOUND');
         this.name = 'NotFoundError';
         this.resourceType = resourceType;
         this.resourceId = resourceId;
@@ -101,7 +102,7 @@ export class NotFoundError extends APIError {
 export class NotAvailableError extends APIError {
     feature: string;
 
-    constructor(feature: string, reason = '功能未实现或不可用') {
+    constructor(feature: string, reason = t('audit:featureUnavailable')) {
         super(`${feature}: ${reason}`, 'NOT_AVAILABLE');
         this.name = 'NotAvailableError';
         this.feature = feature;
@@ -118,7 +119,7 @@ export class TimeoutError extends APIError {
     timeout: number;
 
     constructor(operation: string, timeout: number) {
-        super(`操作 "${operation}" 超时 (${timeout}ms)`, 'TIMEOUT');
+        super(t('audit:operationTimeout', {operation: operation, timeout: timeout}), 'TIMEOUT');
         this.name = 'TimeoutError';
         this.operation = operation;
         this.timeout = timeout;

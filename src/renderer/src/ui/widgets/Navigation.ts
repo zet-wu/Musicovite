@@ -1,3 +1,5 @@
+import {th, htmlT, t} from '@/shared/i18n';
+
 /**
  * 侧边导航栏组件
  */
@@ -432,9 +434,9 @@ class Navigation extends Component {
             // 收缩状态：只显示封面或图标
             return `
                 <li>
-                    <div class="playlist-sidebar-item collapsed-item" data-playlist-id="${playlist.id}" title="${this.escapeHtml(playlist.name)} (${playlist.resolvedTrackCount ?? 0} 首歌曲)">
+                    <div class="playlist-sidebar-item collapsed-item" data-playlist-id="${playlist.id}" title="${this.escapeHtml(playlist.name)} (${htmlT('common:tracks', {count: playlist.resolvedTrackCount ?? 0})})">
                         ${playlist.coverImage ? `
-                            <img class="sidebar-playlist-cover" src="file://${playlist.coverImage}" alt="歌单封面" />
+                            <img class="sidebar-playlist-cover" src="file://${playlist.coverImage}" alt="${th('audit:playlistArtwork')}" data-i18n-alt="audit:playlistArtwork" />
                         ` : `
                             <svg class="sidebar-icon" viewBox="0 0 24 24">
                                 <path d="M13,2V8H21V2M13,9V15H21V9M13,16V22H21V16M3,2V8H11V2M3,9V15H11V9M3,16V22H11V16Z"/>
@@ -449,7 +451,7 @@ class Navigation extends Component {
                 <li>
                     <div class="playlist-sidebar-item" data-playlist-id="${playlist.id}">
                         ${playlist.coverImage ? `
-                            <img class="sidebar-playlist-cover" src="file://${playlist.coverImage}" alt="歌单封面" />
+                            <img class="sidebar-playlist-cover" src="file://${playlist.coverImage}" alt="${th('audit:playlistArtwork')}" data-i18n-alt="audit:playlistArtwork" />
                         ` : `
                             <svg class="sidebar-icon" viewBox="0 0 24 24">
                                 <path d="M13,2V8H21V2M13,9V15H21V9M13,16V22H21V16M3,2V8H11V2M3,9V15H11V9M3,16V22H11V16Z"/>
@@ -539,9 +541,9 @@ class Navigation extends Component {
     // 删除歌单
     async deletePlaylist(playlist: SidebarPlaylist): Promise<void> {
         const confirmOptions: ConfirmOptions = {
-            title: '删除歌单',
-            message: `确定要删除歌单 "${playlist.name}" 吗？此操作不可撤销。`,
-            confirmText: '删除',
+            title: t('messages:deletePlaylist'),
+            message: t('dynamic:deletePlaylistConfirm', {name: playlist.name}),
+            confirmText: t('app:delete'),
             type: 'danger'
         };
         const confirmed = await appConfirmationService.confirm(confirmOptions);
@@ -553,14 +555,14 @@ class Navigation extends Component {
         try {
             const result = await navigationDataService.deletePlaylist(playlist.id);
             if (result.success) {
-                appNotificationService.showInfo(`歌单 "${playlist.name}" 已删除`);
+                appNotificationService.showInfo(t('dynamic:playlistDeleted', {name: playlist.name}));
             } else {
                 console.error('❌ Navigation: 歌单删除失败', result.error);
-                appNotificationService.showError(result.error || '删除失败');
+                appNotificationService.showError(result.error || t('messages:couldNotDelete'));
             }
         } catch (error) {
             console.error('❌ Navigation: 歌单删除失败', error);
-            appNotificationService.showError('删除失败，请重试');
+            appNotificationService.showError(t('messages:couldNotDeletePleaseTryAgain'));
         }
     }
 
@@ -610,7 +612,7 @@ class Navigation extends Component {
             ? 'M4,1H20A1,1 0 0,1 21,2V6A1,1 0 0,1 20,7H4A1,1 0 0,1 3,6V2A1,1 0 0,1 4,1M4,9H20A1,1 0 0,1 21,10V14A1,1 0 0,1 20,15H4A1,1 0 0,1 3,14V10A1,1 0 0,1 4,9M4,17H20A1,1 0 0,1 21,18V22A1,1 0 0,1 20,23H4A1,1 0 0,1 3,22V18A1,1 0 0,1 4,17M9,5H10V3H9V5M9,13H10V11H9V13M9,21H10V19H9V21M5,3V5H7V3H5M5,11V13H7V11H5M5,19V21H7V19H5Z'
             : 'M19.35,10.04C18.67,6.59 15.64,4 12,4C9.11,4 6.6,5.64 5.35,8.04C2.34,8.36 0,10.91 0,14A6,6 0 0,0 6,20H19A5,5 0 0,0 24,15C24,12.36 21.95,10.22 19.35,10.04Z';
 
-        const displayName = drive.config?.displayName || drive.displayName || '未命名磁盘';
+        const displayName = drive.config?.displayName || drive.displayName || t('messages:unnamedDrive');
 
         if (this.sidebarCollapsed) {
             return `
@@ -633,7 +635,7 @@ class Navigation extends Component {
                         </svg>
                         <span class="drive-name">${this.escapeHtml(displayName)}</span>
                         <div class="sidebar-drive-actions">
-                            <button class="sidebar-drive-action-btn" data-action="refresh" title="刷新连接">
+                            <button class="sidebar-drive-action-btn" data-action="refresh" title="${th('messages:refreshConnection')}" data-i18n-title="messages:refreshConnection">
                                 <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
                                 </svg>
@@ -676,10 +678,10 @@ class Navigation extends Component {
         try {
             await navigationDataService.refreshNetworkDrive(drive.id);
             await this.loadNetworkDrives();
-            appNotificationService.showInfo(`网络磁盘 "${drive.displayName || drive.config?.displayName || '未命名磁盘'}" 已刷新`);
+            appNotificationService.showInfo(t('dynamic:driveRefreshed', {name: drive.displayName || drive.config?.displayName || t('messages:unnamedDrive')}));
         } catch (error) {
             console.error('❌ Navigation: 刷新网络磁盘失败', error);
-            appNotificationService.showError('刷新失败，请重试');
+            appNotificationService.showError(t('messages:couldNotRefreshPleaseTryAgain'));
         }
     }
 

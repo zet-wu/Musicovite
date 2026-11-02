@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // 硬件加速控制器
 
 import * as fs from 'fs';
@@ -51,7 +52,7 @@ export class HardwareAccelerationController extends BaseController {
         error?: string
     }> {
         try {
-            if (typeof newSettings !== 'object' || newSettings === null) throw new Error('无效的设置对象');
+            if (typeof newSettings !== 'object' || newSettings === null) throw new Error(nativeT('errors:invalidSettingsObject'));
             this.settings = {...this.settings, ...newSettings, lastModified: Date.now()};
             await this.save();
             return {success: true, settings: this.settings, requiresRestart: true};

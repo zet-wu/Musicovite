@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 export interface NetworkRequestOptions extends RequestInit {
     timeout?: number;
     maxRetries?: number;
@@ -24,7 +25,7 @@ export class NetworkTimeoutError extends Error {
     readonly timeout: number;
 
     constructor(operation: string, timeout: number) {
-        super(`操作 "${operation}" 超时 (${timeout}ms)`);
+        super(t('audit:operationTimeout', {operation: operation, timeout: timeout}));
         this.name = 'NetworkTimeoutError';
         this.operation = operation;
         this.timeout = timeout;

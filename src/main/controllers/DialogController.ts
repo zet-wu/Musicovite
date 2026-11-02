@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // 对话框控制器
 
 import * as fs from 'fs';
@@ -26,7 +27,7 @@ export class DialogController extends BaseController {
         const win = this.windowManager.getMainWindow();
         const result: any = await dialog.showOpenDialog(win as any, {
             properties: ['openDirectory'],
-            title: 'Select Music Folder'
+            title: nativeT('native:musicFolder')
         });
         return (!result.canceled && result.filePaths.length > 0) ? result.filePaths[0] : null;
     }
@@ -36,7 +37,7 @@ export class DialogController extends BaseController {
         const win = this.windowManager.getMainWindow();
         const result: any = await dialog.showOpenDialog(win as any, {
             properties: ['openDirectory', 'multiSelections'],
-            title: 'Select Music Folders'
+            title: nativeT('native:musicFolders')
         });
         return result.canceled ? [] : result.filePaths;
     }
@@ -46,7 +47,7 @@ export class DialogController extends BaseController {
         const win = this.windowManager.getMainWindow();
         const result: any = await dialog.showOpenDialog(win as any, {
             properties: ['openDirectory'],
-            title: 'Select Folder'
+            title: nativeT('native:folder')
         });
         if (!result.canceled && result.filePaths.length > 0) {
             return {filePaths: result.filePaths, canceled: result.canceled};
@@ -59,8 +60,8 @@ export class DialogController extends BaseController {
         const win = this.windowManager.getMainWindow();
         const result: any = await dialog.showOpenDialog(win as any, {
             properties: ['openFile', 'multiSelections'],
-            filters: [{name: 'Audio Files', extensions: ['mp3', 'flac', 'wav', 'ogg', 'm4a', 'aac', 'wma']}],
-            title: 'Select Music Files'
+            filters: [{name: nativeT('native:audioFiles'), extensions: ['mp3', 'flac', 'wav', 'ogg', 'm4a', 'aac', 'wma']}],
+            title: nativeT('native:musicFiles')
         });
         return result.canceled ? [] : result.filePaths;
     }
@@ -92,8 +93,8 @@ export class DialogController extends BaseController {
         const win = this.windowManager.getMainWindow();
         const result: any = await dialog.showOpenDialog(win as any, {
             properties: ['openFile'],
-            filters: [{name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']}],
-            title: 'Select Image'
+            filters: [{name: nativeT('native:images'), extensions: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']}],
+            title: nativeT('native:image')
         });
         return (!result.canceled && result.filePaths.length > 0) ? result.filePaths[0] : null;
     }
@@ -118,8 +119,8 @@ export class DialogController extends BaseController {
         try {
             const win = this.windowManager.getMainWindow();
             const result: any = await dialog.showOpenDialog(win as any, {
-                title: '选择专辑封面',
-                filters: [{name: '图片文件', extensions: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']}],
+                title: nativeT('native:artwork'),
+                filters: [{name: nativeT('native:images'), extensions: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']}],
                 properties: ['openFile']
             });
 
@@ -130,12 +131,12 @@ export class DialogController extends BaseController {
             const filePath = result.filePaths[0];
             const mimeType = IMAGE_MIME_TYPES[path.extname(filePath).toLowerCase()];
             if (!mimeType) {
-                return {success: false, error: '不支持的封面图片格式'};
+                return {success: false, error: nativeT('errors:unsupportedArtworkFormat')};
             }
 
             const stats = await fs.promises.stat(filePath);
             if (stats.size > maxSizeBytes) {
-                return {success: false, error: '封面文件大小不能超过5MB'};
+                return {success: false, error: nativeT('errors:artworkMustBeNoLargerThan5Mb')};
             }
 
             const buffer = await fs.promises.readFile(filePath);

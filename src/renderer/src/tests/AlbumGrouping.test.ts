@@ -53,7 +53,8 @@ describe('专辑分组', () => {
         ]);
 
         expect(albums).toHaveLength(1);
-        expect(albums[0].artist).toBe('多位艺术家');
+        expect(albums[0].variousArtists).toBe(true);
+        expect(albums[0].artist).toBe('');
         expect(albums[0].tracks).toHaveLength(2);
     });
 

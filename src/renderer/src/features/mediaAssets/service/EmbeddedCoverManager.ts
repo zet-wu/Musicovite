@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 /**
  * 内嵌封面管理器
  * 负责内嵌封面的提取、格式转换和缓存管理
@@ -73,7 +75,7 @@ class EmbeddedCoverManager {
             // 参数验证
             if (!filePath || typeof filePath !== 'string') {
                 console.error('❌ EmbeddedCoverManager: 无效的文件路径参数');
-                return {success: false, error: '无效的文件路径参数'};
+                return {success: false, error: t('messages:invalidFilePath')};
             }
 
             // 检查缓存
@@ -103,7 +105,7 @@ class EmbeddedCoverManager {
                     // 超时保护
                     setTimeout(() => {
                         clearInterval(checkInterval);
-                        resolve({success: false, error: '处理超时'});
+                        resolve({success: false, error: t('messages:operationTimedOut')});
                     }, 5000);
                 });
             }
@@ -113,7 +115,7 @@ class EmbeddedCoverManager {
             // 从工作线程获取内嵌封面，不解析列表不需要的完整元数据
             const cover = await libraryDataService.getTrackCover(filePath);
             if (!cover) {
-                const errorResult: EmbeddedCoverResult = {success: false, error: '音频文件中未找到内嵌封面'};
+                const errorResult: EmbeddedCoverResult = {success: false, error: t('messages:noEmbeddedArtworkInAudioFile')};
                 this.setCache(cacheKey, errorResult);
                 this.processingFiles.delete(filePath);
                 return errorResult;
@@ -121,7 +123,7 @@ class EmbeddedCoverManager {
 
             // 验证封面数据
             if (!cover.data || !cover.format) {
-                const errorResult: EmbeddedCoverResult = {success: false, error: '内嵌封面数据格式无效'};
+                const errorResult: EmbeddedCoverResult = {success: false, error: t('messages:invalidEmbeddedArtworkFormat')};
                 this.setCache(cacheKey, errorResult);
                 this.processingFiles.delete(filePath);
                 return errorResult;
@@ -130,7 +132,7 @@ class EmbeddedCoverManager {
             // 转换封面数据为可用的URL
             const convertedCover = this.convertCoverToUrl(cover);
             if (!convertedCover.success) {
-                const errorResult: EmbeddedCoverResult = {success: false, error: `封面格式转换失败: ${convertedCover.error}`};
+                const errorResult: EmbeddedCoverResult = {success: false, error: t('dynamic:artworkConversionFailed', {details: convertedCover.error})};
                 this.setCache(cacheKey, errorResult);
                 this.processingFiles.delete(filePath);
                 return errorResult;
@@ -138,7 +140,7 @@ class EmbeddedCoverManager {
 
             // 验证转换后的URL格式
             if (typeof convertedCover.url !== 'string') {
-                const errorResult: EmbeddedCoverResult = {success: false, error: '封面URL格式无效'};
+                const errorResult: EmbeddedCoverResult = {success: false, error: t('messages:invalidArtworkUrl')};
                 this.setCache(cacheKey, errorResult);
                 this.processingFiles.delete(filePath);
                 return errorResult;
@@ -165,11 +167,11 @@ class EmbeddedCoverManager {
 
             // 提供更具体的错误信息
             const caughtError = error instanceof Error ? error : new Error(String(error));
-            let errorMessage = caughtError.message || '未知错误';
+            let errorMessage = caughtError.message || t('messages:unknownError');
             if (caughtError.name === 'TypeError') {
-                errorMessage = '数据类型错误，可能是API响应格式不正确';
+                errorMessage = t('messages:unexpectedResponseDataFormat');
             } else if (caughtError.name === 'NetworkError') {
-                errorMessage = '网络错误，无法与主进程通信';
+                errorMessage = t('messages:couldNotCommunicateWithTheMainProcess');
             }
 
             const errorResult: EmbeddedCoverResult = {success: false, error: errorMessage};
@@ -192,7 +194,7 @@ class EmbeddedCoverManager {
     convertCoverToUrl(coverData: EmbeddedCoverData): CoverConversionResult {
         try {
             if (!coverData || !coverData.data) {
-                throw new Error('封面数据无效');
+                throw new Error(t('audit:invalidCoverData'));
             }
 
             let imageData: any = coverData.data;
@@ -222,13 +224,13 @@ class EmbeddedCoverManager {
                     imageData = new Uint8Array(imageData);
                     console.log('✅ EmbeddedCoverManager: 降级转换成功');
                 } else {
-                    throw new Error('无法转换数据类型');
+                    throw new Error(t('audit:unsupportedCoverData'));
                 }
             }
 
             // 验证数据长度
             if (!imageData.length || imageData.length === 0) {
-                throw new Error('封面数据长度为0');
+                throw new Error(t('audit:emptyCoverData'));
             }
 
             // 创建Blob
@@ -237,7 +239,7 @@ class EmbeddedCoverManager {
 
             // 验证Blob
             if (blob.size === 0) {
-                throw new Error('创建的Blob大小为0');
+                throw new Error(t('audit:emptyCoverBlob'));
             }
 
             // 创建Object URL
@@ -249,7 +251,7 @@ class EmbeddedCoverManager {
                     type: typeof objectUrl,
                     value: objectUrl
                 });
-                throw new Error('创建的Object URL格式无效');
+                throw new Error(t('audit:invalidObjectUrl'));
             }
 
             // 记录URL用于后续清理

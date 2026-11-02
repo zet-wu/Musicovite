@@ -1,3 +1,4 @@
+import {t, setLocalizedText} from '@/shared/i18n';
 import {shortcutDialogService} from "./ShortcutDialogService";
 import type {ShortcutDefinition, ShortcutMap, ShortcutType} from "./ShortcutSettingsService";
 
@@ -43,7 +44,7 @@ class ShortcutListRenderer {
 
     formatKey(key: string): string {
         if (!key) {
-            return '未设置';
+            return t('messages:notSet');
         }
 
         return shortcutDialogService.formatShortcutKey(key);
@@ -121,11 +122,11 @@ class ShortcutListRenderer {
 
         const name = document.createElement('div');
         name.className = 'shortcut-name';
-        name.textContent = shortcut.name;
+        setLocalizedText(name, `shortcuts:${id}Name`);
 
         const description = document.createElement('div');
         description.className = 'shortcut-description';
-        description.textContent = shortcut.description;
+        setLocalizedText(description, `shortcuts:${id}Description`);
 
         info.appendChild(name);
         info.appendChild(description);
@@ -137,7 +138,7 @@ class ShortcutListRenderer {
         key.className = `shortcut-key ${shortcut.enabled ? '' : 'disabled'}`.trim();
         key.dataset.type = type;
         key.dataset.id = id;
-        key.title = '点击修改快捷键';
+        setLocalizedText(key, 'messages:clickToEditShortcut', {}, 'title');
         key.textContent = this.formatKey(shortcut.key);
 
         const toggle = document.createElement('div');

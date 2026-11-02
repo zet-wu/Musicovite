@@ -140,7 +140,7 @@ export interface ElectronLibraryAPI {
     getTrackMetadata(filePath: string): Promise<Track | null>;
     getTrackCover(filePath: string): Promise<EmbeddedTrackCover | null>;
     getTrackPlaybackMetadata(filePath: string): Promise<Track | null>;
-    updateTrackMetadata(trackId: string, metadata: Partial<Track>): Promise<unknown>;
+    updateTrackMetadata(data: unknown): Promise<{success: boolean; code?: string; details?: string; updatedMetadata?: Track}>;
     createPlaylist(name: string, description?: string): Promise<unknown>;
     getPlaylistDetail(playlistId: string): Promise<PlaylistDetailResult>;
     deletePlaylist(playlistId: string): Promise<unknown>;

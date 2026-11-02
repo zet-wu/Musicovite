@@ -1,3 +1,5 @@
+import {htmlT, th, setLocalizedText, t} from '@/shared/i18n';
+
 /**
  * 参量均衡器UI组件
  */
@@ -15,8 +17,8 @@ type ParametricBand = ReturnType<ParametricEqualizer["getBands"]>[number];
 
 interface FilterTypeDefinition {
     value: ParametricFilterType;
-    label: string;
-    description: string;
+    labelKey: string;
+    descriptionKey: string;
 }
 
 interface ParametricEngineBridge {
@@ -62,13 +64,13 @@ class ParametricEqualizerComponent extends Component {
 
         // 滤波器类型定义
         this.filterTypes = [
-            {value: 'peak', label: '峰值 (Peak)', description: '提升/衰减特定频率'},
-            {value: 'lowshelf', label: '低频搁架 (Low Shelf)', description: '影响低于指定频率的所有频率'},
-            {value: 'highshelf', label: '高频搁架 (High Shelf)', description: '影响高于指定频率的所有频率'},
-            {value: 'lowpass', label: '低通 (Low Pass)', description: '只允许低于指定频率的信号通过'},
-            {value: 'highpass', label: '高通 (High Pass)', description: '只允许高于指定频率的信号通过'},
-            {value: 'bandpass', label: '带通 (Band Pass)', description: '只允许特定频率范围通过'},
-            {value: 'notch', label: '陷波 (Notch)', description: '去除特定频率噪声'}
+            {value: 'peak', labelKey: 'messages:peak', descriptionKey: 'messages:boostOrCutASpecificFrequency'},
+            {value: 'lowshelf', labelKey: 'messages:lowShelf', descriptionKey: 'messages:affectAllFrequenciesBelowTheSelectedFrequency'},
+            {value: 'highshelf', labelKey: 'messages:highShelf', descriptionKey: 'messages:affectAllFrequenciesAboveTheSelectedFrequency'},
+            {value: 'lowpass', labelKey: 'messages:lowPass', descriptionKey: 'messages:passOnlyFrequenciesBelowTheSelectedFrequency'},
+            {value: 'highpass', labelKey: 'messages:highPass', descriptionKey: 'messages:passOnlyFrequenciesAboveTheSelectedFrequency'},
+            {value: 'bandpass', labelKey: 'messages:bandPass', descriptionKey: 'messages:passOnlyTheSelectedFrequencyRange'},
+            {value: 'notch', labelKey: 'messages:notch', descriptionKey: 'messages:removeNoiseAtASpecificFrequency'}
         ];
 
         this.setupElements();
@@ -344,8 +346,8 @@ class ParametricEqualizerComponent extends Component {
         if (bands.length === 0) {
             container.innerHTML = `
                 <div class="peq-empty-message">
-                    <p>暂无频段</p>
-                    <p class="hint">点击"添加频段"按钮来创建新的滤波器</p>
+                    <p data-i18n="messages:noBands">${th('messages:noBands')}</p>
+                    <p class="hint" data-i18n="messages:clickAddBandToCreateAFilter">${th('messages:clickAddBandToCreateAFilter')}</p>
                 </div>
             `;
             return;
@@ -362,14 +364,14 @@ class ParametricEqualizerComponent extends Component {
     // 创建频段HTML
     createBandHTML(band: ParametricBand): string {
         const filterTypeOptions = this.filterTypes.map((filterType) =>
-            `<option value="${filterType.value}" ${band.filterType === filterType.value ? 'selected' : ''}>${filterType.label}</option>`
+            `<option value="${filterType.value}" ${band.filterType === filterType.value ? 'selected' : ''} data-i18n="${filterType.labelKey}" data-i18n-title="${filterType.descriptionKey}" title="${th(filterType.descriptionKey)}">${th(filterType.labelKey)}</option>`
         ).join('');
 
         return `
             <div class="peq-band ${band.enabled ? 'band-enabled' : 'band-disabled'}" data-band-id="${band.id}">
                 <div class="peq-band-header">
                     <div class="band-title">
-                        <span class="band-number">频段 #${band.id}</span>
+                        <span class="band-number">${htmlT('common:band', {id: band.id})}</span>
                         <span class="band-info">${this.formatFrequency(band.frequency)} · ${band.gain >= 0 ? '+' : ''}${band.gain.toFixed(1)} dB</span>
                     </div>
                     <div class="band-header-controls">
@@ -377,7 +379,7 @@ class ParametricEqualizerComponent extends Component {
                             <input type="checkbox" id="band-enabled-${band.id}" class="toggle-input" ${band.enabled ? 'checked' : ''}>
                             <label for="band-enabled-${band.id}" class="toggle-label"></label>
                         </div>
-                        <button class="peq-btn-remove" data-band-id="${band.id}" title="删除频段">
+                        <button class="peq-btn-remove" data-band-id="${band.id}" title="${th('messages:deleteBand')}" data-i18n-title="messages:deleteBand">
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                             </svg>
@@ -388,7 +390,7 @@ class ParametricEqualizerComponent extends Component {
                 <div class="peq-band-controls">
                     <!-- 滤波器类型 -->
                     <div class="peq-band-control peq-control-fullwidth">
-                        <label>滤波器类型</label>
+                        <label data-i18n="messages:filterType">${th('messages:filterType')}</label>
                         <select class="band-filter-type" data-band-id="${band.id}">
                             ${filterTypeOptions}
                         </select>
@@ -396,7 +398,7 @@ class ParametricEqualizerComponent extends Component {
 
                     <!-- 频率 -->
                     <div class="peq-band-control">
-                        <label>频率</label>
+                        <label data-i18n="messages:frequency">${th('messages:frequency')}</label>
                         <div class="control-input-group">
                             <input type="number" class="band-frequency-input" data-band-id="${band.id}"
                                 min="20" max="20000" value="${Math.round(band.frequency)}" step="1">
@@ -408,7 +410,7 @@ class ParametricEqualizerComponent extends Component {
 
                     <!-- 增益 -->
                     <div class="peq-band-control">
-                        <label>增益</label>
+                        <label data-i18n="messages:gain">${th('messages:gain')}</label>
                         <div class="control-input-group">
                             <input type="number" class="band-gain-input" data-band-id="${band.id}"
                                 min="-20" max="20" value="${band.gain.toFixed(1)}" step="0.1">
@@ -420,7 +422,7 @@ class ParametricEqualizerComponent extends Component {
 
                     <!-- Q值 -->
                     <div class="peq-band-control">
-                        <label>Q值（品质因数）</label>
+                        <label data-i18n="messages:qQualityFactor">${th('messages:qQualityFactor')}</label>
                         <div class="control-input-group">
                             <input type="number" class="band-q-input" data-band-id="${band.id}"
                                 min="0.1" max="10" value="${band.q.toFixed(2)}" step="0.01">
@@ -638,18 +640,18 @@ class ParametricEqualizerComponent extends Component {
         const {builtin, custom} = allPresets;
 
         // 清空选择器
-        this.presetSelector.innerHTML = '<option value="">选择预设...</option>';
+        this.presetSelector.innerHTML = `<option value="" data-i18n="app:chooseAPreset">${th('app:chooseAPreset')}</option>`;
 
         // 添加内置预设组
         if (Object.keys(builtin).length > 0) {
             const builtinGroup = document.createElement('optgroup');
-            builtinGroup.label = '内置预设';
+            setLocalizedText(builtinGroup, 'messages:builtinPresets', {}, 'label');
 
-            for (const [id, preset] of Object.entries(builtin)) {
+            for (const id of Object.keys(builtin)) {
                 const option = document.createElement('option');
                 option.value = `builtin:${id}`;
-                option.textContent = preset.name;
-                option.title = preset.description || '';
+                setLocalizedText(option, `presets:${id}Name`);
+                setLocalizedText(option, `presets:${id}Description`, {}, 'title');
                 builtinGroup.appendChild(option);
             }
 
@@ -659,7 +661,7 @@ class ParametricEqualizerComponent extends Component {
         // 添加自定义预设组
         if (Object.keys(custom).length > 0) {
             const customGroup = document.createElement('optgroup');
-            customGroup.label = '自定义预设';
+            setLocalizedText(customGroup, 'messages:customPresets', {}, 'label');
 
             for (const [id, preset] of Object.entries(custom)) {
                 const option = document.createElement('option');
@@ -696,12 +698,12 @@ class ParametricEqualizerComponent extends Component {
     async showSavePresetDialog(): Promise<void> {
         if (!this.equalizer) return;
 
-        const name = await showInputDialog('请输入预设名称:', '我的自定义预设', '保存预设');
+        const name = await showInputDialog(t('messages:enterPresetName'), t('messages:myCustomPreset'), t('messages:savePreset'));
         if (!name || name.trim() === '') {
             return;
         }
 
-        const description = await showInputDialog('请输入预设描述（可选）:', '', '预设描述');
+        const description = await showInputDialog(t('messages:enterPresetDescriptionOptional'), '', t('messages:presetDescription'));
         const result = await this.equalizer.saveAsCustomPreset(name.trim(), description?.trim() || '');
 
         if (result.success) {
@@ -710,10 +712,10 @@ class ParametricEqualizerComponent extends Component {
 
             // 选中新保存的预设
             this.presetSelector.value = `custom:${result.id}`;
-            appNotificationService.showSuccess('预设保存成功！');
+            appNotificationService.showSuccess(t('messages:presetSaved'));
         } else {
             console.error('❌ 保存自定义预设失败:', result.error);
-            appNotificationService.showError('保存预设失败');
+            appNotificationService.showError(t('messages:couldNotSavePreset'));
         }
     }
 
@@ -725,13 +727,13 @@ class ParametricEqualizerComponent extends Component {
         if (result.success && result.preset) {
             await this.refresh();
             await this.equalizer.saveCurrentState(); // 保存状态
-            appNotificationService.showSuccess('导入成功');
+            appNotificationService.showSuccess(t('messages:importComplete'));
 
             // 重置预设选择器
             this.presetSelector.value = '';
         } else if (result.error) {
             console.error('❌ 导入设置失败:', result.error);
-            appNotificationService.showError('导入失败');
+            appNotificationService.showError(t('messages:importFailed'));
         }
     }
 
@@ -739,17 +741,17 @@ class ParametricEqualizerComponent extends Component {
     async exportSettings(): Promise<void> {
         if (!this.equalizer) return;
 
-        const name = await showInputDialog('请输入导出文件名称:', '我的参量均衡器设置', '导出设置');
+        const name = await showInputDialog(t('messages:enterExportFileName'), t('messages:myParametricEqualizerSettings'), t('messages:exportSettings'));
         if (!name || name.trim() === '') {
             return;
         }
 
         const result = await this.equalizer.exportCurrentSettings(name.trim());
         if (result.success && result.filePath) {
-            appNotificationService.showSuccess('导出成功！');
+            appNotificationService.showSuccess(t('messages:exportComplete'));
         } else if (result.error) {
             console.error('❌ 导出设置失败:', result.error);
-            appNotificationService.showError('导出失败');
+            appNotificationService.showError(t('messages:exportFailed'));
         }
     }
 

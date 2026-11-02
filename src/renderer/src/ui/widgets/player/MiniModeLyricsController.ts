@@ -1,3 +1,4 @@
+import {bindLocalizedText, t} from '@/shared/i18n';
 import type {AmllLyricLine} from '@applemusic-like-lyrics/ttml';
 import {getLyricsService} from '@/features/lyrics/service/defaultLyricsServices';
 import {playbackUiStateService} from '@/features/playback/service/PlaybackUiStateService';
@@ -77,7 +78,7 @@ class MiniModeLyricsController {
         const line = this.lyrics[this.currentLyricIndex];
         const element = this.getOrCreateLyricsElement();
         if (!element) return;
-        element.textContent = line ? line.words.map(word => word.word).join('') : '暂无歌词';
+        bindLocalizedText(element, () => line ? line.words.map(word => word.word).join('') : t('messages:noLyricsAvailable'), 'textContent');
     }
 
     private resetLyrics(renderEmptyState: boolean): void {

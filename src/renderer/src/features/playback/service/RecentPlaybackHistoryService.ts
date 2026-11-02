@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {appConfirmationService} from "@/features/appShell/service/AppConfirmationService";
 import {getTrackPath} from "@/features/playback/domain/TrackIdentity";
 import {cacheManager} from "@/shared/cache";
@@ -158,7 +160,7 @@ export class RecentPlaybackHistoryService {
         });
 
         return Object.entries(artistCounts)
-            .sort(([, left], [, right]) => right - left)[0]?.[0] || '暂无';
+            .sort(([, left], [, right]) => right - left)[0]?.[0] || t('messages:noneYet');
     }
 
     getUniqueArtists(tracks: Track[]): string[] {
@@ -176,27 +178,27 @@ export class RecentPlaybackHistoryService {
 
     async confirmClearHistory(): Promise<boolean> {
         return await appConfirmationService.confirm({
-            title: '清空最近播放记录',
-            message: '确定要清空最近播放记录吗？累计播放统计不会受到影响。',
-            confirmText: '清空',
+            title: t('messages:clearRecentlyPlayed'),
+            message: t('messages:clearRecentlyPlayedTracksTotalPlayStatisticsWillBeKept'),
+            confirmText: t('app:clear'),
             type: 'warning'
         });
     }
 
     async confirmClearPlayStatistics(): Promise<boolean> {
         return await appConfirmationService.confirm({
-            title: '清空播放统计',
-            message: '确定要清空累计播放次数吗？最近播放记录不会受到影响。',
-            confirmText: '清空',
+            title: t('messages:clearPlayStatistics'),
+            message: t('messages:clearTotalPlayCountsRecentlyPlayedTracksWillBeKept'),
+            confirmText: t('app:clear'),
             type: 'warning'
         });
     }
 
     async confirmRemoveHistoryItem(trackTitle: string): Promise<boolean> {
         return await appConfirmationService.confirm({
-            title: '移除最近播放记录',
-            message: `确定要从最近播放中移除 "${trackTitle}" 吗？`,
-            confirmText: '移除',
+            title: t('messages:removeFromRecentlyPlayed'),
+            message: t('dynamic:removeRecentConfirm', {title: trackTitle}),
+            confirmText: t('messages:remove'),
             type: 'warning'
         });
     }

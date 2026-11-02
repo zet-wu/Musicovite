@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {libraryGateway} from '@/infrastructure/electron';
 import type {Result} from '@api/types/common';
 import type {LibraryIndexRebuildResult} from '@api/types/electron';
@@ -95,7 +96,7 @@ export class LibraryBridge {
                 return result;
             }
 
-            throw new Error('缓存验证失败');
+            throw new Error(t('messages:cacheValidationFailed'));
         } catch (error) {
             console.error('❌ 缓存验证失败:', error);
             this.emit('cacheValidationError', error instanceof Error ? error.message : String(error));
@@ -150,7 +151,7 @@ export class LibraryBridge {
             return {success: true, coverPath: result.coverPath};
         }
 
-        return {success: false, error: '获取歌单封面失败'};
+        return {success: false, error: t('messages:couldNotRetrievePlaylistArtwork')};
     }
 
     async removePlaylistCover(playlistId: string): Promise<Result> {
@@ -160,6 +161,6 @@ export class LibraryBridge {
             return {success: true};
         }
 
-        return {success: false, error: '移除歌单封面失败'};
+        return {success: false, error: t('messages:couldNotRemovePlaylistArtwork')};
     }
 }

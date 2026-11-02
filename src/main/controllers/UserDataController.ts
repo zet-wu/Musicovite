@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // 用户数据控制器
 
 import * as fs from 'fs';
@@ -73,7 +74,7 @@ export class UserDataController extends BaseController {
     async deleteMood(timestamp: number): Promise<{ success: boolean; error?: string }> {
         try {
             const history = await readJsonFile<any[] | null>(this.moodFilePath, null);
-            if (!history) return {success: false, error: '文件不存在'};
+            if (!history) return {success: false, error: nativeT('errors:fileDoesNotExist')};
             const updated = history.filter((item: any) => item.timestamp !== timestamp);
             await writeJsonFile(this.moodFilePath, updated);
             return {success: true};
@@ -86,7 +87,7 @@ export class UserDataController extends BaseController {
     async deleteDiary(timestamp: number): Promise<{ success: boolean; error?: string }> {
         try {
             const history = await readJsonFile<any[] | null>(this.diaryFilePath, null);
-            if (!history) return {success: false, error: '文件不存在'};
+            if (!history) return {success: false, error: nativeT('errors:fileDoesNotExist')};
             const updated = history.filter((item: any) => item.timestamp !== timestamp);
             await writeJsonFile(this.diaryFilePath, updated);
             return {success: true};

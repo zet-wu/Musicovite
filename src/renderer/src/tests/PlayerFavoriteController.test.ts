@@ -31,6 +31,7 @@ function createButton() {
             }
         },
         setAttribute: vi.fn(),
+        removeAttribute: vi.fn(),
         classes
     };
 }

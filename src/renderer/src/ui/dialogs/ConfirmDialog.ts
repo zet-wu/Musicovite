@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {Component} from "@ui/base/Component";
 
 type ConfirmDialogType = 'default' | 'danger' | 'warning';
@@ -43,10 +44,10 @@ class ConfirmDialog extends Component {
             this.isVisible = true;
 
             const {
-                title = '确认操作',
+                title = t('app:confirmAction'),
                 message = '',
-                confirmText = '确定',
-                cancelText = '取消',
+                confirmText = t('app:confirm'),
+                cancelText = t('app:cancel'),
                 type = 'default',
                 confirmButtonClass = 'btn-primary',
                 cancelButtonClass = 'btn-secondary'

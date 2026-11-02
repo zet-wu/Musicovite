@@ -1,3 +1,5 @@
+import {htmlT, setLocalizedText, t, th} from '@/shared/i18n';
+
 /**
  * 网络磁盘详情页组件
  */
@@ -158,7 +160,7 @@ class NetworkDriveDetailPage extends Component {
             const tracks = await networkDriveDetailService.getTracksByDrive(drive.id);
             if (!this.isCurrentView(drive, viewGeneration)) return;
             this.tracks = tracks;
-            console.log(`📀 NetworkDriveDetailPage: 加载了 ${this.tracks.length} 首歌曲`);
+            console.log(`📀 NetworkDriveDetailPage: 加载了 ${htmlT('common:tracks', {count: this.tracks.length})}`);
         } catch (error) {
             if (!this.isCurrentView(drive, viewGeneration)) return;
             console.error('❌ NetworkDriveDetailPage: 加载歌曲失败', error);
@@ -211,7 +213,7 @@ class NetworkDriveDetailPage extends Component {
         const driveTypeName = this.currentDrive.type === 'smb' ? 'SMB' : 'WebDAV';
 
         // displayName 在 config 对象中
-        const displayName = this.currentDrive.config?.displayName || this.currentDrive.displayName || '未命名磁盘';
+        const displayName = this.currentDrive.config?.displayName || this.currentDrive.displayName || t('messages:unnamedDrive');
 
         this.container.innerHTML = `
             <div class="page-content network-drive-page">
@@ -224,32 +226,26 @@ class NetworkDriveDetailPage extends Component {
                         <div class="drive-meta">
                             <span class="drive-type">${driveTypeName}</span>
                             <span class="drive-status ${isConnected ? 'connected' : 'disconnected'}">
-                                ${isConnected ? '● 已连接' : '○ 未连接'}
+                                ${isConnected ? t('messages:connectedMessage') : t('messages:disconnectedMessage')}
                             </span>
-                            <span class="drive-track-count">${trackCount} 首歌曲</span>
+                            <span class="drive-track-count">${htmlT('common:tracks', {count: trackCount})}</span>
                             <span class="drive-duration">${this.formatTotalDuration(totalDuration)}</span>
                         </div>
                         <div class="drive-path">${this.formatDrivePath()}</div>
                     </div>
                     <div class="drive-actions">
-                        <button class="action-btn" id="refresh-drive-btn" title="刷新连接">
+                        <button class="action-btn" id="refresh-drive-btn" title="${th('messages:refreshConnection')}" data-i18n-title="messages:refreshConnection">
                             <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
-                            </svg>
-                            刷新
-                        </button>
-                        <button class="action-btn" id="scan-drive-btn" title="扫描音乐">
+                            </svg><span data-i18n="messages:refresh">${th('messages:refresh')}</span></button>
+                        <button class="action-btn" id="scan-drive-btn" title="${th('messages:scanMusic')}" data-i18n-title="messages:scanMusic">
                             <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/>
-                            </svg>
-                            扫描
-                        </button>
-                        <button class="action-btn danger" id="remove-drive-btn" title="移除磁盘">
+                            </svg><span data-i18n="messages:scan">${th('messages:scan')}</span></button>
+                        <button class="action-btn danger" id="remove-drive-btn" title="${th('messages:removeDrive')}" data-i18n-title="messages:removeDrive">
                             <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
-                            </svg>
-                            移除
-                        </button>
+                            </svg><span data-i18n="messages:remove">${th('messages:remove')}</span></button>
                     </div>
                 </div>
 
@@ -409,7 +405,7 @@ class NetworkDriveDetailPage extends Component {
             <div class="scan-tip-bar">
                 <div class="scan-tip-fill" id="scan-tip-fill"></div>
             </div>
-            <p class="scan-tip-text" id="scan-tip-text">⏳ 正在扫描网络磁盘...</p>
+            <p class="scan-tip-text" id="scan-tip-text" data-i18n="messages:scanningNetworkDrive">${th('messages:scanningNetworkDrive')}</p>
         `;
         actionsEl.parentNode?.insertBefore(tip, actionsEl.nextSibling);
     }
@@ -423,7 +419,7 @@ class NetworkDriveDetailPage extends Component {
             const percent = total > 0 ?
                 (current / total) * 100 : 0;
             fill.style.width = `${percent}%`;
-            text.textContent = `⏳ 扫描中: ${current}/${total}`;
+            setLocalizedText(text, 'dynamic:scanProgress', {current: current, total: total}, 'textContent');
         }
     }
 
@@ -499,15 +495,15 @@ class NetworkDriveDetailPage extends Component {
     }
 
     formatTotalDuration(seconds: number): string {
-        if (!seconds || seconds === 0) return '0 分钟';
+        if (!seconds || seconds === 0) return t('messages:0Minutes');
 
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
 
         if (hours > 0) {
-            return `${hours} 小时 ${minutes} 分钟`;
+            return t('dynamic:durationHoursMinutes', {hours: hours, minutes: minutes});
         } else {
-            return `${minutes} 分钟`;
+            return t('dynamic:durationMinutes', {minutes: minutes});
         }
     }
 
@@ -539,9 +535,7 @@ class NetworkDriveDetailPage extends Component {
                 <button class="breadcrumb-item" data-path="/">
                     <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
-                    </svg>
-                    根目录
-                </button>
+                    </svg><span data-i18n="messages:rootFolder">${th('messages:rootFolder')}</span></button>
         `;
 
         let currentPath = '';
@@ -567,7 +561,7 @@ class NetworkDriveDetailPage extends Component {
                     <svg class="empty-icon" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
                     </svg>
-                    <p>此目录为空</p>
+                    <p data-i18n="messages:thisFolderIsEmpty">${th('messages:thisFolderIsEmpty')}</p>
                 </div>
             `;
         }
@@ -594,7 +588,7 @@ class NetworkDriveDetailPage extends Component {
                     </svg>
                     <div class="item-info">
                         <span class="item-name">${this.escapeHtml(folder.name)}</span>
-                        <span class="item-meta">文件夹</span>
+                        <span class="item-meta" data-i18n="app:folders">${th('app:folders')}</span>
                     </div>
                     <svg class="chevron-icon" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/>
@@ -628,7 +622,7 @@ class NetworkDriveDetailPage extends Component {
                     <svg class="empty-icon" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12,3V12.26C11.5,12.09 11,12 10.5,12C8,12 6,14 6,16.5C6,19 8,21 10.5,21C13,21 15,19 15,16.5V6H19V3H12Z"/>
                     </svg>
-                    <p>此目录中没有音乐文件</p>
+                    <p data-i18n="messages:noMusicFilesInThisFolder">${th('messages:noMusicFilesInThisFolder')}</p>
                 </div>
             `;
         }

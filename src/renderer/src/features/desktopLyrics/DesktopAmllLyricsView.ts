@@ -1,3 +1,4 @@
+import {setLocalizedText} from '@/shared/i18n';
 import {LyricPlayer} from '@applemusic-like-lyrics/core';
 import '@applemusic-like-lyrics/core/style.css';
 import {projectLyricsForDesktop} from './DesktopLyricsProjection';
@@ -45,7 +46,7 @@ export class DesktopAmllLyricsView {
 
         this.stateElement = document.createElement('div');
         this.stateElement.className = 'desktop-lyrics-state';
-        this.stateElement.textContent = '暂无歌词';
+        setLocalizedText(this.stateElement, 'messages:noLyricsAvailable', {}, 'textContent');
         this.options.container.replaceChildren(this.player.getElement(), this.stateElement);
         this.player.getElement().hidden = true;
     }

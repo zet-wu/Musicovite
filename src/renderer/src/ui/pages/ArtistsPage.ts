@@ -1,3 +1,5 @@
+import {th, htmlT, t} from '@/shared/i18n';
+
 /**
  * 艺术家页组件
  */
@@ -141,7 +143,7 @@ class ArtistsPage extends Component {
             if (!enabled) {
                 const selectedArtistName = this.selectedArtist?.name;
                 this.processArtists();
-                this.selectedArtist = selectedArtistName
+                this.selectedArtist = selectedArtistName !== undefined
                     ? this.artists.find(artist => artist.name === selectedArtistName) || null
                     : null;
                 if (this.isVisible) {
@@ -240,7 +242,7 @@ class ArtistsPage extends Component {
             const selectedArtistName = this.selectedArtist?.name;
             this.tracks = tracks;
             this.processArtists();
-            this.selectedArtist = selectedArtistName
+            this.selectedArtist = selectedArtistName !== undefined
                 ? this.artists.find((artist) => artist.name === selectedArtistName) || null
                 : null;
             this.renderDirty = true;
@@ -278,7 +280,7 @@ class ArtistsPage extends Component {
     }
 
     private findArtistByKey(key: string | undefined): ArtistInfo | null {
-        if (!key) {
+        if (key === undefined) {
             return null;
         }
         return this.filteredArtists.find((artist) => artist.name === key) || null;
@@ -313,33 +315,33 @@ class ArtistsPage extends Component {
                     <div class="left cluster">
                         <div class="title">
                             <span class="disc" aria-hidden>🎤</span>
-                            <span>星河</span>
-                            <em class="muted">${this.artists.length} 位</em>
+                            <span data-i18n="app:artists">${th('app:artists')}</span>
+                            <em class="muted">${htmlT('common:artists', {count: this.artists.length})}</em>
                         </div>
-                        <div class="segmented" role="tablist" aria-label="头像尺寸">
-                            <button class="seg-btn ${this.viewSize === 's' ? 'active' : ''}" data-size="s" ${this.viewMode === 'list' ? 'disabled' : ''}>小</button>
-                            <button class="seg-btn ${this.viewSize === 'm' ? 'active' : ''}" data-size="m" ${this.viewMode === 'list' ? 'disabled' : ''}>中</button>
-                            <button class="seg-btn ${this.viewSize === 'l' ? 'active' : ''}" data-size="l" ${this.viewMode === 'list' ? 'disabled' : ''}>大</button>
+                        <div class="segmented" role="tablist" aria-label="${th('audit:avatarSize')}" data-i18n-aria-label="audit:avatarSize">
+                            <button class="seg-btn ${this.viewSize === 's' ? 'active' : ''}" data-size="s" ${this.viewMode === 'list' ? 'disabled' : ''} data-i18n="messages:small">${th('messages:small')}</button>
+                            <button class="seg-btn ${this.viewSize === 'm' ? 'active' : ''}" data-size="m" ${this.viewMode === 'list' ? 'disabled' : ''} data-i18n="messages:medium">${th('messages:medium')}</button>
+                            <button class="seg-btn ${this.viewSize === 'l' ? 'active' : ''}" data-size="l" ${this.viewMode === 'list' ? 'disabled' : ''} data-i18n="messages:large">${th('messages:large')}</button>
                         </div>
                     </div>
                     <div class="right cluster">
                         <div class="select">
-                            <select id="artist-sort" aria-label="艺术家排序字段">
-                                <option value="name" ${this.sortBy === 'name' ? 'selected' : ''}>按艺术家名</option>
-                                <option value="tracks" ${this.sortBy === 'tracks' ? 'selected' : ''}>按歌曲数</option>
+                            <select id="artist-sort" aria-label="${th('audit:artistSortField')}" data-i18n-aria-label="audit:artistSortField">
+                                <option value="name" ${this.sortBy === 'name' ? 'selected' : ''} data-i18n="messages:byArtistName">${th('messages:byArtistName')}</option>
+                                <option value="tracks" ${this.sortBy === 'tracks' ? 'selected' : ''} data-i18n="messages:byTrackCount">${th('messages:byTrackCount')}</option>
                             </select>
                         </div>
                         <button class="sort-direction-btn" id="artist-sort-direction" type="button"
-                                title="切换为${this.sortDirection === 'asc' ? '降序' : '升序'}"
-                                aria-label="当前${this.sortDirection === 'asc' ? '升序' : '降序'}，点击切换">
+                                title="${th('common:sortToggle')}" data-i18n-title="common:sortToggle"
+                                aria-label="${th('common:sortToggle')}" data-i18n-aria-label="common:sortToggle">
                             ${this.sortDirection === 'asc' ? '↑' : '↓'}
                         </button>
                         <div class="search-inline">
-                            <input type="text" id="artist-search" value="${this.escapeHtml(this.searchQuery)}" placeholder="搜索艺术家…">
+                            <input type="text" id="artist-search" value="${this.escapeHtml(this.searchQuery)}" placeholder="${th('messages:searchArtists')}" data-i18n-placeholder="messages:searchArtists">
                         </div>
-                        <div class="segmented" role="tablist" aria-label="视图模式">
-                            <button class="seg-btn ${this.viewMode === 'grid' ? 'active' : ''}" data-view="grid">方格</button>
-                            <button class="seg-btn ${this.viewMode === 'list' ? 'active' : ''}" data-view="list">列表</button>
+                        <div class="segmented" role="tablist" aria-label="${th('audit:viewMode')}" data-i18n-aria-label="audit:viewMode">
+                            <button class="seg-btn ${this.viewMode === 'grid' ? 'active' : ''}" data-view="grid" data-i18n="messages:grid">${th('messages:grid')}</button>
+                            <button class="seg-btn ${this.viewMode === 'list' ? 'active' : ''}" data-view="list" data-i18n="messages:list">${th('messages:list')}</button>
                         </div>
                     </div>
                 </div>
@@ -347,15 +349,15 @@ class ArtistsPage extends Component {
                 ${this.artists.length > 0 ? `
                     <div class="artists-browser ${this.viewMode}-view" style="--cover:${coverSize}px;">
                         <div class="artist-surface-root"></div>
-                        <div class="artists-no-results" hidden>没有找到匹配的艺术家</div>
+                        <div class="artists-no-results" hidden data-i18n="messages:noMatchingArtists">${th('messages:noMatchingArtists')}</div>
                     </div>
                 ` : `
                     <div class="albumsx-empty">
                         <div class="icon">
                             <svg viewBox="0 0 24 24"><path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/></svg>
                         </div>
-                        <h3>暂无艺术家</h3>
-                        <p>添加音乐后，这里会展示音乐库中的艺术家</p>
+                        <h3 data-i18n="messages:noArtistsYet">${th('messages:noArtistsYet')}</h3>
+                        <p data-i18n="messages:addMusicToDisplayArtistsFromYourLibraryHere">${th('messages:addMusicToDisplayArtistsFromYourLibraryHere')}</p>
                     </div>
                 `}
             </div>
@@ -799,12 +801,12 @@ class ArtistsPage extends Component {
         return `
             <div class="artist-library-item" data-artist="${this.escapeHtml(artist.name)}" tabindex="0">
                 <div class="artist-avatar">
-                    <img src="${cover}" alt="${this.escapeHtml(artist.name)}" loading="lazy">
+                    <img src="${cover}" alt="${this.escapeHtml(artist.name || t('app:unknownArtist'))}" loading="lazy">
                 </div>
                 <div class="artist-library-info">
-                    <div class="artist-library-name" title="${this.escapeHtml(artist.name)}">${this.escapeHtml(artist.name)}</div>
+                    <div class="artist-library-name" title="${this.escapeHtml(artist.name || t('app:unknownArtist'))}">${this.escapeHtml(artist.name || t('app:unknownArtist'))}</div>
                     <div class="artist-library-stats">
-                        ${artist.tracks.length} 首歌曲 · ${artist.albums.size} 张专辑
+                        ${htmlT('common:tracks', {count: artist.tracks.length})} · ${htmlT('dynamic:albumCount', {count: artist.albums.size})}
                         ${this.viewMode === 'list' ? ` · ${this.formatDuration(artist.totalDuration)}` : ''}
                     </div>
                 </div>
@@ -826,11 +828,11 @@ class ArtistsPage extends Component {
         this.container = this.detailRoot;
         this.trackCollectionDetail.show({
             identity: artist.name,
-            title: artist.name,
-            description: '艺术家歌曲',
+            get title() { return artist.name || t('app:unknownArtist'); },
+            get description() { return t('messages:artistTracks'); },
             cover: artist.cover,
-            backLabel: '返回星河',
-            metadata: [`${artist.albums.size} 张专辑`],
+            get backLabel() { return t('messages:backToArtists'); },
+            get metadata() { return [t('dynamic:albumCount', {count: artist.albums.size})]; },
             tracks: [...artist.tracks],
             coverArtist: artist.name,
             coverAlbum: ''
@@ -857,11 +859,11 @@ class ArtistsPage extends Component {
     formatDuration(seconds: number = 0): string {
         if (seconds < 3600) {
             const minutes = Math.floor(seconds / 60);
-            return `${minutes} 分钟`;
+            return t('dynamic:durationMinutes', {minutes: minutes});
         } else {
             const hours = Math.floor(seconds / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
-            return `${hours} 小时 ${minutes} 分钟`;
+            return t('dynamic:durationHoursMinutes', {hours: hours, minutes: minutes});
         }
     }
 

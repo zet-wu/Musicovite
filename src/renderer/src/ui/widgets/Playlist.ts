@@ -1,3 +1,5 @@
+import {t, htmlT, bindLocalizedText, escapeTranslation, setLocalizedText, th} from '@/shared/i18n';
+
 /**
  * 播放列表组件
  */
@@ -295,7 +297,7 @@ class Playlist extends Component {
 
     render(): void {
         this.renderPending = false;
-        this.countEl.textContent = `${this.tracks.length} 首歌曲`;
+        setLocalizedText(this.countEl, 'dynamic:trackCount', {count: this.tracks.length}, 'textContent');
 
         if (this.tracks.length === 0) {
             this.tracksContainer.innerHTML = `
@@ -303,7 +305,7 @@ class Playlist extends Component {
                     <svg class="icon" viewBox="0 0 24 24">
                         <path d="M12,3V13.55C11.41,13.21 10.73,13 10,13A3,3 0 0,0 7,16A3,3 0 0,0 10,19A3,3 0 0,0 13,16V7H19V5H12V3Z"/>
                     </svg>
-                    <p>播放列表为空</p>
+                    <p data-i18n="messages:theQueueIsEmpty">${th('messages:theQueueIsEmpty')}</p>
                 </div>
             `;
             return;
@@ -319,11 +321,11 @@ class Playlist extends Component {
 
             return `
                 <div class="playlist-track ${isCurrent ? 'current playing' : ''}" data-index="${index}" data-queue-id="${this.entries[index]?.queueId || ''}" draggable="true">
-                    <div class="playlist-track-drag" title="拖动调整顺序">⋮⋮</div>
+                    <div class="playlist-track-drag" title="${th('messages:dragToReorder')}" data-i18n-title="messages:dragToReorder">⋮⋮</div>
                     <div class="playlist-track-number">${trackNumber}</div>
                     <div class="playlist-track-info">
-                        <div class="playlist-track-title">${track.title || 'Unknown Title'}</div>
-                        <div class="playlist-track-artist">${track.artist || 'Unknown Artist'}</div>
+                        <div class="playlist-track-title">${track.title ? escapeTranslation(track.title) : htmlT('messages:unknownTitle')}</div>
+                        <div class="playlist-track-artist">${track.artist ? escapeTranslation(track.artist) : htmlT('app:unknownArtist')}</div>
                     </div>
                     <div class="playlist-track-duration">${formatTime(track.duration || 0)}</div>
                     <button class="playlist-track-remove" data-index="${index}">
@@ -365,8 +367,8 @@ class Playlist extends Component {
             const title = row.querySelector<HTMLElement>('.playlist-track-title');
             const artist = row.querySelector<HTMLElement>('.playlist-track-artist');
             const duration = row.querySelector<HTMLElement>('.playlist-track-duration');
-            if (title) title.textContent = track?.title || 'Unknown Title';
-            if (artist) artist.textContent = track?.artist || 'Unknown Artist';
+            if (title) bindLocalizedText(title, () => track?.title || t('messages:unknownTitle'));
+            if (artist) bindLocalizedText(artist, () => track?.artist || t('app:unknownArtist'));
             if (duration) duration.textContent = formatTime(track?.duration || 0);
         });
         this.updateCurrentTrackRows(-1, this.currentTrackIndex);

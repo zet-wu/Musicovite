@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import type {PlaylistSourceBinding} from '@api/types/electron';
 import {appConfirmationService} from '@/features/appShell/service/AppConfirmationService';
 import {appNotificationService} from '@/features/appShell/service/AppNotificationService';
@@ -13,7 +15,7 @@ export class PlaylistBindingService {
         const directoryPaths = await mediaFileDialogService.openDirectories();
         if (directoryPaths.length === 0) return false;
 
-        appNotificationService.showInfo(`正在绑定并扫描 ${directoryPaths.length} 个文件夹...`);
+        appNotificationService.showInfo(t('dynamic:bindingFolders', {count: directoryPaths.length}));
         let successCount = 0;
         const errors: string[] = [];
         for (const directoryPath of directoryPaths) {
@@ -27,58 +29,58 @@ export class PlaylistBindingService {
 
         if (errors.length === 0) {
             appNotificationService.showSuccess(
-                `${successCount} 个文件夹已绑定，歌曲将持续同步到歌单`
+                t('dynamic:foldersBound', {count: successCount})
             );
         } else if (successCount > 0) {
             appNotificationService.showError(
-                `已绑定 ${successCount} 个文件夹，${errors.length} 个失败：${errors.join('；')}`
+                t('dynamic:foldersBoundWithFailures', {bound: successCount, failed: errors.length, details: errors.join('；')})
             );
         } else {
-            appNotificationService.showError(`绑定文件夹失败：${errors.join('；')}`);
+            appNotificationService.showError(t('dynamic:folderBindingFailed', {details: errors.join('；')}));
         }
         return successCount > 0;
     }
 
     async rescan(bindingId: string): Promise<boolean> {
-        appNotificationService.showInfo('正在重新扫描绑定文件夹...');
+        appNotificationService.showInfo(t('messages:rescanningBoundFolder'));
         const result = await libraryDataService.rescanPlaylistBinding(bindingId);
         if (!result.success) {
-            appNotificationService.showError(result.error || '重新扫描失败');
+            appNotificationService.showError(result.error || t('messages:rescanFailed'));
             return false;
         }
-        appNotificationService.showSuccess('绑定文件夹扫描完成');
+        appNotificationService.showSuccess(t('messages:boundFolderScanComplete'));
         return true;
     }
 
     async restoreExclusions(bindingId: string): Promise<boolean> {
         const result = await libraryDataService.restorePlaylistBindingExclusions(bindingId);
         if (!result.success) {
-            appNotificationService.showError(result.error || '恢复排除歌曲失败');
+            appNotificationService.showError(result.error || t('messages:couldNotRestoreExcludedTracks'));
             return false;
         }
-        appNotificationService.showSuccess(`已恢复 ${result.restoredCount || 0} 首排除歌曲`);
+        appNotificationService.showSuccess(t('dynamic:excludedTracksRestored', {count: result.restoredCount || 0}));
         return true;
     }
 
     async unbind(binding: Pick<PlaylistSourceBinding, 'id'>, mode: 'keep' | 'remove'): Promise<boolean> {
         const keepTracks = mode === 'keep';
         const confirmed = await appConfirmationService.confirm({
-            title: keepTracks ? '解绑并保留歌曲' : '解绑并移除歌曲',
+            title: keepTracks ? t('messages:unbindAndKeepTracks') : t('messages:unbindAndRemoveTracks'),
             message: keepTracks
-                ? '解绑后，当前由此文件夹加入的歌曲将转为手动歌单成员。文件夹仍保留为音乐库来源。'
-                : '解绑后，仅由此绑定加入的歌曲将从该歌单移除。文件夹仍保留为音乐库来源，原始音频文件不会删除。',
-            confirmText: keepTracks ? '解绑并保留' : '解绑并移除',
-            cancelText: '取消',
+                ? t('messages:tracksAddedByThisFolderWillBecomeManualPlaylistEntries')
+                : t('messages:tracksAddedOnlyByThisBindingWillBeRemovedFrom'),
+            confirmText: keepTracks ? t('messages:unbindAndKeep') : t('messages:unbindAndRemove'),
+            cancelText: t('app:cancel'),
             type: keepTracks ? 'warning' : 'danger'
         });
         if (!confirmed) return false;
 
         const result = await libraryDataService.unbindDirectoryFromPlaylist(binding.id, mode);
         if (!result.success) {
-            appNotificationService.showError(result.error || '解绑文件夹失败');
+            appNotificationService.showError(result.error || t('messages:couldNotUnbindFolder'));
             return false;
         }
-        appNotificationService.showSuccess('文件夹绑定已解除');
+        appNotificationService.showSuccess(t('messages:folderUnbound'));
         return true;
     }
 }

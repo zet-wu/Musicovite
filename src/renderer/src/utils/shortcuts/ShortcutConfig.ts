@@ -1,3 +1,4 @@
+import {setLocalizedText} from '@/shared/i18n';
 /**
  * 快捷键配置管理器
  * 负责管理局内快捷键和全局快捷键的配置
@@ -577,12 +578,7 @@ class ShortcutConfig {
             Object.values(this.config.globalShortcuts).filter(s => s.enabled).length : 0;
         const totalCount = localCount + globalCount;
 
-        let summaryText = `已配置 ${totalCount} 个快捷键`;
-        if (globalCount > 0) {
-            summaryText += ` (${localCount} 个应用内，${globalCount} 个全局)`;
-        }
-
-        summary.textContent = summaryText;
+        setLocalizedText(summary, globalCount > 0 ? 'audit:shortcutSummaryDetails' : 'audit:shortcutSummary', {count: totalCount, local: localCount, global: globalCount});
     }
 
     /**

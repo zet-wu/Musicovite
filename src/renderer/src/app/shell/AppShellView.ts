@@ -1,3 +1,4 @@
+import {t, bindLocalizedText, escapeTranslation, setLocalizedText, th} from '@/shared/i18n';
 import type {ScanProgress} from '@api/types/events';
 import type {ContentMountManager} from '@/app/runtime/components/ContentMountManager';
 
@@ -25,7 +26,7 @@ export class AppShellView {
         const statusElement = document.getElementById('cache-loading-status');
         if (statusElement) {
             statusElement.style.display = 'block';
-            statusElement.textContent = '正在从缓存加载音乐库...';
+            setLocalizedText(statusElement, 'app:loadingLibraryFromCache', {}, 'textContent');
         }
     }
 
@@ -60,20 +61,20 @@ export class AppShellView {
         const shellMount = this.contentMounts.showShell(`
             <div class="welcome-screen">
                 <div class="welcome-content">
-                    <h1>欢迎！</h1>
-                    <p>添加喜欢的音乐吧！</p>
+                    <h1 data-i18n="audit:welcome">${th('audit:welcome')}</h1>
+                    <p data-i18n="audit:welcomeMusic">${th('audit:welcomeMusic')}</p>
                     <div class="welcome-actions">
                         <button class="primary-button" id="scan-folder-btn">
                             <svg class="icon" viewBox="0 0 24 24">
                                 <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
                             </svg>
-                            添加音乐目录
+                            <span data-i18n="messages:addMusicFolder">${th('messages:addMusicFolder')}</span>
                         </button>
                         <button class="secondary-button" id="add-files-btn">
                             <svg class="icon" viewBox="0 0 24 24">
                                 <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
                             </svg>
-                            添加音乐
+                            <span data-i18n="messages:addMusicFiles">${th('messages:addMusicFiles')}</span>
                         </button>
                     </div>
                 </div>
@@ -92,11 +93,11 @@ export class AppShellView {
         this.contentMounts.showShell(`
             <div class="scan-progress">
                 <div class="scan-content">
-                    <h2>扫描音乐库</h2>
+                    <h2 data-i18n="audit:scanLibrary">${th('audit:scanLibrary')}</h2>
                     <div class="progress-bar">
                         <div class="progress-fill" id="scan-progress-fill"></div>
                     </div>
-                    <p id="scan-status">加载中...</p>
+                    <p id="scan-status" data-i18n="app:loading">${th('app:loading')}</p>
                 </div>
             </div>
         `, true);
@@ -116,9 +117,7 @@ export class AppShellView {
             const percent = total > 0 ? (current / total) * 100 : 0;
 
             progressFill.style.width = `${percent}%`;
-            statusText.textContent = progress.isComplete ?
-                'Scan completed!' :
-                progress.currentFile ? `Processing: ${progress.currentFile}` : `Processing: ${current}/${total}`;
+            bindLocalizedText(statusText, () => progress.isComplete ? t('messages:scanComplete') : progress.currentFile ? t('audit:processingFile', {file: progress.currentFile}) : t('audit:processingCount', {current, total}));
         }
     }
 
@@ -127,9 +126,9 @@ export class AppShellView {
         if (loading) {
             loading.innerHTML = `
                 <div class="error-message">
-                    <h2>错误</h2>
-                    <p>${message}</p>
-                    <button onclick="location.reload()">重试</button>
+                    <h2 data-i18n="audit:error">${th('audit:error')}</h2>
+                    <p>${escapeTranslation(message)}</p>
+                    <button onclick="location.reload()" data-i18n="messages:retry">${th('messages:retry')}</button>
                 </div>
             `;
         }

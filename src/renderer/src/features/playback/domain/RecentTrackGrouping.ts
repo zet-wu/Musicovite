@@ -1,3 +1,4 @@
+import {formatDateTime, formatRelativeTime} from '@/shared/i18n';
 import type {Track} from '@api/types/library';
 
 export interface RecentTrack extends Track {
@@ -25,19 +26,16 @@ export function groupRecentTracksByDate(tracks: RecentTrack[], now = new Date())
 
         let dateKey: string;
         if (diffDays === 0) {
-            dateKey = '今天';
+            dateKey = 'day:0';
         } else if (diffDays === 1) {
-            dateKey = '昨天';
+            dateKey = 'day:1';
         } else if (diffDays < 7) {
-            dateKey = `${diffDays} 天前`;
+            dateKey = `day:${diffDays}`;
         } else if (diffDays < 30) {
             const weeks = Math.floor(diffDays / 7);
-            dateKey = `${weeks} 周前`;
+            dateKey = `week:${weeks}`;
         } else {
-            dateKey = playDate.toLocaleDateString('zh-CN', {
-                year: 'numeric',
-                month: 'long'
-            });
+            dateKey = `month:${playDate.getFullYear()}-${playDate.getMonth()}`;
         }
 
         if (!groups[dateKey]) groups[dateKey] = [];
@@ -49,11 +47,13 @@ export function groupRecentTracksByDate(tracks: RecentTrack[], now = new Date())
 
 export function flattenRecentTrackRows(tracks: RecentTrack[], now = new Date()): RecentTrackDisplayRow[] {
     const groups = groupRecentTracksByDate(tracks, now);
-    return Object.entries(groups).flatMap(([label, entries], groupIndex) => [
+    return Object.entries(groups).flatMap(([bucket, entries]) => [
         {
             kind: 'date-header' as const,
-            key: `date:${groupIndex}:${label}`,
-            label,
+            key: `date:${bucket}`,
+            get label() { return bucket.startsWith('month:')
+                ? formatDateTime(new Date(Number(bucket.slice(6).split('-')[0]), Number(bucket.slice(6).split('-')[1])), {year: 'numeric', month: 'long'})
+                : formatRelativeTime(-Number(bucket.split(':')[1]), bucket.startsWith('week:') ? 'week' : 'day'); },
             count: entries.length
         },
         ...entries.map(({track, index}) => ({

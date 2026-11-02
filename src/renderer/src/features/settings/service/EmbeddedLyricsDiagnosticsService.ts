@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {mediaFileDialogService} from "@/features/media/service";
 import {lyricsGateway} from '@/infrastructure/electron';
 
@@ -60,34 +62,34 @@ class EmbeddedLyricsDiagnosticsService {
 
     private buildReport(filePath: string, debugResult: DebugEmbeddedLyricsResult): string {
         const reportLines: string[] = [
-            `文件: ${filePath}`,
-            `时间: ${new Date().toLocaleString()}`,
+            t('dynamic:diagnosticFile', {path: filePath}),
+            t('dynamic:diagnosticTime', {time: new Date().toLocaleString()}),
             ``,
-            `=== 检测结果 ===`,
-            `成功: ${debugResult.success ? '是' : '否'}`
+            t('audit:reportResults'),
+            t('dynamic:diagnosticSuccess', {success: debugResult.success ? t('messages:yes') : t('messages:no')})
         ];
 
         if (debugResult.success && debugResult.lyricsAnalysis) {
             const analysis = debugResult.lyricsAnalysis;
             reportLines.push(
                 ``,
-                `=== 歌词信息 ===`,
-                `类型: ${analysis.type}`,
-                `格式: ${analysis.format}`,
-                `语言: ${analysis.language || '未知'}`,
-                `描述: ${analysis.description || '无'}`,
-                `同步歌词: ${analysis.synchronized ? '是' : '否'}`,
-                `文本长度: ${analysis.textLength} 字符`,
-                `时间戳数量: ${analysis.timestampCount}`,
+                t('audit:reportLyrics'),
+                t('dynamic:diagnosticType', {type: analysis.type}),
+                t('dynamic:diagnosticFormat', {format: analysis.format}),
+                t('dynamic:diagnosticLanguage', {language: analysis.language || t('messages:unknown')}),
+                t('dynamic:diagnosticDescription', {description: analysis.description || t('messages:none')}),
+                t('dynamic:diagnosticSynchronized', {synchronized: analysis.synchronized ? t('messages:yes') : t('messages:no')}),
+                t('dynamic:diagnosticLength', {count: analysis.textLength}),
+                t('dynamic:diagnosticTimestamps', {count: analysis.timestampCount}),
                 ``
             );
 
             if (analysis.textSample) {
-                reportLines.push(`=== 歌词预览 ===`, analysis.textSample, ``);
+                reportLines.push(t('audit:reportPreview'), analysis.textSample, ``);
             }
 
         } else {
-            reportLines.push(`错误: ${debugResult.error || '未知错误'}`);
+            reportLines.push(t('dynamic:diagnosticError', {details: debugResult.error || t('messages:unknownError')}));
         }
 
         return reportLines.join('\n');

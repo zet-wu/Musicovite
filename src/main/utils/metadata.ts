@@ -383,8 +383,8 @@ export async function parseMetadata(
 
         // 提取基本信息并修复编码
         const title = fixStringEncoding(metadata.common.title || path.basename(filePath, path.extname(filePath)));
-        const artist = fixStringEncoding(metadata.common.artist || metadata.common.albumartist || '未知艺术家');
-        const album = fixStringEncoding(metadata.common.album || '未知专辑');
+        const artist = fixStringEncoding(metadata.common.artist || metadata.common.albumartist || '');
+        const album = fixStringEncoding(metadata.common.album || '');
         const duration = metadata.format.duration || 0;
         const bitrate = metadata.format.bitrate || 0;
         const sampleRate = metadata.format.sampleRate || 0;

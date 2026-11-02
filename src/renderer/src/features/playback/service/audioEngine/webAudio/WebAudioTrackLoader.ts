@@ -82,9 +82,9 @@ class WebAudioTrackLoader {
         }
 
         return {
-            title: metadata.title || '未知标题',
-            artist: metadata.artist || '未知艺术家',
-            album: metadata.album || '未知专辑',
+            title: metadata?.title || '',
+            artist: metadata.artist || '',
+            album: metadata.album || '',
             duration: metadata.duration || 0,
             bitrate: metadata.bitrate || 0,
             sampleRate: metadata.sampleRate || 0,

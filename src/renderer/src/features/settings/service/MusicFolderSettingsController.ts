@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {showToast} from "@utils/index.js";
 import {cacheMaintenanceService} from "./CacheMaintenanceService";
 import {musicFolderSettingsService} from "./MusicFolderSettingsService";
@@ -17,25 +19,25 @@ class MusicFolderSettingsController {
 
             const addResult = await musicFolderSettingsService.addMusicFolder(selectedPath);
             if (!addResult.success) {
-                showToast(addResult.error || '添加文件夹失败', 'error');
+                showToast(addResult.error || t('messages:couldNotAddFolder'), 'error');
                 return null;
             }
 
-            showToast('文件夹已添加', 'success');
+            showToast(t('messages:folderAdded'), 'success');
             await this.confirmAndScan(selectedPath);
             return addResult.folders;
         } catch (error) {
             console.error('❌ Settings: 添加音乐文件夹失败:', error);
-            showToast('添加文件夹失败', 'error');
+            showToast(t('messages:couldNotAddFolder'), 'error');
             return null;
         }
     }
 
     async removeMusicFolder(folderPath: string): Promise<string[] | null> {
         const confirmed = await appConfirmationService.confirm({
-            title: '移除文件夹',
-            message: `确定要移除文件夹吗？\n\n${folderPath}\n\n移除后，仅由该来源覆盖的歌曲会立即从音乐库和歌单引用中移除，但不会删除任何原始音频文件。`,
-            confirmText: '移除',
+            title: t('messages:removeFolder'),
+            message: t('dynamic:removeFolderConfirm', {path: folderPath}),
+            confirmText: t('messages:remove'),
             type: 'warning'
         });
 
@@ -46,15 +48,15 @@ class MusicFolderSettingsController {
         try {
             const result = await musicFolderSettingsService.removeMusicFolder(folderPath);
             if (!result.success) {
-                showToast(result.error || '移除文件夹失败', 'error');
+                showToast(result.error || t('messages:couldNotRemoveFolder'), 'error');
                 return null;
             }
 
-            showToast('文件夹已移除', 'success');
+            showToast(t('messages:folderRemoved'), 'success');
             return result.folders;
         } catch (error) {
             console.error('❌ Settings: 移除音乐文件夹失败:', error);
-            showToast('移除文件夹失败', 'error');
+            showToast(t('messages:couldNotRemoveFolder'), 'error');
             return null;
         }
     }
@@ -63,15 +65,15 @@ class MusicFolderSettingsController {
         try {
             const result = await musicFolderSettingsService.updateAutoScanEnabled(enabled);
             if (!result.success) {
-                showToast('更新自动扫描设置失败', 'error');
+                showToast(t('messages:couldNotUpdateAutomaticScanning'), 'error');
                 return {checked: !enabled};
             }
 
-            showToast(enabled ? '自动扫描已启用' : '自动扫描已禁用', 'success');
+            showToast(enabled ? t('messages:automaticScanningEnabled') : t('messages:automaticScanningDisabled'), 'success');
             return {checked: enabled};
         } catch (error) {
             console.error('❌ Settings: 更新自动扫描设置失败:', error);
-            showToast('更新自动扫描设置失败', 'error');
+            showToast(t('messages:couldNotUpdateAutomaticScanning'), 'error');
             return {checked: !enabled};
         }
     }
@@ -79,18 +81,18 @@ class MusicFolderSettingsController {
     async updateScanFrequency(frequency: string): Promise<void> {
         try {
             const result = await musicFolderSettingsService.updateScanFrequency(frequency);
-            showToast(result.success ? '扫描频率已更新' : '更新扫描频率失败', result.success ? 'success' : 'error');
+            showToast(result.success ? t('messages:scanFrequencyUpdated') : t('messages:couldNotUpdateScanFrequency'), result.success ? 'success' : 'error');
         } catch (error) {
             console.error('❌ Settings: 更新扫描频率失败:', error);
-            showToast('更新扫描频率失败', 'error');
+            showToast(t('messages:couldNotUpdateScanFrequency'), 'error');
         }
     }
 
     async clearIgnoreList(): Promise<void> {
         const confirmed = await appConfirmationService.confirm({
-            title: '清空忽略列表',
-            message: '确定要清空忽略列表吗？\n\n清空后,之前手动删除的歌曲在下次自动扫描时会被重新添加到音乐库。',
-            confirmText: '清空',
+            title: t('app:clearIgnoredTracks'),
+            message: t('settings:clearIgnoredConfirm'),
+            confirmText: t('app:clear'),
             type: 'warning'
         });
 
@@ -100,27 +102,27 @@ class MusicFolderSettingsController {
 
         try {
             const result = await cacheMaintenanceService.clearIgnoreList();
-            showToast(result.success ? '忽略列表已清空' : '清空忽略列表失败', result.success ? 'success' : 'error');
+            showToast(result.success ? t('messages:ignoredTracksCleared') : t('messages:couldNotClearIgnoredTracks'), result.success ? 'success' : 'error');
         } catch (error) {
             console.error('❌ Settings: 清空忽略列表失败:', error);
-            showToast('清空忽略列表失败', 'error');
+            showToast(t('messages:couldNotClearIgnoredTracks'), 'error');
         }
     }
 
     private async confirmAndScan(folderPath: string): Promise<void> {
         const shouldScan = await appConfirmationService.confirm({
-            title: '扫描文件夹',
-            message: '是否立即扫描该文件夹？',
-            confirmText: '扫描'
+            title: t('messages:scanFolder'),
+            message: t('messages:scanThisFolderNow'),
+            confirmText: t('messages:scan')
         });
 
         if (!shouldScan) {
             return;
         }
 
-        showToast('正在扫描...', 'info');
+        showToast(t('messages:scanningMessage'), 'info');
         await musicFolderSettingsService.scanDirectory(folderPath);
-        showToast('扫描完成', 'success');
+        showToast(t('messages:scanComplete'), 'success');
     }
 }
 

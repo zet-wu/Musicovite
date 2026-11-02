@@ -1,3 +1,5 @@
+import {htmlT, getLocale, th} from '@/shared/i18n';
+
 /**
  * 最近播放页组件
  */
@@ -143,11 +145,9 @@ class RecentPage extends Component {
                         <h1 style="font-size: 36px; font-weight: 700; margin-bottom: 12px;">
                             <svg style="width: 40px; height: 40px; margin-right: 16px; vertical-align: middle;" viewBox="0 0 24 24">
                                 <path fill="currentColor" d="M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3Z"/>
-                            </svg>
-                            最近播放
-                        </h1>
+                            </svg><span data-i18n="app:recentlyPlayed">${th('app:recentlyPlayed')}</span></h1>
                         <p style="font-size: 18px; opacity: 0.9; margin-bottom: 0;">
-                            共 ${this.recentTracks.length} 首歌曲 · 记录您的音乐足迹
+                            ${htmlT('audit:recentSummary', {count: this.recentTracks.length})}
                         </p>
                     </div>
                 </div>
@@ -157,15 +157,11 @@ class RecentPage extends Component {
                         <button class="action-btn" id="play-all-recent">
                             <svg class="icon" viewBox="0 0 24 24">
                                 <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
-                            </svg>
-                            播放全部
-                        </button>
+                            </svg><span data-i18n="messages:playAll">${th('messages:playAll')}</span></button>
                         <button class="action-btn secondary" id="clear-history">
                             <svg class="icon" viewBox="0 0 24 24">
                                 <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
-                            </svg>
-                            清空最近播放记录
-                        </button>
+                            </svg><span data-i18n="messages:clearRecentlyPlayed">${th('messages:clearRecentlyPlayed')}</span></button>
                     </div>
 
                     <div class="recent-content">
@@ -178,9 +174,9 @@ class RecentPage extends Component {
                                 <path d="M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3Z"/>
                             </svg>
                         </div>
-                        <h3 class="empty-title">暂无播放历史</h3>
-                        <p class="empty-description">开始播放音乐后，这里会显示您的播放历史</p>
-                        <button class="primary-button" id="go-to-library">浏览音乐库</button>
+                        <h3 class="empty-title" data-i18n="messages:noPlaybackHistory">${th('messages:noPlaybackHistory')}</h3>
+                        <p class="empty-description" data-i18n="messages:startListeningToSeeYourPlaybackHistoryHere">${th('messages:startListeningToSeeYourPlaybackHistoryHere')}</p>
+                        <button class="primary-button" id="go-to-library" data-i18n="messages:browseLibrary">${th('messages:browseLibrary')}</button>
                     </div>
                 `}
             </div>
@@ -201,7 +197,7 @@ class RecentPage extends Component {
             return `
                 <div class="date-header recent-date-row">
                     <h3 class="date-title">${row.label}</h3>
-                    <span class="date-count">${row.count} 首</span>
+                    <span class="date-count">${htmlT('common:tracks', {count: row.count})}</span>
                 </div>
             `;
         }
@@ -210,7 +206,7 @@ class RecentPage extends Component {
 
     renderTrackItem(track: RecentTrack, index: number, rowKey = ''): string {
         const playTime = new Date(track.playTime || Date.now());
-        const timeStr = playTime.toLocaleTimeString('zh-CN', {
+        const timeStr = playTime.toLocaleTimeString(getLocale(), {
             hour: '2-digit',
             minute: '2-digit'
         });
@@ -218,7 +214,7 @@ class RecentPage extends Component {
         return `
             <div class="recent-track-item" data-track-path="${this.escapeHtml(track.filePath)}" data-track-row-key="${this.escapeHtml(rowKey)}" data-index="${index}">
                 <div class="track-cover">
-                    <img src="${this.getTrackCover(track)}" alt="封面" loading="lazy" onerror="this.src='assets/images/default-cover.svg'">
+                    <img src="${this.getTrackCover(track)}" alt="${th('app:artwork')}" data-i18n-alt="app:artwork" loading="lazy" onerror="this.src='assets/images/default-cover.svg'">
                     <div class="track-overlay">
                         <button class="play-btn" data-action="play">
                             <svg viewBox="0 0 24 24">
@@ -240,7 +236,7 @@ class RecentPage extends Component {
                     <span class="track-duration">${formatTime(track.duration || 0)}</span>
                 </div>
                 <div class="track-actions">
-                    <button class="action-btn small" data-action="add" title="添加到播放列表">
+                    <button class="action-btn small" data-action="add" title="${th('app:addToQueue')}" data-i18n-title="app:addToQueue">
                         <svg viewBox="0 0 24 24">
                             <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                         </svg>

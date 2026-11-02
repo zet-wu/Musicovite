@@ -1,3 +1,4 @@
+import {setLocalizedText} from '@/shared/i18n';
 export interface EmbeddedLyricsDiagnosticsElements {
     testButton: HTMLButtonElement | null;
 }
@@ -14,15 +15,15 @@ class EmbeddedLyricsDiagnosticsRenderer {
         switch (state) {
             case 'selecting':
                 button.disabled = true;
-                button.textContent = '选择文件...';
+                setLocalizedText(button, 'messages:chooseFile', {}, 'textContent');
                 break;
             case 'checking':
                 button.disabled = true;
-                button.textContent = '检测中...';
+                setLocalizedText(button, 'messages:detecting', {}, 'textContent');
                 break;
             case 'idle':
                 button.disabled = false;
-                button.textContent = '测试内嵌歌词';
+                setLocalizedText(button, 'app:testEmbeddedLyrics', {}, 'textContent');
                 break;
         }
     }

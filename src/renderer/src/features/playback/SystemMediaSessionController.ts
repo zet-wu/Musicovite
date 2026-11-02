@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import type {Track} from '@api/types/track';
 import type {SystemMediaKeyAction} from '@api/types/electron';
 import type {
@@ -297,8 +298,8 @@ export class SystemMediaSessionController {
         }
 
         const metadata: MediaMetadataInit = {
-            title: track.title || track.fileName || '未知歌曲',
-            artist: track.artist || '未知艺术家',
+            title: track.title || track.fileName || t('messages:unknownTrack'),
+            artist: track.artist || t('app:unknownArtist'),
             album: track.album || ''
         };
         if (artwork) {

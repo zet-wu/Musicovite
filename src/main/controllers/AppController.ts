@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // App 基础信息控制器
 
 import {app, shell} from 'electron';
@@ -71,7 +72,7 @@ export class AppController extends BaseController {
         try {
             const parsedUrl = new URL(url);
             if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-                return {success: false, error: '不支持的外部链接协议'};
+                return {success: false, error: nativeT('errors:unsupportedExternalLinkProtocol')};
             }
 
             await shell.openExternal(parsedUrl.toString());
@@ -110,7 +111,7 @@ export class AppController extends BaseController {
                 win.webContents.openDevTools({mode: 'detach'});
                 return {success: true};
             }
-            return {success: false, error: '主窗口不可用'};
+            return {success: false, error: nativeT('errors:mainWindowUnavailable')};
         } catch (error: any) {
             console.error('❌ 打开开发者工具失败:', error);
             return {success: false, error: error.message};

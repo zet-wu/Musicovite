@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // 原生音频引擎控制器
 
 import * as fs from 'fs';
@@ -63,7 +64,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:initialize')
     async initialize(shareMode?: string): Promise<any> {
         try {
-            if (!this.nativeAudioModule?.NativeAudioEngine) return {success: false, error: 'NativeAudioEngine类不存在'};
+            if (!this.nativeAudioModule?.NativeAudioEngine) return {success: false, error: nativeT('errors:nativeAudioEngineIsUnavailable')};
             if (this.engine) {
                 console.log('ℹ️ Native音频引擎已初始化，复用现有实例');
                 if (shareMode === 'exclusive' || shareMode === 'shared') {
@@ -98,7 +99,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:load-track')
     async loadTrack(filePath: string): Promise<any> {
         try {
-            if (!this.engine) return {success: false, error: '引擎未初始化'};
+            if (!this.engine) return {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
             const oldTemp = this.currentTempFilePath;
             let actualPath = filePath;
             const isNetworkPath = this.networkFileAdapter.isNetworkPath(filePath);
@@ -133,7 +134,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:play')
     async play(): Promise<any> {
         try {
-            return this.engine ? await this.engine.play() : {success: false, error: '引擎未初始化'};
+            return this.engine ? await this.engine.play() : {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
         } catch (e: any) {
             return {success: false, error: e.message};
         }
@@ -142,7 +143,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:pause')
     async pause(): Promise<any> {
         try {
-            return this.engine ? await this.engine.pause() : {success: false, error: '引擎未初始化'};
+            return this.engine ? await this.engine.pause() : {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
         } catch (e: any) {
             return {success: false, error: e.message};
         }
@@ -151,7 +152,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:stop')
     async stop(): Promise<any> {
         try {
-            return this.engine ? await this.engine.stop() : {success: false, error: '引擎未初始化'};
+            return this.engine ? await this.engine.stop() : {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
         } catch (e: any) {
             return {success: false, error: e.message};
         }
@@ -160,7 +161,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:seek')
     seek(position: number): any {
         try {
-            return this.engine ? this.engine.seek(position) : {success: false, error: '引擎未初始化'};
+            return this.engine ? this.engine.seek(position) : {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
         } catch (e: any) {
             return {success: false, error: e.message};
         }
@@ -169,7 +170,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:set-volume')
     async setVolume(volume: number): Promise<any> {
         try {
-            return this.engine ? await this.engine.setVolume(volume) : {success: false, error: '引擎未初始化'};
+            return this.engine ? await this.engine.setVolume(volume) : {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
         } catch (e: any) {
             return {success: false, error: e.message};
         }
@@ -178,7 +179,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:get-position')
     async getPosition(): Promise<any> {
         try {
-            return this.engine ? await this.engine.getPosition() : {success: false, error: '引擎未初始化', position: 0};
+            return this.engine ? await this.engine.getPosition() : {success: false, error: nativeT('errors:audioEngineIsNotInitialized'), position: 0};
         } catch (e: any) {
             return {success: false, error: e.message, position: 0};
         }
@@ -187,7 +188,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:get-render-stats')
     async getRenderStats(): Promise<any> {
         try {
-            return this.engine ? await this.engine.getRenderStats() : {success: false, error: '引擎未初始化'};
+            return this.engine ? await this.engine.getRenderStats() : {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
         } catch (e: any) {
             return {success: false, error: e.message};
         }
@@ -196,7 +197,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:reset-render-stats')
     async resetRenderStats(): Promise<any> {
         try {
-            return this.engine ? await this.engine.resetRenderStats() : {success: false, error: '引擎未初始化'};
+            return this.engine ? await this.engine.resetRenderStats() : {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
         } catch (e: any) {
             return {success: false, error: e.message};
         }
@@ -205,7 +206,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:set-equalizer-enabled')
     async setEqEnabled(enabled: boolean): Promise<any> {
         try {
-            if (!this.engine) return {success: false, error: '引擎未初始化'};
+            if (!this.engine) return {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
             await this.engine.setEqualizerEnabled(enabled);
             return {success: true};
         } catch (e: any) {
@@ -218,7 +219,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? {success: true, enabled: this.engine.isEqualizerEnabled()} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -230,7 +231,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? await this.engine.setEqualizerPreamp(gain) && {success: true} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -242,7 +243,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? {success: true, preamp: this.engine.getEqualizerPreamp()} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -254,7 +255,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? await this.engine.setEqualizerBandGain(band, gain) && {success: true} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -266,7 +267,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? {success: true, gain: this.engine.getEqualizerBandGain(band)} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -278,7 +279,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? await this.engine.setEqualizerBandQ(band, q) && {success: true} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -290,7 +291,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? {success: true, q: this.engine.getEqualizerBandQ(band)} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -302,7 +303,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? await this.engine.resetEqualizer() && {success: true} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -314,7 +315,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? await this.engine.applyEqualizerPreset(preset) && {success: true} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -327,7 +328,7 @@ export class NativeAudioController extends BaseController {
             return this.engine ? {
                 success: true,
                 response: this.engine.getEqualizerFrequencyResponse()
-            } : {success: false, error: '引擎未初始化'};
+            } : {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
         } catch (e: any) {
             return {success: false, error: e.message};
         }
@@ -338,7 +339,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? {success: this.engine.setEqualizerMode(mode)} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -350,7 +351,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? {success: true, mode: this.engine.getEqualizerMode()} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -362,7 +363,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? {success: true, enabled: this.engine.parametricIsEnabled()} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -372,7 +373,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:parametric-set-enabled')
     parametricSetEnabled(enabled: boolean): any {
         try {
-            if (!this.engine) return {success: false, error: '引擎未初始化'};
+            if (!this.engine) return {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
             this.engine.setEqualizerMode(enabled ? 'parametric' : 'graphic');
             this.engine.parametricSetEnabled(enabled);
             return {success: true};
@@ -396,7 +397,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? {success: true, preamp: this.engine.parametricGetPreamp()} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -406,9 +407,9 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:parametric-add-band')
     parametricAddBand({frequency, gain, q, filterType}: any): any {
         try {
-            if (!this.engine) return {success: false, error: '引擎未初始化'};
+            if (!this.engine) return {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
             const bandId = this.engine.parametricAddBand(frequency, gain, q, filterType);
-            return bandId === -1 ? {success: false, error: '添加频段失败'} : {success: true, bandId};
+            return bandId === -1 ? {success: false, error: nativeT('errors:couldNotAddBand')} : {success: true, bandId};
         } catch (e: any) {
             return {success: false, error: e.message};
         }
@@ -419,7 +420,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? {success: this.engine.parametricRemoveBand(bandId)} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -429,7 +430,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:parametric-update-band')
     parametricUpdateBand({bandId, frequency, gain, q, filterType, enabled}: any): any {
         try {
-            if (!this.engine) return {success: false, error: '引擎未初始化'};
+            if (!this.engine) return {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
             const result = this.engine.parametricUpdateBand(
                 bandId,
                 frequency ?? null, gain ?? null, q ?? null, filterType ?? null, enabled ?? null
@@ -445,7 +446,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? {success: true, bands: this.engine.parametricGetBands()} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -457,7 +458,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? {success: true, band: this.engine.parametricGetBand(bandId)} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -467,7 +468,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:parametric-reset')
     parametricReset(): object {
         try {
-            if (!this.engine) return {success: false, error: '引擎未初始化'};
+            if (!this.engine) return {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
             this.engine.parametricReset();
             return {success: true};
         } catch (e: any) {
@@ -478,7 +479,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:parametric-clear-bands')
     parametricClearBands(): any {
         try {
-            if (!this.engine) return {success: false, error: '引擎未初始化'};
+            if (!this.engine) return {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
             this.engine.parametricClearBands();
             return {success: true};
         } catch (e: any) {
@@ -489,7 +490,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:set-share-mode')
     setShareMode(mode: string): any {
         try {
-            return this.engine ? {success: this.engine.setShareMode(mode)} : {success: false, error: '引擎未初始化'};
+            return this.engine ? {success: this.engine.setShareMode(mode)} : {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
         } catch (e: any) {
             return {success: false, error: e.message};
         }
@@ -500,7 +501,7 @@ export class NativeAudioController extends BaseController {
         try {
             return this.engine ? {success: true, mode: this.engine.getShareMode()} : {
                 success: false,
-                error: '引擎未初始化'
+                error: nativeT('errors:audioEngineIsNotInitialized')
             };
         } catch (e: any) {
             return {success: false, error: e.message};
@@ -510,7 +511,7 @@ export class NativeAudioController extends BaseController {
     @IpcHandle('native-audio:switch-share-mode')
     async switchShareMode(mode: string): Promise<any> {
         try {
-            return this.engine ? await this.engine.switchShareMode(mode) : {success: false, error: '引擎未初始化'};
+            return this.engine ? await this.engine.switchShareMode(mode) : {success: false, error: nativeT('errors:audioEngineIsNotInitialized')};
         } catch (e: any) {
             return {success: false, error: e.message};
         }

@@ -1,3 +1,4 @@
+import {t, setLocalizedText} from '@/shared/i18n';
 import type {Track} from '@api/types/track';
 import {appNotificationService} from '@/features/appShell/service';
 import {toTrackLyricsQuery} from '@/features/lyrics/service/LyricsService';
@@ -38,8 +39,8 @@ export class LyricsContextMenu {
         this.element.className = 'context-menu lyrics-context-menu';
         this.element.hidden = true;
         this.element.setAttribute('role', 'menu');
-        this.selectButton = this.createMenuButton('选择歌词', 'select');
-        this.saveButton = this.createMenuButton('保存当前 TTML 歌词', 'save');
+        this.selectButton = this.createMenuButton('messages:chooseLyrics', 'select');
+        this.saveButton = this.createMenuButton('messages:saveCurrentTtmlLyrics', 'save');
         this.element.append(this.selectButton, this.saveButton);
         document.body.appendChild(this.element);
 
@@ -87,14 +88,14 @@ export class LyricsContextMenu {
         this.element.remove();
     }
 
-    private createMenuButton(label: string, action: string): HTMLButtonElement {
+    private createMenuButton(labelKey: string, action: string): HTMLButtonElement {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'context-menu-item';
         button.dataset.action = action;
         button.setAttribute('role', 'menuitem');
         const text = document.createElement('span');
-        text.textContent = label;
+        setLocalizedText(text, labelKey);
         button.appendChild(text);
         return button;
     }
@@ -122,12 +123,12 @@ export class LyricsContextMenu {
         this.hide();
         void this.dependencies.exportTtml(buildTtmlExportName(track), content).then(result => {
             if (result.success) {
-                this.dependencies.showSuccess('TTML 歌词已保存');
+                this.dependencies.showSuccess(t('messages:ttmlLyricsSaved'));
             } else if (!result.cancelled) {
-                this.dependencies.showError(result.error || '保存 TTML 歌词失败');
+                this.dependencies.showError(result.error || t('messages:couldNotSaveTtmlLyrics'));
             }
         }).catch(error => {
-            this.dependencies.showError(error instanceof Error ? error.message : '保存 TTML 歌词失败');
+            this.dependencies.showError(error instanceof Error ? error.message : t('messages:couldNotSaveTtmlLyrics'));
         });
     };
 

@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // HTTP 服务器控制器
 
 import * as http from 'http';
@@ -99,7 +100,7 @@ export class HttpServerController extends BaseController {
             if (info.isRunning) {
                 return {
                     success: true,
-                    message: '服务器已在运行',
+                    message: nativeT('errors:serverIsAlreadyRunning'),
                     url: `http://${info.config.host}:${info.config.port}`
                 };
             }
@@ -127,7 +128,7 @@ export class HttpServerController extends BaseController {
         try {
             const info = this.servers.get(serverId);
             if (!info) throw new Error(`服务器不存在: ${serverId}`);
-            if (!info.isRunning) return {success: true, message: '服务器已停止'};
+            if (!info.isRunning) return {success: true, message: nativeT('errors:serverIsStopped')};
             return new Promise(resolve => {
                 info.server.close(() => {
                     info.isRunning = false;

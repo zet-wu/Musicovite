@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import type {Track} from '@api/types/track';
 import {coverLookupService} from './CoverLookupService';
 import {mediaAssetsService} from './MediaAssetsService';
@@ -17,7 +19,7 @@ export class LyricsCoverArtService {
         if (!track.title || !track.artist) {
             return {
                 success: false,
-                error: '歌曲标题或歌手缺失'
+                error: t('messages:trackTitleOrArtistIsMissing')
             };
         }
 
@@ -33,7 +35,7 @@ export class LyricsCoverArtService {
             if (!coverResult.success || typeof coverResult.imageUrl !== 'string') {
                 return {
                     success: false,
-                    error: coverResult.error || '未找到封面'
+                    error: coverResult.error || t('messages:noArtworkFound')
                 };
             }
 

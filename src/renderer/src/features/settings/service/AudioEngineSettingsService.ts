@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {playbackService} from "@/features/playback/service/PlaybackService";
 import type {AudioEngineType} from "@/features/playback/service/AudioEngineAdapter";
 import type {MusicBoxSettings, WasapiShareMode} from "@api/types/settings";
@@ -31,18 +33,18 @@ class AudioEngineSettingsService {
             if (!success) {
                 return {
                     success: false,
-                    error: '音频引擎切换失败，请查看控制台日志'
+                    error: t('messages:couldNotSwitchAudioEngineSeeTheConsoleForDetails')
                 };
             }
 
             return {
                 success: true,
-                message: `已切换到${enabled ? 'WASAPI引擎' : 'WebAudio引擎'}，当前歌曲将重新加载`
+                message: t('dynamic:audioEngineSwitched', {engine: enabled ? t('messages:wasapiEngine') : t('messages:webAudioEngine')})
             };
         } catch (error) {
             return {
                 success: false,
-                error: `音频引擎切换失败: ${error instanceof Error ? error.message : String(error)}`
+                error: t('dynamic:audioEngineSwitchFailed', {details: error instanceof Error ? error.message : String(error)})
             };
         }
     }
@@ -53,18 +55,18 @@ class AudioEngineSettingsService {
             if (!success) {
                 return {
                     success: false,
-                    error: 'WASAPI模式切换失败'
+                    error: t('messages:couldNotSwitchWasapiMode')
                 };
             }
 
             return {
                 success: true,
-                message: `已切换到${mode === 'exclusive' ? '独占' : '共享'}模式，当前歌曲将重新加载`
+                message: t('dynamic:audioModeSwitched', {mode: mode === 'exclusive' ? t('messages:exclusive') : t('messages:shared')})
             };
         } catch (error) {
             return {
                 success: false,
-                error: `WASAPI模式切换失败: ${error instanceof Error ? error.message : String(error)}`
+                error: t('dynamic:audioModeSwitchFailed', {details: error instanceof Error ? error.message : String(error)})
             };
         }
     }

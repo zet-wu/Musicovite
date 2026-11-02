@@ -1,3 +1,5 @@
+import {th, t, bindLocalizedText, setLocalizedText} from '@/shared/i18n';
+
 import type {Track} from '@api/types/track';
 import {lyricsGateway} from '@/infrastructure/electron';
 import {getLyricsService, lyricsProviderRegistry, lyricsSearchService} from '../service/defaultLyricsServices';
@@ -41,23 +43,23 @@ export class LyricsSourcePicker {
         this.root.hidden = true;
         this.root.innerHTML = `
             <div class="lyrics-source-picker__backdrop" data-action="close"></div>
-            <section class="lyrics-source-picker__dialog" role="dialog" aria-modal="true" aria-label="选择歌词">
+            <section class="lyrics-source-picker__dialog" role="dialog" aria-modal="true" aria-label="${th('messages:chooseLyrics')}" data-i18n-aria-label="messages:chooseLyrics">
                 <header class="lyrics-source-picker__header">
-                    <div><h2>选择歌词</h2><p class="lyrics-source-picker__track"></p></div>
-                    <button type="button" data-action="close" aria-label="关闭">×</button>
+                    <div><h2 data-i18n="messages:chooseLyrics">${th('messages:chooseLyrics')}</h2><p class="lyrics-source-picker__track"></p></div>
+                    <button type="button" data-action="close" aria-label="${th('app:close')}" data-i18n-aria-label="app:close">×</button>
                 </header>
-                <nav class="lyrics-source-picker__tabs" aria-label="歌词来源"></nav>
+                <nav class="lyrics-source-picker__tabs" aria-label="${th('audit:lyricsSources')}" data-i18n-aria-label="audit:lyricsSources"></nav>
                 <div class="lyrics-source-picker__body">
                     <div class="lyrics-source-picker__results"></div>
-                    <aside class="lyrics-source-picker__preview"><p>选择候选后预览</p></aside>
+                    <aside class="lyrics-source-picker__preview"><p data-i18n="messages:selectACandidateToPreview">${th('messages:selectACandidateToPreview')}</p></aside>
                 </div>
                 <footer class="lyrics-source-picker__footer">
                     <span class="lyrics-source-picker__status"></span>
                     <div>
-                        <button type="button" data-action="auto">重新自动匹配</button>
-                        <button type="button" data-action="clear">清除手动绑定</button>
-                        <button type="button" data-action="refresh">刷新当前来源</button>
-                        <button type="button" class="primary" data-action="apply" disabled>使用此歌词</button>
+                        <button type="button" data-action="auto" data-i18n="messages:matchAutomaticallyAgain">${th('messages:matchAutomaticallyAgain')}</button>
+                        <button type="button" data-action="clear" data-i18n="messages:clearManualBinding">${th('messages:clearManualBinding')}</button>
+                        <button type="button" data-action="refresh" data-i18n="messages:refreshCurrentSource">${th('messages:refreshCurrentSource')}</button>
+                        <button type="button" class="primary" data-action="apply" disabled data-i18n="messages:useTheseLyrics">${th('messages:useTheseLyrics')}</button>
                     </div>
                 </footer>
             </section>`;
@@ -90,7 +92,7 @@ export class LyricsSourcePicker {
         this.searchResults.clear();
         this.previewCache.clear();
         this.previewRequests.clear();
-        this.preview.innerHTML = '<p>选择候选后预览</p>';
+        this.preview.innerHTML = `<p data-i18n="messages:selectACandidateToPreview">${th('messages:selectACandidateToPreview')}</p>`;
         this.setStatus('');
         this.getActionButton('apply').disabled = true;
         this.inspectionController = new AbortController();
@@ -140,16 +142,16 @@ export class LyricsSourcePicker {
 
     private renderTabs(): void {
         const tabs = [
-            {id: 'current', label: '当前'},
-            {id: 'embedded', label: '内嵌'},
-            {id: 'local', label: '本地'},
-            ...lyricsProviderRegistry.list().map(provider => ({id: provider.id, label: provider.displayName}))
+            {id: 'current', label: () => t('messages:current')},
+            {id: 'embedded', label: () => t('messages:embedded')},
+            {id: 'local', label: () => t('messages:local')},
+            ...lyricsProviderRegistry.list().map(provider => ({id: provider.id, label: () => provider.displayName}))
         ];
         this.tabs.replaceChildren(...tabs.map(tab => {
             const button = document.createElement('button');
             button.type = 'button';
             button.dataset.tab = tab.id;
-            button.textContent = tab.label;
+            bindLocalizedText(button, tab.label);
             button.classList.toggle('active', tab.id === this.activeTab);
             return button;
         }));
@@ -160,35 +162,38 @@ export class LyricsSourcePicker {
         if (!query) return;
         this.activeTab = 'current';
         this.renderTabs();
-        this.content.innerHTML = '<div class="lyrics-source-picker__loading">正在读取当前绑定...</div>';
+        this.content.innerHTML = `<div class="lyrics-source-picker__loading" data-i18n="messages:readingCurrentBinding">${th('messages:readingCurrentBinding')}</div>`;
         const result = await lyricsGateway.readCanonical(query.trackId);
         if (this.query !== query || this.activeTab !== 'current') return;
         if (!result.success || !result.binding) {
-            this.content.innerHTML = '<div class="lyrics-source-picker__empty">当前没有歌词绑定</div>';
+            this.content.innerHTML = `<div class="lyrics-source-picker__empty" data-i18n="messages:noLyricsBinding">${th('messages:noLyricsBinding')}</div>`;
             return;
         }
-        const source = result.binding.source;
-        const description = source.kind === 'provider'
-            ? `${source.providerId} · ${result.binding.selectionMode === 'manual' ? '手动选择' : '自动匹配'}`
-            : source.kind === 'local' ? `本地 · ${source.path}` : `音频内嵌 · ${source.candidateId ?? '旧版绑定'}`;
-        this.content.innerHTML = `<article class="lyrics-candidate current"><strong>当前使用</strong><p></p><div class="lyrics-candidate__badges"></div></article>`;
+        const binding = result.binding;
+        const source = binding.source;
+        const description = () => source.kind === 'provider'
+            ? `${source.providerId} · ${binding.selectionMode === 'manual' ? t('messages:manualSelection') : t('messages:automaticMatch')}`
+            : source.kind === 'local' ? t('dynamic:localLyricsSource', {path: source.path}) : t('dynamic:embeddedLyricsSource', {candidate: source.candidateId ?? t('messages:unsupportedBinding')});
+        this.content.innerHTML = `<article class="lyrics-candidate current"><strong><span data-i18n="messages:currentlyUsed">${th('messages:currentlyUsed')}</span></strong><p></p><div class="lyrics-candidate__badges"></div></article>`;
         const paragraph = this.content.querySelector('p');
-        if (paragraph) paragraph.textContent = description;
-        const labels = ['已绑定'];
+        if (paragraph) bindLocalizedText(paragraph, description);
+        let document: LyricsDocument | null = null;
         if (result.ttml) {
             try {
                 const ttml = this.ttmlService.parse(result.ttml);
-                labels.push('TTML', ...describeLyricsDocument({
+                document = {
                     ttmlText: result.ttml,
                     ttml,
                     render: this.ttmlService.project(ttml),
                     source
-                }));
+                };
             } catch (error) {
                 console.warn('⚠️ Lyrics: 当前绑定 TTML 徽章解析失败', error);
             }
         }
-        this.renderBadgeLabels(this.content.querySelector('article')!, labels);
+        this.renderBadgeLabels(this.content.querySelector('article')!, () => [
+            t('messages:bound'), ...(document ? ['TTML', ...describeLyricsDocument(document)] : [])
+        ]);
     }
 
     private renderActiveTab(): void {
@@ -209,17 +214,17 @@ export class LyricsSourcePicker {
 
         const result = this.searchResults.get(this.activeTab);
         if (!result || result.state === 'loading') {
-            this.content.innerHTML = '<div class="lyrics-source-picker__loading">正在搜索...</div>';
+            this.content.innerHTML = `<div class="lyrics-source-picker__loading" data-i18n="messages:searching">${th('messages:searching')}</div>`;
             return;
         }
         if (result.state === 'error') {
-            this.content.innerHTML = `<div class="lyrics-source-picker__empty"><p></p><button type="button" data-action="retry">重试</button></div>`;
+            this.content.innerHTML = `<div class="lyrics-source-picker__empty"><p></p><button type="button" data-action="retry" data-i18n="messages:retry">${th('messages:retry')}</button></div>`;
             const paragraph = this.content.querySelector('p');
-            if (paragraph) paragraph.textContent = result.error ?? '搜索失败';
+            if (paragraph) bindLocalizedText(paragraph, () => result.error ?? t('messages:searchFailed'), 'textContent');
             return;
         }
         if (result.candidates.length === 0) {
-            this.content.innerHTML = '<div class="lyrics-source-picker__empty">没有搜索到候选歌词</div>';
+            this.content.innerHTML = `<div class="lyrics-source-picker__empty" data-i18n="messages:noLyricsCandidatesFound">${th('messages:noLyricsCandidatesFound')}</div>`;
             return;
         }
         this.content.replaceChildren(...result.candidates.map(candidate => this.createCandidateRow(candidate)));
@@ -234,8 +239,8 @@ export class LyricsSourcePicker {
         const duration = candidate.durationMs ? formatDuration(candidate.durationMs) : '--:--';
         row.innerHTML = `<strong></strong><p></p><div class="lyrics-candidate__badges"></div><span class="lyrics-candidate__score"></span>`;
         row.querySelector('strong')!.textContent = candidate.title;
-        row.querySelector('p')!.textContent = `${candidate.artists.join(' / ') || '未知艺术家'} · ${candidate.album || '未知专辑'} · ${duration}`;
-        row.querySelector('.lyrics-candidate__score')!.textContent = `匹配度 ${candidate.identityScore}%`;
+        bindLocalizedText(row.querySelector('p')!, () => `${candidate.artists.join(' / ') || t('app:unknownArtist')} · ${candidate.album || t('messages:unknownAlbum')} · ${duration}`, 'textContent');
+        setLocalizedText(row.querySelector('.lyrics-candidate__score')!, 'dynamic:matchScore', {score: candidate.identityScore}, 'textContent');
         const preview = this.previewCache.get(candidateKey(candidate));
         if (preview) this.renderCandidateBadges(row, preview);
         return row;
@@ -245,14 +250,14 @@ export class LyricsSourcePicker {
         const query = this.query;
         if (!query) return;
         if (this.localPreview === undefined) {
-            this.content.innerHTML = '<div class="lyrics-source-picker__loading">正在查找本地歌词...</div>';
+            this.content.innerHTML = `<div class="lyrics-source-picker__loading" data-i18n="messages:findingLocalLyrics">${th('messages:findingLocalLyrics')}</div>`;
             const preview = await getLyricsService().previewLocal(query);
             if (this.query !== query) return;
             this.localPreview = preview;
         }
         if (this.query !== query || this.activeTab !== 'local') return;
         if (!this.localPreview) {
-            this.content.innerHTML = '<div class="lyrics-source-picker__empty">没有找到匹配的本地歌词</div>';
+            this.content.innerHTML = `<div class="lyrics-source-picker__empty" data-i18n="messages:noMatchingLocalLyrics">${th('messages:noMatchingLocalLyrics')}</div>`;
             return;
         }
 
@@ -267,13 +272,13 @@ export class LyricsSourcePicker {
         const query = this.query;
         if (!query) return;
         const request = ++this.embeddedRequest;
-        this.content.innerHTML = '<div class="lyrics-source-picker__loading">正在读取内嵌歌词...</div>';
+        this.content.innerHTML = `<div class="lyrics-source-picker__loading" data-i18n="messages:readingEmbeddedLyrics">${th('messages:readingEmbeddedLyrics')}</div>`;
         try {
             const results = this.embeddedPreviews ?? await getLyricsService().listEmbedded(query);
             if (this.query !== query || this.activeTab !== 'embedded' || request !== this.embeddedRequest) return;
             this.embeddedPreviews = results;
             if (!results.length) {
-                this.content.innerHTML = '<div class="lyrics-source-picker__empty">当前音频没有内嵌歌词</div>';
+                this.content.innerHTML = `<div class="lyrics-source-picker__empty" data-i18n="messages:noEmbeddedLyricsInThisAudioFile">${th('messages:noEmbeddedLyricsInThisAudioFile')}</div>`;
                 return;
             }
             this.content.replaceChildren(...results.map(item => {
@@ -282,11 +287,12 @@ export class LyricsSourcePicker {
                 if (item.preview) {
                     this.renderCandidateBadges(row, item.preview);
                     const score = getLyricsService().scoreEmbedded(item);
-                    const label = documentNode('span', '匹配度 100% · 质量 ' + score.qualityScore);
+                    const label = documentNode('span', '');
+                    bindLocalizedText(label, () => t('messages:match100Quality') + score.qualityScore);
                     label.className = 'lyrics-candidate__score';
                     row.appendChild(label);
                 } else {
-                    this.renderBadgeLabels(row, [item.error ? '解析失败 / 不支持' : '未检查']);
+                    this.renderBadgeLabels(row, () => [item.error ? t('messages:invalidOrUnsupported') : t('messages:notChecked')]);
                     row.title = item.error ?? '';
                     (row as HTMLButtonElement).disabled = true;
                 }
@@ -358,16 +364,16 @@ export class LyricsSourcePicker {
     }
 
     private renderCandidateBadges(row: HTMLElement, preview: LyricsCandidatePreview): void {
-        this.renderBadgeLabels(row, describeLyricsCandidatePreview(preview));
+        this.renderBadgeLabels(row, () => describeLyricsCandidatePreview(preview));
     }
 
-    private renderBadgeLabels(row: HTMLElement, labels: string[]): void {
+    private renderBadgeLabels(row: HTMLElement, getLabels: () => string[]): void {
         const badges = row.querySelector('.lyrics-candidate__badges');
         if (!badges) return;
-        badges.replaceChildren(...labels.map(label => {
+        badges.replaceChildren(...getLabels().map((_label, index) => {
             const badge = document.createElement('span');
             badge.className = 'badge';
-            badge.textContent = label;
+            bindLocalizedText(badge, () => getLabels()[index] || '');
             return badge;
         }));
     }
@@ -378,7 +384,7 @@ export class LyricsSourcePicker {
         if (!badges) return;
         const badge = document.createElement('span');
         badge.className = 'badge error';
-        badge.textContent = '解析失败';
+        setLocalizedText(badge, 'messages:couldNotParse', {}, 'textContent');
         badge.title = error instanceof Error ? error.message : String(error);
         badges.replaceChildren(badge);
     }
@@ -398,7 +404,7 @@ export class LyricsSourcePicker {
             row.classList.toggle('selected', (row as HTMLElement).dataset.candidateId === candidateId);
         });
         this.getActionButton('apply').disabled = true;
-        this.preview.innerHTML = '<p>正在获取预览...</p>';
+        this.preview.innerHTML = `<p data-i18n="messages:loadingPreview">${th('messages:loadingPreview')}</p>`;
 
         const cacheKey = `${candidate.providerId}:${candidate.candidateId}`;
         let resolved = this.previewCache.get(cacheKey);
@@ -443,18 +449,18 @@ export class LyricsSourcePicker {
         if (!this.query || (!this.selectedCandidate && !this.selectedPreview)) return;
         const query = this.query;
         this.getActionButton('apply').disabled = true;
-        this.setStatus('正在应用歌词...');
+        this.setStatus(t('messages:applyingLyrics'));
         try {
             const preview = this.selectedPreview
                 ?? (this.selectedCandidate ? this.previewCache.get(candidateKey(this.selectedCandidate)) : undefined);
-            if (!preview) throw new Error('候选预览已失效，请重新选择');
+            if (!preview) throw new Error(t('audit:previewExpired'));
             const result = await getLyricsService().applyPreview(this.query, preview);
             if (this.query !== query) return;
-            if (!result.document || !result.binding) throw new Error(result.error ?? '应用歌词失败');
+            if (!result.document || !result.binding) throw new Error(result.error ?? t('audit:applyLyricsFailed'));
             window.dispatchEvent(new CustomEvent<LyricsDocumentAppliedDetail>('lyrics:document-applied', {
                 detail: {trackId: query.trackId, document: result.document}
             }));
-            this.setStatus('歌词已应用');
+            this.setStatus(t('messages:lyricsApplied'));
             await this.renderCurrent();
         } catch (error) {
             if (this.query !== query) return;
@@ -467,7 +473,7 @@ export class LyricsSourcePicker {
         if (!this.track || !this.query) return;
         const query = this.query;
         const track = this.track;
-        this.setStatus('正在重新匹配...');
+        this.setStatus(t('messages:matchingAgain'));
         await getLyricsService().clearBinding(track);
         if (this.query !== query) return;
         const controller = this.inspectionController ?? new AbortController();
@@ -477,10 +483,10 @@ export class LyricsSourcePicker {
             window.dispatchEvent(new CustomEvent<LyricsDocumentAppliedDetail>('lyrics:document-applied', {
                 detail: {trackId: query.trackId, document: result.document}
             }));
-            this.setStatus('自动匹配完成');
+            this.setStatus(t('messages:automaticMatchingComplete'));
             await this.renderCurrent();
         } else {
-            this.setStatus(result.error ?? '未找到歌词');
+            this.setStatus(result.error ?? t('messages:noLyricsFound'));
         }
     }
 
@@ -489,7 +495,7 @@ export class LyricsSourcePicker {
         const query = this.query;
         await getLyricsService().clearBinding(this.track);
         if (this.query !== query) return;
-        this.setStatus('已清除绑定，外置歌词文件未被删除');
+        this.setStatus(t('messages:bindingClearedExternalLyricsFilesWereKept'));
         await this.renderCurrent();
     }
 
@@ -500,7 +506,7 @@ export class LyricsSourcePicker {
         this.resetCandidateInspections();
         this.selectedCandidate = null;
         this.getActionButton('apply').disabled = true;
-        this.preview.innerHTML = '<p>选择候选后预览</p>';
+        this.preview.innerHTML = `<p data-i18n="messages:selectACandidateToPreview">${th('messages:selectACandidateToPreview')}</p>`;
         const controller = this.searchController ?? new AbortController();
         this.searchController = controller;
         this.searchResults.set(provider.id, {providerId: provider.id, displayName: provider.displayName, state: 'loading', candidates: []});
@@ -536,16 +542,16 @@ export class LyricsSourcePicker {
         }
         const result = await lyricsGateway.getBinding(query.trackId);
         if (this.query !== query) return;
-        if (!result.success || !result.binding) throw new Error(result.error ?? '当前没有歌词绑定');
-        this.setStatus('正在刷新当前来源...');
+        if (!result.success || !result.binding) throw new Error(result.error ?? t('messages:noLyricsBinding'));
+        this.setStatus(t('messages:refreshingCurrentSource'));
         const controller = this.inspectionController ?? new AbortController();
         const refreshed = await getLyricsService().refreshBinding(query, result.binding, controller.signal);
         if (this.query !== query) return;
-        if (!refreshed.document || !refreshed.binding) throw new Error(refreshed.error ?? '刷新当前来源失败');
+        if (!refreshed.document || !refreshed.binding) throw new Error(refreshed.error ?? t('audit:refreshLyricsFailed'));
         window.dispatchEvent(new CustomEvent<LyricsDocumentAppliedDetail>('lyrics:document-applied', {
             detail: {trackId: query.trackId, document: refreshed.document}
         }));
-        this.setStatus('当前来源已刷新');
+        this.setStatus(t('messages:currentSourceRefreshed'));
         await this.renderCurrent();
     }
 
@@ -565,7 +571,7 @@ export class LyricsSourcePicker {
             this.selectedCandidate = null;
             this.selectedPreview = null;
             this.getActionButton('apply').disabled = true;
-            this.preview.innerHTML = '<p>选择候选后预览</p>';
+            this.preview.innerHTML = `<p data-i18n="messages:selectACandidateToPreview">${th('messages:selectACandidateToPreview')}</p>`;
             this.renderActiveTab();
         }
         const candidateId = target.closest<HTMLElement>('[data-candidate-id]')?.dataset.candidateId;

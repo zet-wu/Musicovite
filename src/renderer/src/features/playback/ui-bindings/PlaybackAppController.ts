@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {cacheManager} from "@/shared/cache";
 import {isSameTrack} from '@/features/playback/domain';
 import type {PlaybackQueueSnapshot, PlaybackStateSnapshot} from '@api/types/playback';
@@ -51,7 +52,7 @@ export class PlaybackAppController {
                 : tracks;
             await this.playTrackFromPlaylist(queueTracks[0], 0, queueTracks);
         } catch (error) {
-            app.showError('播放失败，请重试');
+            app.showError(t('messages:playbackFailedPleaseTryAgain'));
         }
     }
 

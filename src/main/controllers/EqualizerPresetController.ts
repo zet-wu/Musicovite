@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 import * as fs from 'fs';
 import * as path from 'path';
 import {dialog} from 'electron';
@@ -13,8 +14,8 @@ interface EqualizerPresetFileResult {
 }
 
 const PRESET_FILTERS: Electron.FileFilter[] = [
-    {name: '参量均衡器预设', extensions: ['peq.json', 'json']},
-    {name: '所有文件', extensions: ['*']}
+    {name: nativeT('errors:parametricEqualizerPresets'), extensions: ['peq.json', 'json']},
+    {name: nativeT('errors:allFiles'), extensions: ['*']}
 ];
 
 @Controller('equalizer-presets')
@@ -28,7 +29,7 @@ export class EqualizerPresetController extends BaseController {
         try {
             const win = this.windowManager.getMainWindow();
             const result = await dialog.showSaveDialog(win as any, {
-                title: '导出参量均衡器设置',
+                title: nativeT('errors:exportParametricEqualizerSettings'),
                 defaultPath: this.createDefaultFileName(defaultName),
                 filters: PRESET_FILTERS
             });
@@ -49,7 +50,7 @@ export class EqualizerPresetController extends BaseController {
         try {
             const win = this.windowManager.getMainWindow();
             const result = await dialog.showOpenDialog(win as any, {
-                title: '导入参量均衡器设置',
+                title: nativeT('errors:importParametricEqualizerSettings'),
                 filters: PRESET_FILTERS,
                 properties: ['openFile']
             });
@@ -60,7 +61,7 @@ export class EqualizerPresetController extends BaseController {
 
             const filePath = result.filePaths[0];
             if (!this.isJsonPresetFile(filePath)) {
-                return {success: false, error: '请选择 .json 或 .peq.json 预设文件'};
+                return {success: false, error: nativeT('errors:chooseAJsonOrPeqjsonPresetFile')};
             }
 
             const content = await fs.promises.readFile(filePath, 'utf-8');

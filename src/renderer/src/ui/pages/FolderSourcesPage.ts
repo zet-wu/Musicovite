@@ -1,3 +1,5 @@
+import {th, htmlT, getLocale, t} from '@/shared/i18n';
+
 import type {LibraryDirectoryOverview} from '@api/types/electron';
 import type {FolderSourceViewMode} from '@api/types/settings';
 import type {Unsubscribe} from '@api/types/common';
@@ -182,41 +184,41 @@ export class FolderSourcesPage extends Component {
                     <div class="left cluster">
                         <div class="title">
                             <span class="disc" aria-hidden>📁</span>
-                            <span>文件夹</span>
-                            <em class="muted">${this.directories.length} 个</em>
+                            <span data-i18n="app:folders">${th('app:folders')}</span>
+                            <em class="muted">${htmlT('common:folders', {count: this.directories.length})}</em>
                         </div>
-                        <button class="folder-add-btn" id="folder-source-add" type="button">添加文件夹</button>
-                        <div class="segmented" role="tablist" aria-label="图标尺寸">
-                            <button class="seg-btn ${this.viewSize === 's' ? 'active' : ''}" data-size="s" ${this.viewMode === 'list' ? 'disabled' : ''}>小</button>
-                            <button class="seg-btn ${this.viewSize === 'm' ? 'active' : ''}" data-size="m" ${this.viewMode === 'list' ? 'disabled' : ''}>中</button>
-                            <button class="seg-btn ${this.viewSize === 'l' ? 'active' : ''}" data-size="l" ${this.viewMode === 'list' ? 'disabled' : ''}>大</button>
+                        <button class="folder-add-btn" id="folder-source-add" type="button" data-i18n="messages:addFolder">${th('messages:addFolder')}</button>
+                        <div class="segmented" role="tablist" aria-label="${th('audit:iconSize')}" data-i18n-aria-label="audit:iconSize">
+                            <button class="seg-btn ${this.viewSize === 's' ? 'active' : ''}" data-size="s" ${this.viewMode === 'list' ? 'disabled' : ''} data-i18n="messages:small">${th('messages:small')}</button>
+                            <button class="seg-btn ${this.viewSize === 'm' ? 'active' : ''}" data-size="m" ${this.viewMode === 'list' ? 'disabled' : ''} data-i18n="messages:medium">${th('messages:medium')}</button>
+                            <button class="seg-btn ${this.viewSize === 'l' ? 'active' : ''}" data-size="l" ${this.viewMode === 'list' ? 'disabled' : ''} data-i18n="messages:large">${th('messages:large')}</button>
                         </div>
                     </div>
                     <div class="right cluster">
                         <div class="select">
-                            <select id="folder-source-sort" aria-label="文件夹排序字段">
-                                <option value="name" ${this.sortBy === 'name' ? 'selected' : ''}>按名称</option>
-                                <option value="tracks" ${this.sortBy === 'tracks' ? 'selected' : ''}>按歌曲数</option>
-                                <option value="bindings" ${this.sortBy === 'bindings' ? 'selected' : ''}>按绑定数</option>
-                                <option value="lastScan" ${this.sortBy === 'lastScan' ? 'selected' : ''}>按扫描时间</option>
+                            <select id="folder-source-sort" aria-label="${th('audit:folderSortField')}" data-i18n-aria-label="audit:folderSortField">
+                                <option value="name" ${this.sortBy === 'name' ? 'selected' : ''} data-i18n="messages:byName">${th('messages:byName')}</option>
+                                <option value="tracks" ${this.sortBy === 'tracks' ? 'selected' : ''} data-i18n="messages:byTrackCount">${th('messages:byTrackCount')}</option>
+                                <option value="bindings" ${this.sortBy === 'bindings' ? 'selected' : ''} data-i18n="messages:byBindingCount">${th('messages:byBindingCount')}</option>
+                                <option value="lastScan" ${this.sortBy === 'lastScan' ? 'selected' : ''} data-i18n="messages:byScanTime">${th('messages:byScanTime')}</option>
                             </select>
                         </div>
                         <button class="sort-direction-btn" id="folder-source-sort-direction" type="button"
-                                aria-label="切换排序方向">${this.sortDirection === 'asc' ? '↑' : '↓'}</button>
+                                aria-label="${th('common:sortToggle')}" data-i18n-aria-label="common:sortToggle">${this.sortDirection === 'asc' ? '↑' : '↓'}</button>
                         <div class="search-inline">
-                            <input type="text" id="folder-source-query" value="${this.escapeHtml(this.searchQuery)}" placeholder="搜索名称或路径…">
+                            <input type="text" id="folder-source-query" value="${this.escapeHtml(this.searchQuery)}" placeholder="${th('messages:searchNamesOrPaths')}" data-i18n-placeholder="messages:searchNamesOrPaths">
                         </div>
-                        <div class="segmented" role="tablist" aria-label="视图模式">
-                            <button class="seg-btn ${this.viewMode === 'grid' ? 'active' : ''}" data-view="grid">方格</button>
-                            <button class="seg-btn ${this.viewMode === 'list' ? 'active' : ''}" data-view="list">列表</button>
+                        <div class="segmented" role="tablist" aria-label="${th('audit:viewMode')}" data-i18n-aria-label="audit:viewMode">
+                            <button class="seg-btn ${this.viewMode === 'grid' ? 'active' : ''}" data-view="grid" data-i18n="messages:grid">${th('messages:grid')}</button>
+                            <button class="seg-btn ${this.viewMode === 'list' ? 'active' : ''}" data-view="list" data-i18n="messages:list">${th('messages:list')}</button>
                         </div>
                     </div>
                 </div>
                 ${this.directories.length > 0 ? `
                     <div class="album-surface-root folder-surface-root ${this.viewMode === 'grid' ? 'albumsx-grid' : 'albumsx-list'}" style="--cover:${iconSize}px;"></div>
                     <div class="albumsx-empty folder-search-empty" hidden>
-                        <h3>没有匹配的文件夹</h3>
-                        <p>请尝试搜索其他名称或路径</p>
+                        <h3 data-i18n="messages:noMatchingFolders">${th('messages:noMatchingFolders')}</h3>
+                        <p data-i18n="messages:tryAnotherNameOrPath">${th('messages:tryAnotherNameOrPath')}</p>
                     </div>
                 ` : this.renderEmptyState()}
             </div>
@@ -231,7 +233,7 @@ export class FolderSourcesPage extends Component {
         if (!this.container || this.listRoot.firstElementChild) return;
         this.listRoot.innerHTML = `
             <div class="albumsx foldersx page">
-                <div class="albumsx-empty"><div class="folder-loading"></div><p>正在加载音乐文件夹...</p></div>
+                <div class="albumsx-empty"><div class="folder-loading"></div><p data-i18n="messages:loadingMusicFolders">${th('messages:loadingMusicFolders')}</p></div>
             </div>
         `;
     }
@@ -239,8 +241,8 @@ export class FolderSourcesPage extends Component {
     private renderSource(source: LibraryDirectoryOverview): string {
         const name = this.getDisplayName(source.path);
         const lastScan = source.lastScanAt
-            ? new Date(source.lastScanAt).toLocaleString('zh-CN')
-            : '尚未完成扫描';
+            ? new Date(source.lastScanAt).toLocaleString(getLocale())
+            : t('messages:notYetScanned');
         return `
             <article class="albumsx-tile folder-source-item ${this.viewMode === 'list' ? 'albumsx-list-item' : ''}"
                      data-source-id="${this.escapeHtml(source.id)}" tabindex="0"
@@ -253,8 +255,8 @@ export class FolderSourcesPage extends Component {
                     <div class="sub clamp-1">${this.escapeHtml(source.path)}</div>
                 </div>
                 <div class="folder-source-details">
-                    <span>${source.trackCount} 首歌曲</span>
-                    <span>${source.bindings.length} 个歌单</span>
+                    <span>${htmlT('common:tracks', {count: source.trackCount})}</span>
+                    <span>${htmlT('common:playlists', {count: source.bindings.length})}</span>
                     <span>${lastScan}</span>
                 </div>
             </article>
@@ -265,9 +267,9 @@ export class FolderSourcesPage extends Component {
         return `
             <div class="albumsx-empty">
                 <div class="icon folder-empty-icon" aria-hidden="true">📁</div>
-                <h3>尚未添加音乐文件夹</h3>
-                <p>添加包含音乐的文件夹后，MusicBox 会持续管理其中的歌曲。</p>
-                <button class="folder-add-btn" data-empty-add type="button">添加文件夹</button>
+                <h3 data-i18n="messages:noMusicFoldersAdded">${th('messages:noMusicFoldersAdded')}</h3>
+                <p data-i18n="messages:addAMusicFolderForMusicboxToKeepTrackOf">${th('messages:addAMusicFolderForMusicboxToKeepTrackOf')}</p>
+                <button class="folder-add-btn" data-empty-add type="button" data-i18n="messages:addFolder">${th('messages:addFolder')}</button>
             </div>
         `;
     }
@@ -368,12 +370,12 @@ export class FolderSourcesPage extends Component {
         menu.className = 'context-menu folder-source-context-menu';
         menu.style.display = 'none';
         menu.innerHTML = `
-            <button class="context-menu-item" data-folder-action="open"><span>在文件管理器中打开</span></button>
-            <button class="context-menu-item" data-folder-action="rescan"><span>重新扫描</span></button>
-            <button class="context-menu-item" data-folder-action="create-playlist"><span>从文件夹创建歌单</span></button>
-            <button class="context-menu-item" data-folder-action="bindings"><span>管理绑定歌单</span></button>
+            <button class="context-menu-item" data-folder-action="open"><span data-i18n="messages:showInFileManager">${th('messages:showInFileManager')}</span></button>
+            <button class="context-menu-item" data-folder-action="rescan"><span data-i18n="messages:rescan">${th('messages:rescan')}</span></button>
+            <button class="context-menu-item" data-folder-action="create-playlist"><span data-i18n="messages:createPlaylistFromFolder">${th('messages:createPlaylistFromFolder')}</span></button>
+            <button class="context-menu-item" data-folder-action="bindings"><span data-i18n="messages:manageBoundPlaylists">${th('messages:manageBoundPlaylists')}</span></button>
             <div class="context-menu-divider"></div>
-            <button class="context-menu-item danger" data-folder-action="remove"><span>移除音乐源</span></button>
+            <button class="context-menu-item danger" data-folder-action="remove"><span data-i18n="messages:removeMusicSource">${th('messages:removeMusicSource')}</span></button>
         `;
         menu.addEventListener('click', event => {
             event.stopPropagation();
@@ -427,12 +429,12 @@ export class FolderSourcesPage extends Component {
             title: this.getDisplayName(source.path),
             description: source.path,
             cover: null,
-            backLabel: '返回文件夹',
+            backLabel: t('messages:backToFolders'),
             metadata: [
-                `${source.bindings.length} 个绑定歌单`,
+                t('dynamic:boundPlaylistCount', {count: source.bindings.length}),
                 source.lastScanAt
-                    ? `扫描于 ${new Date(source.lastScanAt).toLocaleString('zh-CN')}`
-                    : '尚未完成扫描'
+                    ? t('dynamic:scannedAt', {time: new Date(source.lastScanAt).toLocaleString(getLocale())})
+                    : t('messages:notYetScanned')
             ],
             tracks
         });
@@ -446,12 +448,12 @@ export class FolderSourcesPage extends Component {
                 <div class="collection-detail-nav">
                     <button class="modern-back-btn collection-back-btn" type="button">
                         <svg viewBox="0 0 24 24"><path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"/></svg>
-                        <span>返回文件夹</span>
+                        <span data-i18n="messages:backToFolders">${th('messages:backToFolders')}</span>
                     </button>
                 </div>
                 <div class="albumsx-empty">
                     <div class="folder-loading"></div>
-                    <p>正在加载 ${this.escapeHtml(this.getDisplayName(source.path))} 中的歌曲...</p>
+                    <p>${htmlT('common:loadingFolder', {name: this.getDisplayName(source.path)})}</p>
                 </div>
             </div>
         `;
@@ -475,8 +477,8 @@ export class FolderSourcesPage extends Component {
             if (this.sortBy === 'tracks') result = left.trackCount - right.trackCount;
             else if (this.sortBy === 'bindings') result = left.bindings.length - right.bindings.length;
             else if (this.sortBy === 'lastScan') result = Number(left.lastScanAt || 0) - Number(right.lastScanAt || 0);
-            else result = this.getDisplayName(left.path).localeCompare(this.getDisplayName(right.path), 'zh-CN');
-            return result === 0 ? left.path.localeCompare(right.path, 'zh-CN') : result * multiplier;
+            else result = this.getDisplayName(left.path).localeCompare(this.getDisplayName(right.path), getLocale());
+            return result === 0 ? left.path.localeCompare(right.path, getLocale()) : result * multiplier;
         });
         this.applySearchFilter(false);
     }

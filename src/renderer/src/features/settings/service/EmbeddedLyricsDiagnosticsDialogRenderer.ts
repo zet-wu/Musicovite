@@ -1,3 +1,4 @@
+import {setLocalizedText} from '@/shared/i18n';
 class EmbeddedLyricsDiagnosticsDialogRenderer {
     show(report: string): void {
         const dialog = document.createElement('div');
@@ -10,7 +11,7 @@ class EmbeddedLyricsDiagnosticsDialogRenderer {
         `;
 
         const closeButton = document.createElement('button');
-        closeButton.textContent = '关闭';
+        setLocalizedText(closeButton, 'app:close', {}, 'textContent');
         closeButton.style.cssText = 'float: right; margin-bottom: 10px; padding: 5px 10px; color: red';
         closeButton.addEventListener('click', () => dialog.remove());
 

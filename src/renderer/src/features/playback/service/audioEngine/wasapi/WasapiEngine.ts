@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 /**
  * WASAPI独占模式音频引擎（Rust实现的JS包装器）
  */
@@ -86,7 +87,7 @@ class WasapiEngine {
     async initialize(): Promise<boolean> {
         try {
             if (!audioDriverController.isNativeAudioAvailable()) {
-                throw new Error('Native音频模块未加载');
+                throw new Error(t('audit:nativeAudioUnavailable'));
             }
 
             const nativeAudio = audioDriverController.getNativeAudio();
@@ -96,7 +97,7 @@ class WasapiEngine {
             // 初始化Rust音频引擎
             const result = await nativeAudio.initialize(shareMode) as NativeResult;
             if (!result.success) {
-                throw new Error(result.error || '初始化失败');
+                throw new Error(result.error || t('audit:initializeFailed'));
             }
 
             this.nativeEngine = nativeAudio;
@@ -141,7 +142,7 @@ class WasapiEngine {
 
             const result = await this.nativeEngine.loadTrack(filePath) as NativeResult<{duration?: number}>;
             if (!result.success) {
-                throw new Error(result.error || '加载失败');
+                throw new Error(result.error || t('audit:loadFailed'));
             }
 
             // 获取音频元数据
@@ -150,9 +151,9 @@ class WasapiEngine {
 
             this.currentTrack = {
                 filePath: filePath,
-                title: metadata?.title || '未知标题',
-                artist: metadata?.artist || '未知艺术家',
-                album: metadata?.album || '未知专辑',
+                title: metadata?.title || '',
+                artist: metadata?.artist || '',
+                album: metadata?.album || '',
                 duration: this.duration,
                 cover: null
             };
@@ -174,7 +175,7 @@ class WasapiEngine {
 
             const result = await this.nativeEngine.play() as NativeResult;
             if (!result.success) {
-                throw new Error(result.error || '播放失败');
+                throw new Error(result.error || t('audit:playFailed'));
             }
 
             this.isPlaying = true;
@@ -220,7 +221,7 @@ class WasapiEngine {
         try {
             const result = await this.nativeEngine.pause() as NativeResult;
             if (!result.success) {
-                throw new Error(result.error || '暂停失败');
+                throw new Error(result.error || t('audit:pauseFailed'));
             }
 
             this.isPlaying = false;
@@ -264,7 +265,7 @@ class WasapiEngine {
             if (this.isPlaying || this.isPaused) {
                 const result = await this.nativeEngine.seek(position) as NativeResult;
                 if (!result.success) {
-                    throw new Error(result.error || '跳转失败');
+                    throw new Error(result.error || t('audit:seekFailed'));
                 }
 
                 if (this.onPositionChanged) {
@@ -509,7 +510,7 @@ class WasapiEngine {
             // 调用Native引擎切换模式
             const result = await this.nativeEngine.switchShareMode(mode) as NativeResult;
             if (!result.success) {
-                throw new Error(result.error || '模式切换失败');
+                throw new Error(result.error || t('audit:modeSwitchFailed'));
             }
 
             console.log(`✅ WasapiEngine: 模式切换成功`);

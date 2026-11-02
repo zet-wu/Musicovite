@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {
     TTMLGenerator,
     TTMLParser,
@@ -43,13 +44,13 @@ export class TtmlDocumentService {
 
     parse(ttmlText: string): TTMLResult {
         if (!ttmlText.trim()) {
-            throw new Error('TTML 内容为空');
+            throw new Error(t('audit:emptyTtml'));
         }
         const dom = this.domParser.parseFromString(ttmlText, 'application/xml') as unknown as Document;
         if (dom.documentElement?.localName !== 'tt' || (dom.documentElement.namespaceURI && dom.documentElement.namespaceURI !== TT)) {
-            throw new Error('不是有效的 TTML 文档');
+            throw new Error(t('audit:invalidTtml'));
         }
-        if (dom.getElementsByTagName('parsererror').length) throw new Error('TTML XML 解析失败');
+        if (dom.getElementsByTagName('parsererror').length) throw new Error(t('audit:ttmlParseFailed'));
         // 上游按字面查找正文和附属轨，在内存 DOM 归一化已知命名空间的元素前缀。
         for (const element of Array.from(dom.getElementsByTagName('*'))) {
             if (!element.prefix || (element.namespaceURI !== TT && element.namespaceURI !== ITUNES)) continue;

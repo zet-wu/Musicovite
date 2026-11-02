@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import type {Track} from "@api/types/library";
 import {appNotificationService} from "@/features/appShell/service";
 import {coverLookupService} from "@/features/mediaAssets/service/CoverLookupService";
@@ -22,7 +24,8 @@ export interface MetadataUpdatePayload {
 
 export interface MetadataUpdateResult {
     success: boolean;
-    error?: string;
+    code?: string;
+    details?: string;
     updatedMetadata?: EditableTrackMetadata;
     coverUpdated?: boolean;
 }
@@ -52,7 +55,7 @@ export class TrackMetadataEditService {
             }
 
             if (!result.success || !result.data) {
-                return {canceled: false, error: result.error || '选择封面失败'};
+                return {canceled: false, error: result.error || t('messages:couldNotSelectArtwork')};
             }
 
             const uint8Array = new Uint8Array(result.data);
@@ -79,14 +82,14 @@ export class TrackMetadataEditService {
                 console.log('🖼️ TrackMetadataEditService: 封面数据准备完成');
             } catch (error) {
                 console.error('❌ TrackMetadataEditService: 封面数据处理失败', error);
-                throw new Error('封面图片处理失败，请重新选择封面');
+                throw new Error(t('audit:coverProcessingFailed'));
             }
         }
 
         console.log('📝 TrackMetadataEditService: 开始保存歌曲信息', updatedData.title);
         const result = await libraryDataService.updateTrackMetadata(updatedData) as MetadataUpdateResult;
         if (!result.success) {
-            throw new Error(result.error || '保存失败，请检查文件权限或文件格式是否支持');
+            throw Object.assign(new Error(result.details || ''), {code: result.code || 'METADATA_UPDATE_FAILED'});
         }
 
         if (selectedCoverFile && result.updatedMetadata?.cover) {
@@ -150,15 +153,15 @@ export class TrackMetadataEditService {
     private toSelectCoverErrorMessage(error: unknown): string {
         const message = error instanceof Error ? error.message : String(error || '');
         if (message.includes('Cannot read properties of undefined')) {
-            return '选择封面失败：API接口不可用，请重启应用后重试';
+            return t('messages:artworkSelectionIsUnavailableRestartTheAppAndTryAgain');
         }
         if (message.includes('dialog')) {
-            return '选择封面失败：文件选择对话框打开失败';
+            return t('messages:couldNotOpenTheArtworkFilePicker');
         }
         if (message.includes('fs')) {
-            return '选择封面失败：文件系统访问失败';
+            return t('messages:couldNotAccessTheArtworkFile');
         }
-        return `选择封面失败：${message || '未知错误'}`;
+        return t('dynamic:artworkSelectionFailed', {details: message || t('messages:unknownError')});
     }
 }
 

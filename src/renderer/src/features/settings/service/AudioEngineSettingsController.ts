@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {showToast} from "@utils/index.js";
 import type {MusicBoxSettings, WasapiShareMode} from "@api/types/settings";
 import {audioEngineSettingsService} from "./AudioEngineSettingsService";
@@ -74,12 +76,12 @@ class AudioEngineSettingsController {
 
         const result = await audioEngineSettingsService.switchExclusiveMode(enabled);
         if (result.success) {
-            showToast(result.message || '音频引擎已切换', 'info');
+            showToast(result.message || t('messages:audioEngineSwitched'), 'info');
             return {checked: enabled};
         }
 
         console.error('❌ Settings: 音频引擎切换失败:', result.error);
-        showToast(result.error || '音频引擎切换失败', 'error');
+        showToast(result.error || t('messages:couldNotSwitchAudioEngine'), 'error');
         return {checked: !enabled};
     }
 
@@ -88,12 +90,12 @@ class AudioEngineSettingsController {
 
         const result = await audioEngineSettingsService.switchWasapiShareMode(mode);
         if (result.success) {
-            showToast(result.message || 'WASAPI模式已切换', 'info');
+            showToast(result.message || t('messages:wasapiModeSwitched'), 'info');
             return;
         }
 
         console.error('❌ Settings: WASAPI模式切换失败:', result.error);
-        showToast(result.error || 'WASAPI模式切换失败', 'error');
+        showToast(result.error || t('messages:couldNotSwitchWasapiMode'), 'error');
     }
 
     private toggleWasapiModeSelector(elements: AudioEngineSettingsElements, enabled: boolean): void {

@@ -1,3 +1,5 @@
+import {htmlT, th, t, setLocalizedText} from '@/shared/i18n';
+
 /**
  * 均衡器组件
  */
@@ -596,7 +598,7 @@ class EqualizerComponent extends Component {
     async saveCustomPreset(): Promise<void> {
         const name = this.newPresetNameInput.value.trim();
         if (!name || name.length > 20) {
-            alert('请输入有效的预设名称（1-20个字符）');
+            alert(t('messages:enterAValidPresetName120Characters'));
             return;
         }
 
@@ -612,9 +614,9 @@ class EqualizerComponent extends Component {
             // 检查是否已存在同名预设
             if (customPresets[name]) {
                 const shouldOverwrite = await appConfirmationService.confirm({
-                    title: '覆盖预设',
-                    message: `预设"${name}"已存在，是否覆盖？`,
-                    confirmText: '覆盖',
+                    title: t('messages:overwritePreset'),
+                    message: t('dynamic:overwritePresetConfirm', {name: name}),
+                    confirmText: t('messages:overwrite'),
                     type: 'warning'
                 });
 
@@ -642,7 +644,7 @@ class EqualizerComponent extends Component {
             this.updateSaveButtonState();
         } catch (error) {
             console.error('❌ 保存自定义预设失败:', error);
-            alert('保存预设失败，请重试');
+            alert(t('messages:couldNotSavePresetPleaseTryAgain'));
         }
     }
 
@@ -682,15 +684,15 @@ class EqualizerComponent extends Component {
             this.saveSettingsImmediate();
         } catch (error) {
             console.error('❌ 加载自定义预设失败:', error);
-            alert('加载预设失败，请重试');
+            alert(t('messages:couldNotLoadPresetPleaseTryAgain'));
         }
     }
 
     async deleteCustomPreset(name: string): Promise<void> {
         const shouldDelete = await appConfirmationService.confirm({
-            title: '删除预设',
-            message: `确定要删除预设"${name}"吗？此操作无法撤销。`,
-            confirmText: '删除',
+            title: t('messages:deletePreset'),
+            message: t('dynamic:deletePresetConfirm', {name: name}),
+            confirmText: t('app:delete'),
             type: 'danger'
         });
 
@@ -711,7 +713,7 @@ class EqualizerComponent extends Component {
             this.loadCustomPresetsList();
         } catch (error) {
             console.error('❌ 删除自定义预设失败:', error);
-            alert('删除预设失败，请重试');
+            alert(t('messages:couldNotDeletePresetPleaseTryAgain'));
         }
     }
 
@@ -735,7 +737,7 @@ class EqualizerComponent extends Component {
         const presetNames = Object.keys(customPresets);
 
         if (presetNames.length === 0) {
-            this.customPresetsList.innerHTML = '<div class="no-presets">暂无自定义预设</div>';
+            this.customPresetsList.innerHTML = `<div class="no-presets" data-i18n="messages:noCustomPresets">${th('messages:noCustomPresets')}</div>`;
             return;
         }
 
@@ -747,15 +749,11 @@ class EqualizerComponent extends Component {
                 <div class="preset-item">
                     <div class="preset-info">
                         <div class="preset-name">${name}</div>
-                        <div class="preset-date">创建于: ${createdDate}</div>
+                        <div class="preset-date">${htmlT('common:createdAt', {date: createdDate})}</div>
                     </div>
                     <div class="preset-actions">
-                        <button class="preset-action-btn load-btn" onclick="equalizerComponent.loadCustomPreset('${name}')">
-                            加载
-                        </button>
-                        <button class="preset-action-btn delete-btn" onclick="equalizerComponent.deleteCustomPreset('${name}')">
-                            删除
-                        </button>
+                        <button class="preset-action-btn load-btn" onclick="equalizerComponent.loadCustomPreset('${name}')" data-i18n="messages:load">${th('messages:load')}</button>
+                        <button class="preset-action-btn delete-btn" onclick="equalizerComponent.deleteCustomPreset('${name}')" data-i18n="app:delete">${th('app:delete')}</button>
                     </div>
                 </div>
             `;
@@ -778,7 +776,7 @@ class EqualizerComponent extends Component {
         Object.keys(customPresets).forEach((name) => {
             const option = document.createElement('option');
             option.value = `custom:${name}`;
-            option.textContent = `自定义: ${name}`;
+            setLocalizedText(option, 'dynamic:customPreset', {name: name}, 'textContent');
             option.dataset.custom = 'true';
 
             // 在"自定义"选项之后插入

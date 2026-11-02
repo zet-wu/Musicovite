@@ -1,3 +1,5 @@
+import {getLocaleState, t} from '@/shared/i18n';
+
 /**
  * 设置组件
  */
@@ -375,7 +377,7 @@ class Settings extends Component {
     initializeSettings(): void {
         const initialValues = settingsStore.getInitialValues(this.settings);
 
-        this.languageSelect.value = initialValues.language;
+        this.languageSelect.value = getLocaleState().preference;
         this.autoplayToggle.checked = initialValues.autoplay;
         this.rememberPositionToggle.checked = initialValues.rememberPosition;
         this.playlistInfoAlignmentSelect.value = initialValues.playlistInfoAlignment;
@@ -500,7 +502,7 @@ class Settings extends Component {
     // 显示网络磁盘配置模态框
     showNetworkDriveModal(): void {
         if (!appModalService.showNetworkDriveModal()) {
-            this.showNotification('网络磁盘功能不可用', 'error');
+            this.showNotification(t('messages:networkDrivesAreUnavailable'), 'error');
         }
     }
 
@@ -533,14 +535,14 @@ class Settings extends Component {
     async openRepository(): Promise<void> {
         const result = await appInfoSettingsService.openRepository();
         if (!result.success) {
-            this.showNotification(result.error || '打开仓库失败', 'error');
+            this.showNotification(result.error || t('messages:couldNotOpenRepository'), 'error');
         }
     }
 
     async openPluginManager(): Promise<void> {
         const opened = await appModalService.showPluginManager();
         if (!opened) {
-            this.showNotification('插件管理器不可用', 'error');
+            this.showNotification(t('messages:extensionManagerIsUnavailable'), 'error');
         }
     }
 

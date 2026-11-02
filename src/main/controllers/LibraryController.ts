@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // 音乐库控制器
 
 import * as fs from 'fs';
@@ -228,7 +229,7 @@ export class LibraryController extends BaseController {
     async getPlaylistDetail(playlistId: string): Promise<any> {
         try {
             const playlist = this.libraryCacheManager.getPlaylistById(playlistId);
-            if (!playlist) return {success: false, error: '歌单不存在'};
+            if (!playlist) return {success: false, error: nativeT('errors:playlistDoesNotExist')};
             const allTracks = this.libraryCacheManager.getTracks();
             const tracks = playlist.trackIds
                 .map((id: string) => allTracks.find((t: any) => t.fileId === id))
@@ -400,7 +401,7 @@ export class LibraryController extends BaseController {
                 success,
                 tracks: success ? this.getTracksForSource(source.id) : [],
                 failedPaths: success ? [] : [directoryPath],
-                error: success ? undefined : '目录扫描失败'
+                error: success ? undefined : nativeT('errors:folderScanFailed')
             };
         } catch (error: any) {
             console.error('❌ 导入音乐文件夹失败:', error);
@@ -426,7 +427,7 @@ export class LibraryController extends BaseController {
             const fsPromises = fs.promises;
             const rootStat = await fsPromises.stat(directoryPath);
             if (!rootStat.isDirectory()) {
-                throw new Error('扫描路径不是目录');
+                throw new Error(nativeT('errors:scanPathIsNotAFolder'));
             }
 
             const collectFiles = async (dir: string): Promise<{ path: string; stat: fs.Stats; name: string }[]> => {
@@ -527,7 +528,7 @@ export class LibraryController extends BaseController {
         const tracksToCache: any[] = [];
         const rootStat = await this.networkFileAdapter.stat(networkPath);
         if (typeof rootStat.isDirectory === 'function' && !rootStat.isDirectory()) {
-            throw new Error('网络扫描路径不是目录');
+            throw new Error(nativeT('errors:networkScanPathIsNotAFolder'));
         }
 
         const collectNetworkFiles = async (dirPath: string): Promise<{ path: string; stat: any; name: string }[]> => {
@@ -713,7 +714,7 @@ export class LibraryController extends BaseController {
     }
 
     @IpcHandle('library:updateMetadata')
-    async updateMetadata(filePath: string, metadata: any): Promise<{ success: boolean; updatedMetadata?: any; coverUpdated?: boolean; error?: string }> {
+    async updateMetadata(filePath: string, metadata: any): Promise<{ success: boolean; updatedMetadata?: any; coverUpdated?: boolean; code?: string; details?: string }> {
         try {
             const isNetwork = this.networkFileAdapter.isNetworkPath(filePath);
             let result: any;
@@ -722,7 +723,7 @@ export class LibraryController extends BaseController {
                 result = await this.updateNetworkFileMetadata(filePath, metadata);
             } else {
                 if (!this.metadataHandler.isFormatSupported(filePath)) {
-                    return {success: false, error: `不支持的格式: ${path.extname(filePath)}`};
+                    return {success: false, code: 'METADATA_UNSUPPORTED_FORMAT', details: path.extname(filePath)};
                 }
                 result = await this.metadataHandler.updateMetadata(filePath, metadata);
             }
@@ -748,9 +749,9 @@ export class LibraryController extends BaseController {
                     coverUpdated: !!metadata.cover
                 };
             }
-            return result;
+            return {success: false, code: isNetwork ? 'METADATA_NETWORK_FAILED' : 'METADATA_UPDATE_FAILED', details: result.error};
         } catch (error: any) {
-            return {success: false, error: error.message};
+            return {success: false, code: ['EACCES', 'EPERM'].includes(error.code) ? 'METADATA_PERMISSION_DENIED' : 'METADATA_UPDATE_FAILED', details: error.message};
         }
     }
 
@@ -798,7 +799,7 @@ export class LibraryController extends BaseController {
             const { filePath, ...metadata } = data;
             return this.updateMetadata(filePath, metadata);
         } else {
-            return { success: false, error: '无效的参数格式' };
+            return { success: false, error: nativeT('errors:invalidArgumentFormat') };
         }
     }
 
@@ -859,7 +860,7 @@ export class LibraryController extends BaseController {
                 rebuiltTrackCount,
                 ...scanResult,
                 ...summary,
-                error: state === 'failed' ? '所有音乐库来源扫描失败' : undefined
+                error: state === 'failed' ? nativeT('errors:allLibrarySourceScansFailed') : undefined
             };
         } catch (error: any) {
             console.error('❌ 重建音乐库索引失败:', error);
@@ -901,7 +902,7 @@ export class LibraryController extends BaseController {
             try {
                 if (source.type === 'directory') {
                     const success = await this.scanDirectorySource(source.path, source.id, false);
-                    if (!success) throw new Error('目录扫描失败');
+                    if (!success) throw new Error(nativeT('errors:folderScanFailed'));
                     scannedFolderCount++;
                 } else {
                     await this.importLibraryFile(source.path, false);
@@ -950,8 +951,8 @@ export class LibraryController extends BaseController {
         let previousFileName: string | null = null;
         try {
             const playlist = this.libraryCacheManager.getPlaylistById(playlistId);
-            if (!playlist) throw new Error('歌单不存在');
-            if (playlist.systemType === 'favorites') throw new Error('系统收藏歌单不支持此操作');
+            if (!playlist) throw new Error(nativeT('errors:playlistDoesNotExist'));
+            if (playlist.systemType === 'favorites') throw new Error(nativeT('errors:thisOperationIsNotSupportedForFavorites'));
             previousFileName = this.libraryCacheManager.getPlaylistCoverFileName(playlistId);
             const snapshot = await this.playlistCoverStorage.importFile(playlistId, imagePath);
             snapshotFileName = snapshot.fileName;
@@ -965,7 +966,7 @@ export class LibraryController extends BaseController {
                 return {success: true, coverPath: snapshot.filePath};
             }
             await this.playlistCoverStorage.remove(snapshot.fileName);
-            return {success: false, error: '更新歌单封面失败'};
+            return {success: false, error: nativeT('errors:couldNotUpdatePlaylistArtwork')};
         } catch (error: any) {
             if (snapshotFileName) {
                 if (previousFileName) {
@@ -1000,19 +1001,19 @@ export class LibraryController extends BaseController {
         let previousFileName: string | null = null;
         try {
             const playlist = this.libraryCacheManager.getPlaylistById(playlistId);
-            if (!playlist) return {success: false, errorCode: 'PLAYLIST_NOT_FOUND', error: '歌单不存在'};
+            if (!playlist) return {success: false, errorCode: 'PLAYLIST_NOT_FOUND', error: nativeT('errors:playlistDoesNotExist')};
             if (playlist.systemType === 'favorites') {
-                return {success: false, errorCode: 'SYSTEM_PLAYLIST', error: '系统歌单不支持设置封面'};
+                return {success: false, errorCode: 'SYSTEM_PLAYLIST', error: nativeT('errors:systemPlaylistsDoNotSupportCustomArtwork')};
             }
             if (!playlist.trackIds.includes(trackId)) {
-                return {success: false, errorCode: 'TRACK_NOT_IN_PLAYLIST', error: '歌曲不属于当前歌单'};
+                return {success: false, errorCode: 'TRACK_NOT_IN_PLAYLIST', error: nativeT('errors:trackDoesNotBelongToThisPlaylist')};
             }
             const track = this.libraryCacheManager.getTrackByFileId(trackId);
-            if (!track) return {success: false, errorCode: 'TRACK_NOT_FOUND', error: '歌曲不存在'};
+            if (!track) return {success: false, errorCode: 'TRACK_NOT_FOUND', error: nativeT('errors:trackDoesNotExist')};
 
             const cover = await this.embeddedCoverService.getCover(track.filePath, this.networkFileAdapter);
             if (!cover) {
-                return {success: false, errorCode: 'NO_EMBEDDED_COVER', error: '该歌曲没有内嵌封面'};
+                return {success: false, errorCode: 'NO_EMBEDDED_COVER', error: nativeT('errors:thisTrackHasNoEmbeddedArtwork')};
             }
 
             previousFileName = this.libraryCacheManager.getPlaylistCoverFileName(playlistId);
@@ -1052,7 +1053,7 @@ export class LibraryController extends BaseController {
                 this.emitPlaylistsUpdated();
                 return {success: true};
             }
-            return {success: false, error: '移除歌单封面失败'};
+            return {success: false, error: nativeT('errors:couldNotRemovePlaylistArtwork')};
         } catch (error: any) {
             if (coverFileName) {
                 this.libraryCacheManager.updatePlaylistCover(playlistId, coverFileName);
@@ -1302,11 +1303,11 @@ export class LibraryController extends BaseController {
         try {
             await this.ensureLibrarySourcesLoaded();
             const source = this.librarySourceManager.getSource(sourceId);
-            if (!source) throw new Error('音乐库来源不存在');
-            if (source.type !== 'directory') throw new Error('只能重新扫描音乐文件夹来源');
+            if (!source) throw new Error(nativeT('errors:librarySourceDoesNotExist'));
+            if (source.type !== 'directory') throw new Error(nativeT('errors:onlyMusicFolderSourcesCanBeRescanned'));
             const success = await this.scanDirectorySource(source.path, source.id);
             this.emitSourcesUpdated();
-            return {success, error: success ? undefined : '重新扫描文件夹失败'};
+            return {success, error: success ? undefined : nativeT('errors:couldNotRescanFolder')};
         } catch (error: any) {
             return {success: false, error: error.message};
         }
@@ -1370,8 +1371,8 @@ export class LibraryController extends BaseController {
         try {
             await this.ensureLibrarySourcesLoaded();
             const playlist = this.libraryCacheManager.getPlaylistById(playlistId);
-            if (!playlist) throw new Error('歌单不存在');
-            if (playlist.systemType === 'favorites') throw new Error('收藏歌单不支持绑定文件夹');
+            if (!playlist) throw new Error(nativeT('errors:playlistDoesNotExist'));
+            if (playlist.systemType === 'favorites') throw new Error(nativeT('errors:foldersCannotBeBoundToFavorites'));
 
             const {source} = await this.librarySourceManager.ensureSource(
                 'directory',
@@ -1384,7 +1385,7 @@ export class LibraryController extends BaseController {
             return {
                 success: scanned,
                 binding: this.librarySourceManager.getPlaylistBinding(binding.id),
-                error: scanned ? undefined : '文件夹已绑定，但首次扫描失败'
+                error: scanned ? undefined : nativeT('errors:folderBoundButTheInitialScanFailed')
             };
         } catch (error: any) {
             return {success: false, error: error.message};
@@ -1399,11 +1400,11 @@ export class LibraryController extends BaseController {
         try {
             await this.ensureLibrarySourcesLoaded();
             const playlist = this.libraryCacheManager.getPlaylistById(playlistId);
-            if (!playlist) throw new Error('歌单不存在');
-            if (playlist.systemType === 'favorites') throw new Error('收藏歌单不支持绑定文件夹');
+            if (!playlist) throw new Error(nativeT('errors:playlistDoesNotExist'));
+            if (playlist.systemType === 'favorites') throw new Error(nativeT('errors:foldersCannotBeBoundToFavorites'));
             const source = this.librarySourceManager.getSource(sourceId);
-            if (!source) throw new Error('音乐库来源不存在');
-            if (source.type !== 'directory') throw new Error('只能绑定音乐文件夹来源');
+            if (!source) throw new Error(nativeT('errors:librarySourceDoesNotExist'));
+            if (source.type !== 'directory') throw new Error(nativeT('errors:onlyMusicFolderSourcesCanBeBound'));
 
             const {binding} = await this.librarySourceManager.createPlaylistBinding(playlistId, source.id);
             await this.librarySourceManager.synchronizeSourceBindings(source.id);
@@ -1426,12 +1427,12 @@ export class LibraryController extends BaseController {
         try {
             await this.ensureLibrarySourcesLoaded();
             const binding = this.librarySourceManager.getPlaylistBinding(bindingId);
-            if (!binding) throw new Error('歌单文件夹绑定不存在');
+            if (!binding) throw new Error(nativeT('errors:playlistFolderBindingDoesNotExist'));
             const source = this.librarySourceManager.getSource(binding.sourceId);
-            if (!source) throw new Error('音乐库来源不存在');
+            if (!source) throw new Error(nativeT('errors:librarySourceDoesNotExist'));
             const success = await this.scanDirectorySource(source.path, source.id);
             this.emitSourcesUpdated();
-            return {success, error: success ? undefined : '重新扫描文件夹失败'};
+            return {success, error: success ? undefined : nativeT('errors:couldNotRescanFolder')};
         } catch (error: any) {
             return {success: false, error: error.message};
         }
@@ -1444,7 +1445,7 @@ export class LibraryController extends BaseController {
         try {
             await this.ensureLibrarySourcesLoaded();
             const binding = this.librarySourceManager.getPlaylistBinding(bindingId);
-            if (!binding) throw new Error('歌单文件夹绑定不存在');
+            if (!binding) throw new Error(nativeT('errors:playlistFolderBindingDoesNotExist'));
             const restoredCount = await this.librarySourceManager.restorePlaylistBindingExclusions(bindingId);
             const addedTrackIds = this.recomputePlaylistMembership(binding.playlistId);
             await this.libraryCacheManager.saveCache();
@@ -1464,9 +1465,9 @@ export class LibraryController extends BaseController {
     ): Promise<{success: boolean; error?: string}> {
         try {
             await this.ensureLibrarySourcesLoaded();
-            if (mode !== 'keep' && mode !== 'remove') throw new Error('无效的解绑模式');
+            if (mode !== 'keep' && mode !== 'remove') throw new Error(nativeT('errors:invalidUnbindMode'));
             const binding = this.librarySourceManager.getPlaylistBinding(bindingId);
-            if (!binding) throw new Error('歌单文件夹绑定不存在');
+            if (!binding) throw new Error(nativeT('errors:playlistFolderBindingDoesNotExist'));
             if (mode === 'keep') {
                 this.libraryCacheManager.addManualTracksToPlaylist(
                     binding.playlistId,
@@ -1491,7 +1492,7 @@ export class LibraryController extends BaseController {
         try {
             await this.ensureLibrarySourcesLoaded();
             const source = this.librarySourceManager.getSource(sourceId);
-            if (!source) throw new Error('音乐库来源不存在');
+            if (!source) throw new Error(nativeT('errors:librarySourceDoesNotExist'));
 
             const uniqueTrackIds = source.knownFiles.flatMap(file => {
                 if (this.librarySourceManager.isFileCoveredByOtherSource(file.path, sourceId)) return [];
@@ -1534,8 +1535,8 @@ export class LibraryController extends BaseController {
             await this.ensureLibrarySourcesLoaded();
             if (targetPlaylistId) {
                 const playlist = this.libraryCacheManager.getPlaylistById(targetPlaylistId);
-                if (!playlist) throw new Error('歌单不存在');
-                if (playlist.systemType === 'favorites') throw new Error('收藏歌单不支持从文件导入');
+                if (!playlist) throw new Error(nativeT('errors:playlistDoesNotExist'));
+                if (playlist.systemType === 'favorites') throw new Error(nativeT('errors:filesCannotBeImportedIntoFavorites'));
             }
             for (const filePath of Array.from(new Set(filePaths || []))) {
                 try {
@@ -1555,7 +1556,7 @@ export class LibraryController extends BaseController {
                         this.libraryCacheManager.addTrackToPlaylist(targetPlaylistId, track.fileId);
                         addedTrackIds.push(track.fileId);
                     } catch (error: any) {
-                        if (error.message !== '歌曲已在歌单中') throw error;
+                        if (error.code !== 'PLAYLIST_TRACK_ALREADY_EXISTS') throw error;
                     }
                 }
                 await this.libraryCacheManager.saveCache();
@@ -1582,7 +1583,7 @@ export class LibraryController extends BaseController {
         restoreIgnored: boolean
     ): Promise<CachedTrack | null> {
         const extension = path.extname(filePath).toLowerCase();
-        if (!AUDIO_EXTENSIONS.includes(extension)) throw new Error('不支持的音频格式');
+        if (!AUDIO_EXTENSIONS.includes(extension)) throw new Error(nativeT('errors:unsupportedAudioFormat'));
 
         const isNetwork = this.networkFileAdapter.isNetworkPath(filePath);
         const stats = isNetwork
@@ -1591,7 +1592,7 @@ export class LibraryController extends BaseController {
         const isDirectory = typeof stats.isDirectory === 'function'
             ? stats.isDirectory()
             : Boolean((stats as any).isDirectory);
-        if (isDirectory) throw new Error('所选路径是文件夹');
+        if (isDirectory) throw new Error(nativeT('errors:selectedPathIsAFolder'));
 
         const {source} = await this.librarySourceManager.ensureSource('file', filePath, 'file_import');
         const restoredFromIgnoreList = restoreIgnored
@@ -1627,8 +1628,8 @@ export class LibraryController extends BaseController {
             filePath,
             fileName,
             title: metadata.title || path.basename(fileName, extension),
-            artist: metadata.artist || '未知艺术家',
-            album: metadata.album || '未知专辑',
+            artist: metadata.artist || '',
+            album: metadata.album || '',
             duration: metadata.duration || 0,
             bitrate: metadata.bitrate,
             sampleRate: metadata.sampleRate,
@@ -1640,7 +1641,7 @@ export class LibraryController extends BaseController {
             fileSize: stats.size || 0,
             isNetworkFile: isNetwork
         }, filePath, stats as fs.Stats);
-        if (!track) throw new Error('歌曲添加失败');
+        if (!track) throw new Error(nativeT('errors:couldNotAddTrack'));
 
         await this.libraryCacheManager.saveCache();
         await this.librarySourceManager.updateSourceScan(
@@ -1687,7 +1688,7 @@ export class LibraryController extends BaseController {
         error?: string
     }> {
         const filePath = audioFile?.filePath;
-        if (!filePath) return {success: false, error: '缺少音频文件路径'};
+        if (!filePath) return {success: false, error: nativeT('errors:audioFilePathIsMissing')};
         const existed = Boolean(this.libraryCacheManager.getTrackByPath(filePath));
         const result = await this.importLibraryFiles([filePath]);
         return {
@@ -1705,7 +1706,7 @@ export class LibraryController extends BaseController {
             const buffer = await this.networkFileAdapter.readFile(filePath);
             await fs.promises.writeFile(tempFilePath, buffer);
             const result = await this.metadataHandler.updateMetadata(tempFilePath, metadata);
-            if (!result.success) throw new Error(result.error || '临时文件元数据更新失败');
+            if (!result.success) throw new Error(result.error || nativeT('errors:couldNotUpdateTemporaryFileMetadata'));
             const modifiedBuffer = await fs.promises.readFile(tempFilePath);
             await this.networkFileAdapter.writeFile(filePath, modifiedBuffer);
             return {success: true, method: '网络文件临时编辑'};

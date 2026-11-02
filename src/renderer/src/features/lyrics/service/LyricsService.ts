@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import type {Track} from '@api/types/track';
 import {lyricsGateway} from '@/infrastructure/electron';
 import type {
@@ -72,7 +74,7 @@ export class LyricsService {
                 const source = persisted.binding.source;
                 if (source.kind === 'embedded' && source.candidateId) {
                     const available = (await this.listEmbedded(query)).find(item => item.candidateId === source.candidateId)?.preview;
-                    if (!available) throw new Error('已绑定的内嵌候选已失效');
+                    if (!available) throw new Error(t('audit:embeddedBindingExpired'));
                     if (source.contentHash && available.document.source.kind === 'embedded' && source.contentHash !== available.document.source.contentHash) {
                         signal.throwIfAborted();
                         return this.persist(query.trackId, available.document, 'manual');
@@ -131,7 +133,7 @@ export class LyricsService {
             }
         }
         if (localFallback) return save(localFallback);
-        return {document: null, error: '未找到歌词'};
+        return {document: null, error: t('messages:noLyricsFound')};
     }
 
     async listEmbedded(query: TrackLyricsQuery): Promise<EmbeddedLyricsPreview[]> {
@@ -141,7 +143,7 @@ export class LyricsService {
                 if (!candidate.payload) return candidate;
                 const source: LyricsSourceRef = {kind: 'embedded', trackId: query.trackId, candidateId: candidate.candidateId, ...(candidate.contentHash ? {contentHash: candidate.contentHash} : {})};
                 const document = this.normalizer.fromPayload(candidate.payload, this.createContext(query, source));
-                if (!document.render.lines.length) throw new Error('歌词没有可播放内容');
+                if (!document.render.lines.length) throw new Error(t('audit:noPlayableLyrics'));
                 return {...candidate, preview: {document, format: candidate.payload.kind}};
             } catch (error) {
                 return {...candidate, error: error instanceof Error ? error.message : String(error)};
@@ -177,7 +179,7 @@ export class LyricsService {
         const source = preview.document.source;
         if (source.kind === 'embedded' && source.contentHash) {
             const current = (await this.embeddedSource.list(query)).find(item => item.candidateId === source.candidateId);
-            if (!current?.payload || current.contentHash !== source.contentHash) throw new Error('内嵌歌词已变化，请刷新后重新选择');
+            if (!current?.payload || current.contentHash !== source.contentHash) throw new Error(t('audit:embeddedLyricsChanged'));
         }
         return this.persist(query.trackId, preview.document, 'manual');
     }
@@ -207,20 +209,20 @@ export class LyricsService {
         let document: LyricsDocument;
         if (source.kind === 'local') {
             const result = await lyricsGateway.readLocalFile(source.path);
-            if (!result.success || !result.content?.trim()) throw new Error(result.error ?? '本地歌词不可用');
+            if (!result.success || !result.content?.trim()) throw new Error(result.error ?? t('audit:localLyricsUnavailable'));
             document = source.path.toLocaleLowerCase().endsWith('.ttml')
                 ? this.normalizer.fromTtml(result.content, this.createContext(query, source))
                 : this.normalizer.fromLrc(result.content, this.createContext(query, source));
         } else if (source.kind === 'embedded') {
             const candidate = (await this.listEmbedded(query)).find(item => source.candidateId ? item.candidateId === source.candidateId : !!item.preview);
-            if (!candidate?.preview) throw new Error('音频内嵌歌词不可用');
+            if (!candidate?.preview) throw new Error(t('audit:embeddedLyricsUnavailable'));
             document = candidate.preview.document;
         } else {
             const provider = this.providers.get(source.providerId);
-            if (!provider) throw new Error('未知歌词来源');
+            if (!provider) throw new Error(t('messages:unknownLyricsSource'));
             const candidate = (await provider.search(query, signal))
                 .find(item => item.candidateId === source.candidateId);
-            if (!candidate) throw new Error('当前歌词候选已不可用');
+            if (!candidate) throw new Error(t('audit:candidateUnavailable'));
             document = await this.fetchCandidate(query, candidate, signal);
         }
         signal.throwIfAborted();
@@ -233,7 +235,7 @@ export class LyricsService {
         signal: AbortSignal
     ): Promise<LyricsCandidatePreview> {
         const provider = this.providers.get(candidate.providerId);
-        if (!provider) throw new Error('未知歌词来源');
+        if (!provider) throw new Error(t('messages:unknownLyricsSource'));
         const payload = await provider.fetch(candidate, signal);
         const source: LyricsSourceRef = {
             kind: 'provider',
@@ -250,7 +252,7 @@ export class LyricsService {
 
     async clearBinding(track: Track): Promise<void> {
         const result = await lyricsGateway.clearBinding(toTrackLyricsQuery(track).trackId);
-        if (!result.success) throw new Error(result.error ?? '清除歌词绑定失败');
+        if (!result.success) throw new Error(result.error ?? t('audit:clearBindingFailed'));
     }
 
     async shiftCanonicalTimeline(
@@ -262,7 +264,7 @@ export class LyricsService {
             return {
                 document: null,
                 appliedDeltaMs: 0,
-                error: persisted.error ?? '当前歌曲没有可编辑的 canonical 歌词'
+                error: persisted.error ?? t('messages:noEditableLyricsAreAvailableForThisTrack')
             };
         }
 
@@ -287,7 +289,7 @@ export class LyricsService {
                 return {
                     document: null,
                     appliedDeltaMs: 0,
-                    error: saved.error ?? 'canonical TTML 保存失败'
+                    error: saved.error ?? t('messages:couldNotSaveCanonicalTtml')
                 };
             }
             return {document, binding: saved.binding, appliedDeltaMs: shifted.appliedDeltaMs};
@@ -295,7 +297,7 @@ export class LyricsService {
             return {
                 document: null,
                 appliedDeltaMs: 0,
-                error: error instanceof Error ? error.message : '歌词时间轴调整失败'
+                error: error instanceof Error ? error.message : t('messages:couldNotAdjustLyricsTiming')
             };
         }
     }
@@ -318,7 +320,7 @@ export class LyricsService {
         signal: AbortSignal
     ): Promise<LyricsDocument> {
         const provider = this.providers.get(candidate.providerId);
-        if (!provider) throw new Error('未知歌词来源');
+        if (!provider) throw new Error(t('messages:unknownLyricsSource'));
         const payload = await provider.fetch(candidate, signal);
         const source: LyricsSourceRef = {
             kind: 'provider',

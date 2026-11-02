@@ -1,3 +1,5 @@
+import {th, htmlT, setLocalizedText, t} from '@/shared/i18n';
+
 import type {
     FolderPlaylistBindingSummary,
     LibraryDirectoryOverview,
@@ -25,7 +27,7 @@ export class FolderPlaylistBindingDialog extends Component {
     async show(source: LibraryDirectoryOverview): Promise<void> {
         this.ensureElements();
         this.source = source;
-        this.title.textContent = `“${this.getDisplayName(source.path)}”绑定的歌单`;
+        setLocalizedText(this.title, 'dynamic:folderPlaylists', {name: this.getDisplayName(source.path)}, 'textContent');
         this.query.value = '';
         this.overlay.style.display = 'flex';
         await this.loadData();
@@ -46,23 +48,23 @@ export class FolderPlaylistBindingDialog extends Component {
                     <div class="modal-dialog modal-dialog-large playlist-binding-dialog folder-playlist-binding-dialog">
                         <div class="modal-header">
                             <div>
-                                <h3 class="modal-title" id="folder-binding-title">管理绑定歌单</h3>
-                                <p class="playlist-binding-subtitle">绑定后，文件夹中的歌曲会持续同步到对应歌单。</p>
+                                <h3 class="modal-title" id="folder-binding-title" data-i18n="messages:manageBoundPlaylists">${th('messages:manageBoundPlaylists')}</h3>
+                                <p class="playlist-binding-subtitle" data-i18n="messages:keepTracksInThisFolderSynchronizedWithTheBoundPlaylists">${th('messages:keepTracksInThisFolderSynchronizedWithTheBoundPlaylists')}</p>
                             </div>
-                            <button class="modal-close-btn" data-folder-binding-action="close" aria-label="关闭">×</button>
+                            <button class="modal-close-btn" data-folder-binding-action="close" aria-label="${th('app:close')}" data-i18n-aria-label="app:close">×</button>
                         </div>
                         <div class="modal-body">
                             <div class="folder-binding-source-path"></div>
                             <div class="playlist-binding-toolbar">
                                 <div class="search-inline folder-binding-search">
-                                    <input id="folder-binding-query" type="search" placeholder="搜索歌单…" aria-label="搜索歌单">
+                                    <input id="folder-binding-query" type="search" placeholder="${th('messages:searchPlaylists')}" data-i18n-placeholder="messages:searchPlaylists" aria-label="${th('messages:searchPlaylists')}" data-i18n-aria-label="messages:searchPlaylists">
                                 </div>
                             </div>
                             <div class="playlist-binding-list" id="folder-binding-list"></div>
-                            <div class="playlist-binding-empty folder-binding-search-empty" hidden>没有匹配的歌单</div>
+                            <div class="playlist-binding-empty folder-binding-search-empty" hidden data-i18n="messages:noMatchingPlaylists">${th('messages:noMatchingPlaylists')}</div>
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-secondary" data-folder-binding-action="close">完成</button>
+                            <button class="btn btn-secondary" data-folder-binding-action="close" data-i18n="messages:done">${th('messages:done')}</button>
                         </div>
                     </div>
                 </div>
@@ -83,14 +85,14 @@ export class FolderPlaylistBindingDialog extends Component {
 
     private async loadData(): Promise<void> {
         if (!this.source) return;
-        this.list.innerHTML = '<div class="playlist-binding-empty">正在加载歌单...</div>';
+        this.list.innerHTML = `<div class="playlist-binding-empty" data-i18n="messages:loadingPlaylists">${th('messages:loadingPlaylists')}</div>`;
         const [directories, playlists] = await Promise.all([
             librarySourceManagementService.getDirectories(),
             libraryDataService.getPlaylists()
         ]);
         const currentSource = directories.find(candidate => candidate.id === this.source?.id);
         if (!currentSource) {
-            this.list.innerHTML = '<div class="playlist-binding-empty">音乐文件夹来源已不存在</div>';
+            this.list.innerHTML = `<div class="playlist-binding-empty" data-i18n="messages:musicFolderSourceNoLongerExists">${th('messages:musicFolderSourceNoLongerExists')}</div>`;
             return;
         }
         this.source = currentSource;
@@ -108,8 +110,8 @@ export class FolderPlaylistBindingDialog extends Component {
         if (this.playlists.length === 0) {
             this.list.innerHTML = `
                 <div class="playlist-binding-empty">
-                    <strong>尚未创建歌单</strong>
-                    <span>请先创建一个歌单，再从这里建立文件夹绑定。</span>
+                    <strong><span data-i18n="messages:noPlaylistsCreatedYet">${th('messages:noPlaylistsCreatedYet')}</span></strong>
+                    <span data-i18n="messages:createAPlaylistBeforeBindingAFolderHere">${th('messages:createAPlaylistBeforeBindingAFolderHere')}</span>
                 </div>
             `;
             return;
@@ -125,7 +127,7 @@ export class FolderPlaylistBindingDialog extends Component {
     private renderPlaylist(playlist: Playlist, binding?: FolderPlaylistBindingSummary): string {
         const modified = binding?.lastSyncAt
             ? new Date(binding.lastSyncAt).toLocaleString('zh-CN')
-            : '尚未同步';
+            : t('messages:notSynchronized');
         return `
             <article class="playlist-binding-item folder-binding-playlist" data-playlist-id="${this.escapeHtml(playlist.id)}"
                      data-playlist-name="${this.escapeHtml(playlist.name.toLocaleLowerCase())}">
@@ -133,24 +135,24 @@ export class FolderPlaylistBindingDialog extends Component {
                     <strong class="playlist-binding-path">${this.escapeHtml(playlist.name)}</strong>
                     <div class="playlist-binding-meta">
                         ${binding ? `
-                            <span>${binding.availableTrackCount} 首可用歌曲</span>
-                            <span>${binding.excludedTrackCount} 首已排除</span>
-                            <span>上次同步：${modified}</span>
-                        ` : '<span>尚未绑定此文件夹</span>'}
+                            <span>${htmlT('common:availableTracks', {count: binding.availableTrackCount})}</span>
+                            <span>${htmlT('common:excludedTracks', {count: binding.excludedTrackCount})}</span>
+                            <span>${htmlT('common:lastSync', {date: modified})}</span>
+                        ` : `<span data-i18n="messages:thisFolderIsNotBound">${th('messages:thisFolderIsNotBound')}</span>`}
                     </div>
                 </div>
                 <div class="playlist-binding-actions">
                     ${binding ? `
                         <button class="btn btn-outline" data-folder-binding-action="restore"
                                 data-binding-id="${this.escapeHtml(binding.id)}"
-                                ${binding.excludedTrackCount === 0 || this.busy ? 'disabled' : ''}>恢复排除</button>
+                                ${binding.excludedTrackCount === 0 || this.busy ? 'disabled' : ''} data-i18n="messages:restoreExcludedTracks">${th('messages:restoreExcludedTracks')}</button>
                         <button class="btn btn-outline" data-folder-binding-action="unbind-keep"
-                                data-binding-id="${this.escapeHtml(binding.id)}" ${this.busy ? 'disabled' : ''}>解绑并保留</button>
+                                data-binding-id="${this.escapeHtml(binding.id)}" ${this.busy ? 'disabled' : ''} data-i18n="messages:unbindAndKeep">${th('messages:unbindAndKeep')}</button>
                         <button class="btn btn-danger" data-folder-binding-action="unbind-remove"
-                                data-binding-id="${this.escapeHtml(binding.id)}" ${this.busy ? 'disabled' : ''}>解绑并移除</button>
+                                data-binding-id="${this.escapeHtml(binding.id)}" ${this.busy ? 'disabled' : ''} data-i18n="messages:unbindAndRemove">${th('messages:unbindAndRemove')}</button>
                     ` : `
                         <button class="btn btn-primary" data-folder-binding-action="bind"
-                                ${this.busy ? 'disabled' : ''}>绑定</button>
+                                ${this.busy ? 'disabled' : ''} data-i18n="messages:bind">${th('messages:bind')}</button>
                     `}
                 </div>
             </article>

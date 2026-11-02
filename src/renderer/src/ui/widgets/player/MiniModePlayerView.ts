@@ -1,3 +1,4 @@
+import {setLocalizedText} from '@/shared/i18n';
 import {MiniModeBackgroundController} from "@ui/widgets/player/MiniModeBackgroundController";
 import {MiniModeLyricsController} from "@ui/widgets/player/MiniModeLyricsController";
 import type {AddManagedDomListener, ManagedDomTarget, RemoveManagedDomListener} from "@ui/widgets/player/PlayerDomEvents";
@@ -116,12 +117,12 @@ class MiniModePlayerView {
 
         if (active) {
             this.miniModeButton.classList.add('active');
-            this.miniModeButton.title = '退出迷你模式';
+            setLocalizedText(this.miniModeButton, 'messages:exitMiniMode', {}, 'title');
             return;
         }
 
         this.miniModeButton.classList.remove('active');
-        this.miniModeButton.title = '迷你模式';
+        setLocalizedText(this.miniModeButton, 'app:miniMode', {}, 'title');
     }
 }
 

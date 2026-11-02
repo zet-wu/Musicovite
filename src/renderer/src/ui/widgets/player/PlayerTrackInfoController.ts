@@ -1,3 +1,4 @@
+import {setLocalizedText} from '@/shared/i18n';
 import type {PlayerCoverArtController} from "@ui/widgets/player/PlayerCoverArtController";
 import type {Track} from "@api/types/track";
 
@@ -45,8 +46,12 @@ class PlayerTrackInfoController {
             return;
         }
 
-        this.trackTitle.textContent = track.title || '未知歌曲';
-        this.trackArtist.textContent = track.artist || '未知艺术家';
+        this.trackTitle.removeAttribute('data-i18n');
+        this.trackArtist.removeAttribute('data-i18n');
+        if (track.title) this.trackTitle.textContent = track.title;
+        else setLocalizedText(this.trackTitle, 'messages:unknownTrack');
+        if (track.artist) this.trackArtist.textContent = track.artist;
+        else setLocalizedText(this.trackArtist, 'app:unknownArtist');
         this.setDuration(track.duration || 0);
 
         if (this.isMiniModeActive()) {

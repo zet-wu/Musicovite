@@ -1,10 +1,11 @@
+import {t} from '@/shared/i18n';
 import type {Track} from "@api/types/library";
 import {appNotificationService} from "@/features/appShell/service";
 
 export class PlaylistPlaybackActionService {
     getPlayableTracks(tracks: Track[]): Track[] | null {
         if (tracks.length === 0) {
-            appNotificationService.showInfo('歌单为空，无法播放');
+            appNotificationService.showInfo(t('messages:thePlaylistIsEmpty'));
             return null;
         }
 

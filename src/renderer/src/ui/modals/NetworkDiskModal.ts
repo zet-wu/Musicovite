@@ -1,3 +1,5 @@
+import {t, setLocalizedText, th} from '@/shared/i18n';
+
 /**
  * 网络磁盘配置模态框组件
  */
@@ -287,25 +289,25 @@ class NetworkDiskModal extends Component {
     async testConnection(): Promise<void> {
         const config = this.getNetworkDriveConfig();
         if (!config || !this.testConnectionBtn) {
-            this.showConnectionTestResult(false, '请填写完整的配置信息');
+            this.showConnectionTestResult(false, t('messages:completeAllRequiredSettings'));
             return;
         }
 
         this.testConnectionBtn.disabled = true;
-        this.testConnectionBtn.textContent = '测试中...';
+        setLocalizedText(this.testConnectionBtn, 'messages:testing', {}, 'textContent');
 
         try {
             const success = await networkDriveManagementService.testConnection(config);
             if (success) {
-                this.showConnectionTestResult(true, '连接测试成功');
+                this.showConnectionTestResult(true, t('messages:connectionTestSucceeded'));
             } else {
-                this.showConnectionTestResult(false, '连接测试失败');
+                this.showConnectionTestResult(false, t('messages:connectionTestFailed'));
             }
         } catch (error) {
-            this.showConnectionTestResult(false, `连接测试失败: ${this.getErrorMessage(error)}`);
+            this.showConnectionTestResult(false, t('dynamic:connectionTestFailed', {details: this.getErrorMessage(error)}));
         } finally {
             this.testConnectionBtn.disabled = false;
-            this.testConnectionBtn.textContent = '测试连接';
+            setLocalizedText(this.testConnectionBtn, 'app:testConnection', {}, 'textContent');
         }
     }
 
@@ -313,12 +315,12 @@ class NetworkDiskModal extends Component {
     async addNetworkDrive(): Promise<void> {
         const config = this.getNetworkDriveConfig();
         if (!config || !this.networkDriveConfirm) {
-            this.showConnectionTestResult(false, '请填写完整的配置信息');
+            this.showConnectionTestResult(false, t('messages:completeAllRequiredSettings'));
             return;
         }
 
         this.networkDriveConfirm.disabled = true;
-        this.networkDriveConfirm.textContent = '添加中...';
+        setLocalizedText(this.networkDriveConfirm, 'messages:adding', {}, 'textContent');
 
         try {
             const success = await networkDriveManagementService.mount(config);
@@ -326,15 +328,15 @@ class NetworkDiskModal extends Component {
             if (success) {
                 this.hide();
                 this.emit('driveAdded', config);
-                this.showNotification(`网络磁盘 "${config.displayName}" 添加成功`, 'success');
+                this.showNotification(t('dynamic:driveAdded', {name: config.displayName}), 'success');
             } else {
-                this.showConnectionTestResult(false, '网络磁盘添加失败');
+                this.showConnectionTestResult(false, t('messages:couldNotAddNetworkDrive'));
             }
         } catch (error) {
-            this.showConnectionTestResult(false, `添加失败: ${this.getErrorMessage(error)}`);
+            this.showConnectionTestResult(false, t('dynamic:addFailed', {details: this.getErrorMessage(error)}));
         } finally {
             this.networkDriveConfirm.disabled = false;
-            this.networkDriveConfirm.textContent = '添加磁盘';
+            setLocalizedText(this.networkDriveConfirm, 'app:addDrive', {}, 'textContent');
         }
     }
 
@@ -361,7 +363,7 @@ class NetworkDiskModal extends Component {
         }));
 
         this.networkDriveUnsubscribers.push(networkDriveManagementService.onError((_driveId, error) => {
-            this.showNotification(`网络磁盘错误: ${error}`, 'error');
+            this.showNotification(t('dynamic:driveError', {details: error}), 'error');
         }));
 
         // 初始加载磁盘列表
@@ -385,15 +387,15 @@ class NetworkDiskModal extends Component {
         }
 
         if (!drives || drives.length === 0) {
-            this.mountedDrivesList.innerHTML = '<div class="no-drives-message">暂无已挂载的网络磁盘</div>';
+            this.mountedDrivesList.innerHTML = `<div class="no-drives-message" data-i18n="app:noNetworkDrivesMounted">${th('app:noNetworkDrivesMounted')}</div>`;
             return;
         }
 
         this.mountedDrivesList.innerHTML = drives.map(drive => {
             const statusClass = drive.connected ? 'connected' : 'disconnected';
-            const statusText = drive.connected ? '已连接' : '已断开';
+            const statusText = drive.connected ? t('messages:connected') : t('messages:disconnected');
             const protocolText = drive.type === 'smb' ? 'SMB' : 'WebDAV';
-            const displayName = drive.config?.displayName || drive.displayName || '未命名磁盘';
+            const displayName = drive.config?.displayName || drive.displayName || t('messages:unnamedDrive');
 
             return `
                 <div class="mounted-drive-item" data-drive-id="${drive.id}">
@@ -405,12 +407,8 @@ class NetworkDiskModal extends Component {
                         </div>
                     </div>
                     <div class="drive-actions">
-                        <button class="btn btn-small btn-primary scan-drive-btn" data-drive-id="${drive.id}" ${!drive.connected ? 'disabled' : ''}>
-                            扫描
-                        </button>
-                        <button class="btn btn-small btn-secondary unmount-drive-btn" data-drive-id="${drive.id}">
-                            卸载
-                        </button>
+                        <button class="btn btn-small btn-primary scan-drive-btn" data-drive-id="${drive.id}" ${!drive.connected ? 'disabled' : ''} data-i18n="messages:scan">${th('messages:scan')}</button>
+                        <button class="btn btn-small btn-secondary unmount-drive-btn" data-drive-id="${drive.id}" data-i18n="messages:uninstall">${th('messages:uninstall')}</button>
                     </div>
                 </div>
             `;
@@ -453,12 +451,12 @@ class NetworkDiskModal extends Component {
             const success = await networkDriveManagementService.scanNetworkDrive(driveId, '/');
 
             if (success) {
-                this.showNotification('网络磁盘扫描完成', 'success');
+                this.showNotification(t('messages:networkDriveScanComplete'), 'success');
             } else {
-                this.showNotification('网络磁盘扫描失败', 'error');
+                this.showNotification(t('messages:networkDriveScanFailed'), 'error');
             }
         } catch (error) {
-            this.showNotification(`扫描失败: ${this.getErrorMessage(error)}`, 'error');
+            this.showNotification(t('dynamic:scanFailed', {details: this.getErrorMessage(error)}), 'error');
         } finally {
             removeListener();
             this.hideScanTip(driveId);
@@ -469,7 +467,7 @@ class NetworkDiskModal extends Component {
         const btn = this.mountedDrivesList?.querySelector<HTMLButtonElement>(`.scan-drive-btn[data-drive-id="${driveId}"]`);
         if (btn) {
             btn.disabled = true;
-            btn.textContent = '扫描中...';
+            setLocalizedText(btn, 'messages:scanning', {}, 'textContent');
         }
 
         const driveItem = this.mountedDrivesList?.querySelector(`.mounted-drive-item[data-drive-id="${driveId}"]`);
@@ -482,7 +480,7 @@ class NetworkDiskModal extends Component {
             <div class="scan-tip-bar">
                 <div class="scan-tip-fill" data-scan-fill="${driveId}"></div>
             </div>
-            <p class="scan-tip-text" data-scan-text="${driveId}">⏳ 正在扫描网络磁盘...</p>
+            <p class="scan-tip-text" data-scan-text="${driveId}" data-i18n="messages:scanningNetworkDrive">${th('messages:scanningNetworkDrive')}</p>
         `;
         driveItem.appendChild(tip);
     }
@@ -496,7 +494,7 @@ class NetworkDiskModal extends Component {
             const percent = total > 0 ?
                 (current / total) * 100 : 0;
             fill.style.width = `${percent}%`;
-            text.textContent = `⏳ 扫描中: ${current}/${total}`;
+            setLocalizedText(text, 'dynamic:scanProgress', {current: current, total: total}, 'textContent');
         }
     }
 
@@ -507,7 +505,7 @@ class NetworkDiskModal extends Component {
         const btn = this.mountedDrivesList?.querySelector<HTMLButtonElement>(`.scan-drive-btn[data-drive-id="${driveId}"]`);
         if (btn) {
             btn.disabled = false;
-            btn.textContent = '扫描';
+            setLocalizedText(btn, 'messages:scan', {}, 'textContent');
         }
     }
 
@@ -528,17 +526,17 @@ class NetworkDiskModal extends Component {
                 await this.refreshMountedDrivesList();
 
                 // 显示成功通知
-                this.showNotification('网络磁盘卸载成功', 'success');
+                this.showNotification(t('messages:networkDriveUnmounted'), 'success');
 
                 // 发送卸载事件
                 this.emit('driveUnmounted', driveId);
             } else {
                 console.error(`❌ NetworkDiskModal: 网络磁盘 ${driveId} 卸载失败`);
-                this.showNotification('网络磁盘卸载失败', 'error');
+                this.showNotification(t('messages:couldNotUnmountNetworkDrive'), 'error');
             }
         } catch (error) {
             console.error(`❌ NetworkDiskModal: 卸载网络磁盘 ${driveId} 时发生异常:`, error);
-            this.showNotification(`卸载失败: ${this.getErrorMessage(error)}`, 'error');
+            this.showNotification(t('dynamic:uninstallFailed', {details: this.getErrorMessage(error)}), 'error');
         }
     }
 
@@ -550,21 +548,21 @@ class NetworkDiskModal extends Component {
 
         try {
             this.refreshDrivesBtn.disabled = true;
-            this.refreshDrivesBtn.textContent = '刷新中...';
+            setLocalizedText(this.refreshDrivesBtn, 'messages:refreshing', {}, 'textContent');
 
             const success = await networkDriveManagementService.refreshConnections();
             if (success) {
-                this.showNotification('网络磁盘状态刷新完成', 'success');
+                this.showNotification(t('messages:networkDriveStatusRefreshed'), 'success');
                 // 刷新显示列表
                 await this.refreshMountedDrivesList();
             } else {
-                this.showNotification('刷新网络磁盘状态失败', 'error');
+                this.showNotification(t('messages:couldNotRefreshNetworkDriveStatus'), 'error');
             }
         } catch (error) {
-            this.showNotification(`刷新失败: ${this.getErrorMessage(error)}`, 'error');
+            this.showNotification(t('dynamic:refreshFailed', {details: this.getErrorMessage(error)}), 'error');
         } finally {
             this.refreshDrivesBtn.disabled = false;
-            this.refreshDrivesBtn.textContent = '刷新状态';
+            setLocalizedText(this.refreshDrivesBtn, 'app:refreshStatus', {}, 'textContent');
         }
     }
 

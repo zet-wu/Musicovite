@@ -1,3 +1,5 @@
+import {bindLocalizedText, th, htmlT, getLocale, t, setLocalizedText} from '@/shared/i18n';
+
 /**
  * 歌单页组件
  */
@@ -53,6 +55,7 @@ type PlaylistDetail = Partial<Playlist> & {
 };
 
 interface CoverResult {
+    code?: string;
     success?: boolean;
     imageUrl?: string;
     type?: string;
@@ -180,7 +183,7 @@ class PlaylistDetailPage extends Component {
             ? {
                 id: FAVORITES_PLAYLIST_ID,
                 name: '收藏',
-                description: '珍藏您喜爱的歌曲',
+                description: t('messages:keepYourFavoriteTracksHere'),
                 systemType: 'favorites',
                 collectionType
             }
@@ -345,7 +348,7 @@ class PlaylistDetailPage extends Component {
                             </div>
                         </div>
                         <div class="playlist-detail-info align-${this.playlistInfoAlignment}">
-                            <h1 class="playlist-title">${this.escapeHtml(this.currentPlaylist.name)}</h1>
+                            <h1 class="playlist-title">${this.currentPlaylist.systemType === 'favorites' ? htmlT('app:favorites') : this.getCollectionType() === 'all-tracks' ? htmlT('app:allTracks') : this.escapeHtml(this.currentPlaylist.name)}</h1>
                             ${this.currentPlaylist.description ? `
                             <p class="playlist-description">${this.escapeHtml(this.currentPlaylist.description)}</p>
                             ` : ''}
@@ -354,7 +357,7 @@ class PlaylistDetailPage extends Component {
                                     <svg class="meta-icon" viewBox="0 0 24 24">
                                         <path d="M12,3V12.26C11.5,12.09 11,12 10.5,12C8.01,12 6,14.01 6,16.5S8.01,21 10.5,21S15,18.99 15,16.5V6H19V3H12Z"/>
                                     </svg>
-                                    <span class="meta-track-count">${trackCount} 首歌曲</span>
+                                    <span class="meta-track-count">${htmlT('common:tracks', {count: trackCount})}</span>
                                 </span>
                                 <span class="meta-item">
                                     <svg class="meta-icon" viewBox="0 0 24 24">
@@ -366,7 +369,7 @@ class PlaylistDetailPage extends Component {
                                     <svg class="meta-icon" viewBox="0 0 24 24">
                                         <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,5V19H5V5H19Z"/>
                                     </svg>
-                                    <span>创建于 ${createdDate.toLocaleDateString('zh-CN')}</span>
+                                    <span>${htmlT('common:createdAt', {date: createdDate.toLocaleDateString(getLocale())})}</span>
                                 </span>` : ''}
                             </div>
                         </div>
@@ -381,7 +384,7 @@ class PlaylistDetailPage extends Component {
                                 <svg class="play-icon" viewBox="0 0 24 24">
                                     <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
                                 </svg>
-                                <span class="btn-text">播放全部</span>
+                                <span class="btn-text" data-i18n="messages:playAll">${th('messages:playAll')}</span>
                             </div>
                         </button>
                         <button class="play-btn primary" id="playlist-add-all" ${trackCount === 0 ? 'disabled' : ''}>
@@ -389,7 +392,7 @@ class PlaylistDetailPage extends Component {
                                 <svg class="play-icon" viewBox="0 0 24 24">
                                     <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                                 </svg>
-                                <span class="btn-text">添加到播放列表</span>
+                                <span class="btn-text" data-i18n="app:addToQueue">${th('app:addToQueue')}</span>
                             </div>
                         </button>
                     </div>
@@ -399,13 +402,13 @@ class PlaylistDetailPage extends Component {
                             <svg class="icon" viewBox="0 0 24 24">
                                 <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                             </svg>
-                            <span>从文件添加歌曲</span>
+                            <span data-i18n="messages:addTracksFromFiles">${th('messages:addTracksFromFiles')}</span>
                         </button>
                         <button class="action-btn add-from-folder" id="playlist-add-from-folder">
                             <svg class="icon" viewBox="0 0 24 24">
                                 <path d="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4M14,12H12V14H10V12H8V10H10V8H12V10H14V12Z"/>
                             </svg>
-                            <span>管理绑定文件夹</span>
+                            <span data-i18n="messages:manageBoundFolders">${th('messages:manageBoundFolders')}</span>
                         </button>
                         ` : ''}
                         ${capabilities.canClear ? `
@@ -420,7 +423,7 @@ class PlaylistDetailPage extends Component {
                                     <svg class="menu-icon" viewBox="0 0 24 24">
                                         <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
                                     </svg>
-                                    <span>${this.getCollectionType() === 'favorites' ? '清空收藏' : '清空歌单'}</span>
+                                    <span>${this.getCollectionType() === 'favorites' ? t('messages:clearFavorites') : t('messages:clearPlaylist')}</span>
                                 </button>
                             </div>
                         </div>
@@ -792,8 +795,8 @@ class PlaylistDetailPage extends Component {
                 ${trackCount > 0 ? `
                 <div class="tracks-header">
                     <div class="header-left">
-                        <h3 class="tracks-title">歌曲列表</h3>
-                        <span class="tracks-count">${trackCount} 首歌曲</span>
+                        <h3 class="tracks-title" data-i18n="messages:tracks">${th('messages:tracks')}</h3>
+                        <span class="tracks-count">${htmlT('common:tracks', {count: trackCount})}</span>
                     </div>
                     <div class="header-right">
                         <div class="tracks-controls">
@@ -801,13 +804,13 @@ class PlaylistDetailPage extends Component {
                                 <svg class="icon" viewBox="0 0 24 24">
                                     <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
                                 </svg>
-                                <span>全选</span>
+                                <span data-i18n="messages:selectAll">${th('messages:selectAll')}</span>
                             </button>
                             <button class="control-btn" id="clear-selection" style="display: none;">
                                 <svg class="icon" viewBox="0 0 24 24">
                                     <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,6.41Z"/>
                                 </svg>
-                                <span>取消选择</span>
+                                <span data-i18n="messages:cancelSelection">${th('messages:cancelSelection')}</span>
                             </button>
                         </div>
                     </div>
@@ -824,15 +827,15 @@ class PlaylistDetailPage extends Component {
         if (this.tracks.length === 0) {
             const capabilities = getCollectionCapabilities(this.getCollectionType());
             const emptyTitle = this.getCollectionType() === 'favorites'
-                ? '还没有收藏歌曲'
+                ? t('messages:noFavoriteTracksYet')
                 : this.getCollectionType() === 'all-tracks'
-                    ? '音乐库还是空的'
-                    : '歌单还是空的';
+                    ? t('messages:yourLibraryIsEmpty')
+                    : t('messages:thisPlaylistIsEmpty');
             const emptyDescription = this.getCollectionType() === 'favorites'
-                ? '点击歌曲旁的心形按钮，或添加歌曲到收藏'
+                ? t('messages:clickTheHeartBesideATrackOrAddTracksTo')
                 : this.getCollectionType() === 'all-tracks'
-                    ? '导入音乐后，歌曲会显示在这里'
-                    : '添加一些您喜欢的音乐，开始您的音乐之旅';
+                    ? t('messages:importedMusicWillAppearHere')
+                    : t('messages:addMusicYouLoveToStartListening');
             return `
                 <div class="playlist-empty-state">
                     <div class="empty-content">
@@ -853,7 +856,7 @@ class PlaylistDetailPage extends Component {
                             <svg class="icon" viewBox="0 0 24 24">
                                 <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                             </svg>
-                            <span>添加歌曲</span>
+                            <span data-i18n="messages:addTracks">${th('messages:addTracks')}</span>
                         </button>
                         ` : ''}
                     </div>
@@ -865,9 +868,9 @@ class PlaylistDetailPage extends Component {
             <div class="modern-tracks-table ${this.showCovers ? 'with-covers' : ''}">
                 <div class="tracks-table-header">
                     <div class="header-cell cell-number">#</div>
-                    ${this.showCovers ? '<div class="header-cell cell-cover">封面</div>' : ''}
-                    <div class="header-cell cell-title">歌曲</div>
-                    <div class="header-cell cell-album">专辑</div>
+                    ${this.showCovers ? `<div class="header-cell cell-cover" data-i18n="app:artwork">${th('app:artwork')}</div>` : ''}
+                    <div class="header-cell cell-title" data-i18n="messages:track">${th('messages:track')}</div>
+                    <div class="header-cell cell-album" data-i18n="app:albums">${th('app:albums')}</div>
                     <div class="header-cell cell-duration">
                         <svg class="duration-icon" viewBox="0 0 24 24">
                             <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M16.2,16.2L11,13V7H12.5V12.2L17,14.9L16.2,16.2Z"/>
@@ -899,17 +902,17 @@ class PlaylistDetailPage extends Component {
                             </div>
                             ${this.showCovers ? `
                             <div class="track-cell cell-cover">
-                                <img class="track-cover" src="${this.getTrackCover(track)}" alt="封面" loading="lazy" onerror="this.src='assets/images/default-cover.svg'">
+                                <img class="track-cover" src="${this.getTrackCover(track)}" alt="${th('app:artwork')}" data-i18n-alt="app:artwork" loading="lazy" onerror="this.src='assets/images/default-cover.svg'">
                             </div>
                             ` : ''}
                             <div class="track-cell cell-title">
                                 <div class="track-main-info">
                                     <div class="track-name">${this.escapeHtml(track.title || track.fileName)}</div>
-                                    <div class="track-artist">${this.escapeHtml(track.artist || '未知艺术家')}</div>
+                                    <div class="track-artist">${this.escapeHtml(track.artist || t('app:unknownArtist'))}</div>
                                 </div>
                             </div>
                             <div class="track-cell cell-album">
-                                <span class="album-name">${this.escapeHtml(track.album || '未知专辑')}</span>
+                                <span class="album-name">${this.escapeHtml(track.album || t('messages:unknownAlbum'))}</span>
                             </div>
                             <div class="track-cell cell-duration">
                                 <span class="duration-text">${this.formatDuration(track.duration)}</span>
@@ -920,7 +923,7 @@ class PlaylistDetailPage extends Component {
                                             data-action="like"
                                             type="button"
                                             aria-pressed="${favoriteService.isFavorite(track)}"
-                                            title="${favoriteService.isFavorite(track) ? '取消收藏' : '收藏'}">
+                                            title="${favoriteService.isFavorite(track) ? t('messages:removeFromFavorites') : t('app:favorites')}">
                                         <svg class="icon" viewBox="0 0 24 24">
                                             <path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5 2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/>
                                         </svg>
@@ -1075,7 +1078,6 @@ class PlaylistDetailPage extends Component {
         const selectAllBtn = this.container.querySelector('#select-all-tracks');
         if (selectAllBtn) {
             const textElement = selectAllBtn.querySelector('span');
-            const label = this.selectedTracks.size === this.tracks.length && this.tracks.length > 0 ? '取消全选' : '全选';
             if (this.selectedTracks.size === this.tracks.length && this.tracks.length > 0) {
                 selectAllBtn.classList.add('is-all-selected');
             } else {
@@ -1083,7 +1085,7 @@ class PlaylistDetailPage extends Component {
             }
 
             if (textElement) {
-                textElement.textContent = label;
+                bindLocalizedText(textElement, () => this.selectedTracks.size === this.tracks.length && this.tracks.length > 0 ? t('messages:deselectAll') : t('messages:selectAll'));
             }
         }
     }
@@ -1125,7 +1127,7 @@ class PlaylistDetailPage extends Component {
     async toggleTrackLike(track: PlaylistDetailTrack, index: number): Promise<void> {
         const result = await favoriteService.toggle(track);
         if (!result.success) {
-            appNotificationService.showError(result.error || '更新收藏状态失败');
+            appNotificationService.showError(result.error || t('messages:couldNotUpdateFavorites'));
             return;
         }
         const row = this.trackRows[index];
@@ -1151,15 +1153,15 @@ class PlaylistDetailPage extends Component {
     }
 
     formatTotalDuration(totalSeconds: number): string {
-        if (!totalSeconds || totalSeconds <= 0) return '0 分钟';
+        if (!totalSeconds || totalSeconds <= 0) return t('messages:0Minutes');
 
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
 
         if (hours > 0) {
-            return `${hours} 小时 ${minutes} 分钟`;
+            return t('dynamic:durationHoursMinutes', {hours: hours, minutes: minutes});
         } else {
-            return `${minutes} 分钟`;
+            return t('dynamic:durationMinutes', {minutes: minutes});
         }
     }
 
@@ -1228,7 +1230,7 @@ class PlaylistDetailPage extends Component {
                     track.cover = coverUrl;
                     const row = this.trackRows[index];
                     if (row?.track === track) this.trackSurface.invalidateItem(row.key);
-                } else if (coverResult.error !== '列表自动联网获取封面已关闭') {
+                } else if (coverResult.code !== 'COVER_NETWORK_DISABLED') {
                     console.warn(`⚠️ PlaylistDetailPage: 封面加载失败 - ${track.title}:`, coverResult.error || '未知错误');
                 }
             } catch (error) {
@@ -1273,7 +1275,7 @@ class PlaylistDetailPage extends Component {
         if (this.currentPlaylist && this.currentPlaylist.coverImage) {
             // 如果有自定义封面，显示自定义封面
             return `
-                <img class="cover-image" src="file://${this.currentPlaylist.coverImage}" alt="歌单封面" />
+                <img class="cover-image" src="file://${this.currentPlaylist.coverImage}" alt="${th('audit:playlistArtwork')}" data-i18n-alt="audit:playlistArtwork" />
             `;
         } else {
             // 显示默认占位符
@@ -1305,20 +1307,20 @@ class PlaylistDetailPage extends Component {
                 <svg class="menu-icon" viewBox="0 0 24 24">
                     <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
                 </svg>
-                <span>${hasCustomCover ? '更换封面' : '添加封面'}</span>
+                <span>${hasCustomCover ? t('messages:changeArtwork') : t('messages:addArtwork')}</span>
             </div>
             <div class="context-menu-item" id="cover-from-track">
                 <svg class="menu-icon" viewBox="0 0 24 24">
                     <path d="M12,3V13.55A4,4 0 1,0 14,17V7H18V3H12Z"/>
                 </svg>
-                <span>从歌曲选择</span>
+                <span data-i18n="messages:chooseFromTrack">${th('messages:chooseFromTrack')}</span>
             </div>
             ${hasCustomCover ? `
             <div class="context-menu-item" id="remove-cover">
                 <svg class="menu-icon" viewBox="0 0 24 24">
                     <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
                 </svg>
-                <span>移除封面</span>
+                <span data-i18n="app:removeArtwork">${th('app:removeArtwork')}</span>
             </div>
             ` : ''}
         `;
@@ -1474,7 +1476,7 @@ class PlaylistDetailPage extends Component {
         const trackCount = this.tracks.length;
         const countElement = this.container.querySelector('.meta-track-count');
         if (countElement) {
-            countElement.textContent = `${trackCount} 首歌曲`;
+            setLocalizedText(countElement, 'dynamic:trackCount', {count: trackCount}, 'textContent');
         }
         const durationElement = this.container.querySelector('.meta-total-duration');
         if (durationElement) {

@@ -1,3 +1,5 @@
+import {t, setLocalizedText} from '@/shared/i18n';
+
 /**
  * 重命名歌单对话框组件
  */
@@ -121,13 +123,13 @@ class RenamePlaylistDialog extends Component {
         this.confirmBtn.disabled = !isValid;
 
         if (name.length === 0) {
-            this.showError('歌单名称不能为空');
+            this.showError(t('messages:playlistNameIsRequired'));
         } else if (name.length > 50) {
-            this.showError('歌单名称不能超过50个字符');
+            this.showError(t('messages:playlistNamesMustBeAtMost50Characters'));
         } else if (description.length > 200) {
-            this.showError('歌单描述不能超过200个字符');
+            this.showError(t('messages:playlistDescriptionsMustBeAtMost200Characters'));
         } else if (!hasChanges) {
-            this.showError('歌单名称和描述均未修改');
+            this.showError(t('messages:playlistNameAndDescriptionAreUnchanged'));
         } else {
             this.hideError();
         }
@@ -154,7 +156,7 @@ class RenamePlaylistDialog extends Component {
 
         try {
             this.confirmBtn.disabled = true;
-            this.confirmBtn.textContent = '重命名中...';
+            setLocalizedText(this.confirmBtn, 'messages:renaming', {}, 'textContent');
             const result = await playlistDialogActionService.renamePlaylist(
                 this.currentPlaylist.id,
                 newName,
@@ -166,18 +168,18 @@ class RenamePlaylistDialog extends Component {
                 this.emit('playlistRenamed', result.playlist);
                 this.hide();
 
-                const message = nameChanged ? `歌单已重命名为 "${newName}"` : '歌单描述已更新';
+                const message = nameChanged ? t('dynamic:playlistRenamed', {name: newName}) : t('messages:playlistDescriptionUpdated');
                 this.emit('notification', {type: 'info', message});
             } else {
-                this.showError('重命名失败');
+                this.showError(t('messages:couldNotRename'));
                 console.error(result);
             }
         } catch (error) {
-            this.showError('重命名失败，请重试');
+            this.showError(t('messages:couldNotRenamePleaseTryAgain'));
             console.error(error);
         } finally {
             this.confirmBtn.disabled = false;
-            this.confirmBtn.textContent = '重命名';
+            setLocalizedText(this.confirmBtn, 'app:rename', {}, 'textContent');
         }
     }
 }

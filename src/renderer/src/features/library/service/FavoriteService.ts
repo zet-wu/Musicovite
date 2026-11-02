@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {libraryGateway} from "@/infrastructure/electron";
 import type {Unsubscribe} from "@api/types/common";
 import type {FavoritesChangedData} from "@api/types/electron";
@@ -67,7 +69,7 @@ export class FavoriteService {
             return Promise.resolve({
                 success: false,
                 favorite: this.isFavorite(track),
-                error: '歌曲缺少文件标识'
+                error: t('messages:trackHasNoFileIdentifier')
             });
         }
 
@@ -84,7 +86,7 @@ export class FavoriteService {
                         return {
                             success: false,
                             favorite: this.states.get(fileId) ?? this.isFavorite(track),
-                            error: result.error || '更新收藏状态失败'
+                            error: result.error || t('messages:couldNotUpdateFavorites')
                         };
                     }
 

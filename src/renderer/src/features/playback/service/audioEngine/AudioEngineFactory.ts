@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {audioDriverController} from '@/features/audioDriver';
 import {WebAudioEngine} from './webAudio/WebAudioEngine';
 import type {AudioEngineBridge, AudioEngineConstructor, AudioEngineType} from './AudioEngineContract';
@@ -28,7 +29,7 @@ class AudioEngineFactory {
         if (engineType === 'wasapi') {
             const wasapiAvailable = this.WasapiEngine !== null || await this.ensureWasapiAvailable();
             if (!wasapiAvailable || !this.WasapiEngine) {
-                throw new Error('WASAPI引擎不可用');
+                throw new Error(t('audit:wasapiUnavailable'));
             }
 
             console.log('🎵 创建WASAPI独占引擎');
@@ -40,7 +41,7 @@ class AudioEngineFactory {
 
         const initialized = await engine.initialize();
         if (!initialized) {
-            throw new Error('引擎初始化失败');
+            throw new Error(t('audit:engineInitFailed'));
         }
 
         return engine;

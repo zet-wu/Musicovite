@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // 网络磁盘控制器
 
 import {BaseController, Controller, IpcHandle} from '../decorators/IpcHandler';
@@ -141,10 +142,10 @@ export class NetworkController extends BaseController {
     }> {
         try {
             const driveInfo = this.networkDriveManager.getDriveInfo(driveId);
-            if (!driveInfo) return {success: false, error: '网络磁盘未挂载'};
+            if (!driveInfo) return {success: false, error: nativeT('errors:networkDriveIsNotMounted')};
 
             const status = this.networkDriveManager.getDriveStatus(driveId);
-            if (!status?.connected) return {success: false, error: '网络磁盘未连接'};
+            if (!status?.connected) return {success: false, error: nativeT('errors:networkDriveIsNotConnected')};
 
             const networkPath = `network://${driveId}${dirPath}`;
             const items = await this.networkFileAdapter.readdir(networkPath);

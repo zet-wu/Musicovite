@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {networkRequestClient} from '@/shared/network';
 import {urlValidator} from '@utils/URLValidator';
 import type {CoverResult, ImageFormat} from '@api/types';
@@ -47,7 +49,7 @@ export class CoverLookupService {
             }
 
             if (options.allowNetwork === false) {
-                return {success: false, error: '列表自动联网获取封面已关闭'};
+                return {success: false, code: 'COVER_NETWORK_DISABLED'};
             }
 
             const networkCover = await this.getNetworkCover(title, artist, album, options.signal);
@@ -61,9 +63,9 @@ export class CoverLookupService {
                 return networkCover;
             }
 
-            return {success: false, error: '未找到封面'};
+            return {success: false, error: t('messages:noArtworkFound')};
         } catch (error) {
-            this.logError(`封面获取失败: ${title}`, error);
+            this.logError(t('dynamic:artworkFetchFailed', {title: title}), error);
             return {
                 success: false,
                 error: this.getErrorMessage(error)
@@ -108,7 +110,7 @@ export class CoverLookupService {
             };
         }
 
-        return {success: false, error: '获取本地缓存封面失败'};
+        return {success: false, error: t('messages:couldNotRetrieveCachedArtwork')};
     }
 
     async getNetworkCover(title: string, artist: string, album = '', signal?: AbortSignal): Promise<CoverResult> {
@@ -155,9 +157,9 @@ export class CoverLookupService {
                 };
             }
 
-            throw new Error('无效的封面响应格式');
+            throw new Error(t('audit:invalidCoverResponse'));
         } catch (error) {
-            this.logError('网络封面获取失败', error);
+            this.logError(t('messages:couldNotRetrieveOnlineArtwork'), error);
             return {
                 success: false,
                 error: this.getErrorMessage(error)
@@ -195,7 +197,7 @@ export class CoverLookupService {
                 diskCleared: false,
                 deletedFileCount: 0,
                 preservedUnknownFileCount: 0,
-                error: diskResult.error || '清除磁盘封面缓存失败'
+                error: diskResult.error || t('messages:couldNotClearDiskArtworkCache')
             };
         }
 
@@ -262,7 +264,7 @@ export class CoverLookupService {
                 filePath: saveResult.filePath
             };
         } catch (error) {
-            this.logError('保存封面到本地缓存时发生错误', error);
+            this.logError(t('messages:couldNotSaveArtworkToTheLocalCache'), error);
             return null;
         }
     }

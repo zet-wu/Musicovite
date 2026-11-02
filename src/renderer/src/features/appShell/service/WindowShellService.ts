@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {windowGateway} from '@/infrastructure/electron';
 import {cacheManager} from '@/shared/cache';
 import type {Result, Unsubscribe} from '@api/types/common';
@@ -40,7 +41,7 @@ export type WindowShellMiniModeResult = {
 
 class WindowInputError extends Error {
     constructor(paramName: string, expectedType: string, actualValue: unknown) {
-        super(`参数 "${paramName}" 验证失败: 期望 ${expectedType}, 实际收到 ${typeof actualValue}`);
+        super(t('audit:parameterInvalid', {name: paramName, expected: expectedType, actual: typeof actualValue}));
         this.name = 'WindowInputError';
     }
 }
@@ -362,7 +363,7 @@ export class WindowShellService {
         try {
             return await operation();
         } catch (error) {
-            this.logError(`${operationName} 失败`, error);
+            this.logError(t('dynamic:operationFailed', {operation: operationName}), error);
 
             if (arguments.length >= 3) {
                 return fallbackValue as T;

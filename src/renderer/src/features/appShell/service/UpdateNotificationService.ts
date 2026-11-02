@@ -1,3 +1,5 @@
+import {t, th} from '@/shared/i18n';
+
 import {showToast} from '@/utils';
 import {type GitHubRelease, updateService} from './UpdateService';
 import type {Result, Unsubscribe} from '@api/types/common';
@@ -16,7 +18,7 @@ export class UpdateNotificationService {
             }
         } catch (error) {
             console.error('❌ UpdateNotificationService: 检查更新失败', error);
-            showToast('检查更新失败，请检查网络连接', 'error');
+            showToast(t('messages:couldNotCheckForUpdatesCheckYourConnection'), 'error');
         }
     }
 
@@ -46,7 +48,7 @@ export class UpdateNotificationService {
         latestVersion: string,
         releaseInfo?: GitHubRelease
     ): void {
-        const message = `发现新版本 v${latestVersion}（当前版本：v${currentVersion}）`;
+        const message = t('dynamic:updateAvailable', {latest: latestVersion, current: currentVersion});
         const toastElement = document.createElement('div');
         toastElement.className = 'update-notification-toast';
         toastElement.innerHTML = `
@@ -58,7 +60,7 @@ export class UpdateNotificationService {
                         </svg>
                     </div>
                     <div class="update-toast-text">
-                        <div class="update-toast-title">发现新版本</div>
+                        <div class="update-toast-title" data-i18n="messages:newVersionAvailable">${th('messages:newVersionAvailable')}</div>
                         <div class="update-toast-message">${message}</div>
                     </div>
                     <button class="update-toast-close">
@@ -68,8 +70,8 @@ export class UpdateNotificationService {
                     </button>
                 </div>
                 <div class="update-toast-actions">
-                    <button class="update-toast-btn update-toast-btn-primary">查看详情</button>
-                    <button class="update-toast-btn update-toast-btn-secondary">稍后提醒</button>
+                    <button class="update-toast-btn update-toast-btn-primary" data-i18n="messages:viewDetails">${th('messages:viewDetails')}</button>
+                    <button class="update-toast-btn update-toast-btn-secondary" data-i18n="messages:remindMeLater">${th('messages:remindMeLater')}</button>
                 </div>
             </div>
         `;

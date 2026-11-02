@@ -11,7 +11,6 @@ import type {
 export type SettingValue = string | number | boolean | object | null | undefined;
 
 export interface SettingsInitialValues {
-    language: string;
     autoplay: boolean;
     rememberPosition: boolean;
     playlistInfoAlignment: PlaylistInfoAlignment;
@@ -49,11 +48,15 @@ class SettingsStore {
     private readonly cacheKey = 'musicbox-settings';
 
     load(): MusicBoxSettings {
-        return cacheManager.getLocalCache<MusicBoxSettings>(this.cacheKey) || {};
+        return this.withoutLanguage(cacheManager.getLocalCache<MusicBoxSettings>(this.cacheKey) || {});
+    }
+
+    private withoutLanguage(settings: MusicBoxSettings): MusicBoxSettings {
+        return Object.fromEntries(Object.entries(settings).filter(([key]) => key !== 'language'));
     }
 
     save(settings: MusicBoxSettings): void {
-        cacheManager.setLocalCache(this.cacheKey, settings);
+        cacheManager.setLocalCache(this.cacheKey, this.withoutLanguage(settings));
     }
 
     update(settings: MusicBoxSettings, key: string, value: SettingValue): MusicBoxSettings {
@@ -71,7 +74,6 @@ class SettingsStore {
 
     getInitialValues(settings: MusicBoxSettings): SettingsInitialValues {
         return {
-            language: this.getString(settings, 'language', 'zh-CN'),
             autoplay: this.getBoolean(settings, 'autoplay', false),
             rememberPosition: this.getBoolean(settings, 'rememberPosition', false),
             playlistInfoAlignment: this.getPlaylistInfoAlignment(settings),

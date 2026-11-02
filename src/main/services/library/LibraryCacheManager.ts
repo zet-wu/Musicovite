@@ -363,7 +363,7 @@ export class LibraryCacheManager {
             }
             return {valid: true};
         } catch (error: any) {
-            if (error.message?.includes('网络磁盘') && error.message?.includes('未连接')) {
+            if (error.code === 'NETWORK_DRIVE_DISCONNECTED') {
                 return {valid: true, reason: 'network_disconnected'};
             }
             return {valid: false, reason: 'network_access_error', error: error.message};
@@ -704,7 +704,7 @@ export class LibraryCacheManager {
         if (!track) throw new Error('歌曲不存在');
         if (!Array.isArray(playlist.trackIds)) playlist.trackIds = [];
         if (!Array.isArray(playlist.manualTrackIds)) playlist.manualTrackIds = [];
-        if (playlist.manualTrackIds.includes(trackFileId)) throw new Error('歌曲已在歌单中');
+        if (playlist.manualTrackIds.includes(trackFileId)) throw Object.assign(new Error('PLAYLIST_TRACK_ALREADY_EXISTS'), {code: 'PLAYLIST_TRACK_ALREADY_EXISTS'});
         if (!playlist.trackIds.includes(trackFileId)) playlist.trackIds.push(trackFileId);
         if (!playlist.manualTrackIds.includes(trackFileId)) playlist.manualTrackIds.push(trackFileId);
         playlist.updatedAt = Date.now();

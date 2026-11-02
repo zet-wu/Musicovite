@@ -1,33 +1,35 @@
+import {t} from '@/shared/i18n';
+
 import type {ConfirmOptions} from "@/shared/types/AppContracts";
 import type {ShortcutConflict} from "./ShortcutSettingsService";
 
 class ShortcutDialogService {
     createConflictConfirmOptions(conflicts: ShortcutConflict[], newShortcut: string): ConfirmOptions {
         const conflictNames = conflicts.map((conflict) => {
-            const typeName = conflict.type === 'local' ? '应用内' : '全局';
-            return `${conflict.name} (${typeName})`;
+            const typeName = conflict.type === 'local' ? t('messages:inApplication') : t('messages:global');
+            return `${t(`shortcuts:${conflict.id}Name`)} (${typeName})`;
         }).join('、');
 
         return {
-            title: '快捷键冲突',
-            message: `快捷键 "${this.formatShortcutKey(newShortcut)}" 与以下快捷键冲突：\n${conflictNames}\n\n是否要覆盖现有快捷键？`,
-            confirmText: '覆盖',
+            title: t('messages:shortcutConflict'),
+            message: t('dynamic:shortcutConflictConfirm', {shortcut: this.formatShortcutKey(newShortcut), conflicts: conflictNames}),
+            confirmText: t('messages:overwrite'),
             type: 'warning'
         };
     }
 
     createResetConfirmOptions(): ConfirmOptions {
         return {
-            title: '重置快捷键',
-            message: '确定要将所有快捷键重置为默认设置吗？\n\n此操作将清除您的所有自定义快捷键配置。',
-            confirmText: '重置',
+            title: t('messages:resetShortcuts'),
+            message: t('settings:resetShortcutsConfirm'),
+            confirmText: t('app:reset'),
             type: 'warning'
         };
     }
 
     formatShortcutKey(key: string): string {
         if (!key) {
-            return '未设置';
+            return t('messages:notSet');
         }
 
         return key
@@ -39,7 +41,7 @@ class ShortcutDialogService {
             .replace(/ArrowDown/g, '↓')
             .replace(/ArrowLeft/g, '←')
             .replace(/ArrowRight/g, '→')
-            .replace(/Space/g, '空格');
+            .replace(/Space/g, t('messages:space'));
     }
 }
 

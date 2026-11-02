@@ -1,3 +1,5 @@
+import {t} from '@/shared/i18n';
+
 import {showToast} from "@utils/index.js";
 import {appConfirmationService} from "@/features/appShell/service";
 import {shortcutDialogService} from "./ShortcutDialogService";
@@ -128,16 +130,16 @@ class ShortcutSettingsController {
         try {
             const success = await shortcutSettingsService.updateShortcut(type, id, shortcutString);
             if (!success) {
-                showToast('快捷键更新失败', 'error');
+                showToast(t('messages:couldNotUpdateShortcut'), 'error');
                 return;
             }
 
             shortcutListRenderer.updateShortcutKey(type, id, shortcutString);
-            showToast('快捷键已更新', 'success');
+            showToast(t('messages:shortcutUpdated'), 'success');
             onShortcutsUpdated();
         } catch (error) {
             console.error('❌ 更新快捷键失败:', error);
-            showToast('快捷键更新失败', 'error');
+            showToast(t('messages:couldNotUpdateShortcut'), 'error');
         }
     }
 
@@ -149,12 +151,12 @@ class ShortcutSettingsController {
     ): void {
         const success = shortcutSettingsService.setShortcutEnabled(type, id, enabled);
         if (!success) {
-            showToast('快捷键状态更新失败', 'error');
+            showToast(t('messages:couldNotUpdateShortcutState'), 'error');
             return;
         }
 
         shortcutListRenderer.updateShortcutEnabled(type, id, enabled);
-        showToast(enabled ? '快捷键已启用' : '快捷键已禁用', 'success');
+        showToast(enabled ? t('messages:shortcutEnabled') : t('messages:shortcutDisabled'), 'success');
         onShortcutsUpdated();
     }
 
@@ -166,17 +168,17 @@ class ShortcutSettingsController {
         try {
             const success = await shortcutSettingsService.setGlobalShortcutsEnabled(enabled);
             if (!success) {
-                showToast('全局快捷键设置失败', 'error');
+                showToast(t('messages:couldNotConfigureGlobalShortcuts'), 'error');
                 this.restoreGlobalShortcutsToggle(elements, !enabled);
                 return;
             }
 
             this.updateGlobalShortcutsVisibility(elements, enabled);
             shortcutSettingsService.refreshSummary();
-            showToast(enabled ? '全局快捷键已启用' : '全局快捷键已禁用', 'success');
+            showToast(enabled ? t('messages:globalShortcutsEnabled') : t('messages:globalShortcutsDisabled'), 'success');
             onShortcutsUpdated();
         } catch (error) {
-            showToast('全局快捷键设置失败', 'error');
+            showToast(t('messages:couldNotConfigureGlobalShortcuts'), 'error');
             this.restoreGlobalShortcutsToggle(elements, !enabled);
         }
     }
@@ -215,13 +217,13 @@ class ShortcutSettingsController {
     private resetShortcuts(elements: ShortcutSettingsElements, onShortcutsUpdated: ShortcutsUpdatedCallback): void {
         const success = shortcutSettingsService.resetToDefaults();
         if (!success) {
-            showToast('重置快捷键失败', 'error');
+            showToast(t('messages:couldNotResetShortcuts'), 'error');
             return;
         }
 
         this.initializeShortcuts(elements);
         shortcutSettingsService.refreshSummary();
-        showToast('快捷键已重置为默认设置', 'success');
+        showToast(t('messages:shortcutsResetToDefaults'), 'success');
         onShortcutsUpdated();
     }
 

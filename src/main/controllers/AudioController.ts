@@ -1,3 +1,4 @@
+import {nativeT} from '../services/i18n/Translation';
 // 音频引擎状态管理 + IPC 控制器
 
 import {BaseController, Controller, IpcHandle} from '../decorators/IpcHandler';
@@ -164,9 +165,9 @@ export class AudioController extends BaseController {
     async getCurrentTrack(): Promise<any> {
         return this.state.currentTrack ?? {
             filePath: '',
-            title: '未选择音频文件',
-            artist: '未知艺术家',
-            album: '未知专辑',
+            title: nativeT('errors:noAudioFileSelected'),
+            artist: '',
+            album: '',
             duration: 0
         };
     }

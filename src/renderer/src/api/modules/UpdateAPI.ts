@@ -1,3 +1,4 @@
+import {t, th, htmlT} from '@/shared/i18n';
 /**
  * 更新 API
  * 提供应用更新检查、版本比较等功能
@@ -62,7 +63,7 @@ export class UpdateAPI extends BaseAPI {
             }
         } catch (error) {
             this.logError('检查更新失败', error as Error);
-            showToast('检查更新失败，请检查网络连接', 'error');
+            showToast(t('messages:couldNotCheckForUpdatesCheckYourConnection'), 'error');
         }
     }
 
@@ -113,7 +114,7 @@ export class UpdateAPI extends BaseAPI {
         latestVersion: string,
         releaseInfo?: GitHubRelease
     ): void {
-        const message = `发现新版本 v${latestVersion}（当前版本：v${currentVersion}）`;
+
 
         const toastElement = document.createElement('div');
         toastElement.className = 'update-notification-toast';
@@ -126,8 +127,8 @@ export class UpdateAPI extends BaseAPI {
                         </svg>
                     </div>
                     <div class="update-toast-text">
-                        <div class="update-toast-title">发现新版本</div>
-                        <div class="update-toast-message">${message}</div>
+                        <div class="update-toast-title" data-i18n="messages:newVersionAvailable">${th('messages:newVersionAvailable')}</div>
+                        <div class="update-toast-message">${htmlT('dynamic:updateAvailable', {latest: latestVersion, current: currentVersion})}</div>
                     </div>
                     <button class="update-toast-close">
                         <svg viewBox="0 0 24 24">
@@ -136,8 +137,8 @@ export class UpdateAPI extends BaseAPI {
                     </button>
                 </div>
                 <div class="update-toast-actions">
-                    <button class="update-toast-btn update-toast-btn-primary">查看详情</button>
-                    <button class="update-toast-btn update-toast-btn-secondary">稍后提醒</button>
+                    <button class="update-toast-btn update-toast-btn-primary" data-i18n="messages:viewDetails">${th('messages:viewDetails')}</button>
+                    <button class="update-toast-btn update-toast-btn-secondary" data-i18n="messages:remindMeLater">${th('messages:remindMeLater')}</button>
                 </div>
             </div>
         `;

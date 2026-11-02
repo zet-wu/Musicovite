@@ -1,3 +1,5 @@
+import {bindLocalizedText, t} from '@/shared/i18n';
+
 import {appNotificationService} from "@/features/appShell/service";
 import {favoriteService} from "@/features/library/service/FavoriteService";
 import type {Unsubscribe} from "@api/types/common";
@@ -46,7 +48,7 @@ class PlayerFavoriteController {
         this.button.classList.toggle('active', favorite);
         this.button.classList.toggle('disabled', disabled);
         this.button.setAttribute('aria-pressed', String(favorite));
-        this.button.title = favorite ? '取消收藏' : '收藏';
+        bindLocalizedText(this.button, () => favorite ? t('messages:removeFromFavorites') : t('app:favorites'), 'title');
     }
 
     destroy(): void {
@@ -66,7 +68,7 @@ class PlayerFavoriteController {
         this.update(track);
 
         if (!result.success) {
-            appNotificationService.showError(result.error || '更新收藏状态失败');
+            appNotificationService.showError(result.error || t('messages:couldNotUpdateFavorites'));
         }
     }
 }

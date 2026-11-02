@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {decodeKrc} from './decodeKrc';
 import type {KrcLine, KrcParseResult} from './types';
 
@@ -23,7 +24,7 @@ export function parseKrc(bytes: Uint8Array): KrcParseResult {
         .filter((line): line is NonNullable<typeof line> => Boolean(line));
 
     if (lines.length === 0) {
-        throw new Error('KRC 未包含可用歌词');
+        throw new Error(t('audit:krcNoLyrics'));
     }
 
     const translations = getLanguageRows(language, 1);
@@ -90,7 +91,7 @@ function parseLanguageBlock(text: string): KrcLanguagePayload | undefined {
         const json = new TextDecoder().decode(Uint8Array.from(atob(match[1]), character => character.charCodeAt(0)));
         return JSON.parse(json) as KrcLanguagePayload;
     } catch (error) {
-        throw new Error('KRC language block 无效', {cause: error});
+        throw new Error(t('audit:invalidKrcLanguage'), {cause: error});
     }
 }
 

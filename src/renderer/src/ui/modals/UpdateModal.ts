@@ -1,3 +1,5 @@
+import {th, setLocalizedText, t} from '@/shared/i18n';
+
 /**
  * 更新检查模态窗口组件
  */
@@ -93,7 +95,7 @@ class UpdateModal extends Component {
                 <div id="update-modal" class="modal-overlay" style="display: none;">
                     <div class="modal-dialog update-modal-dialog">
                         <div class="modal-header">
-                            <h3 class="modal-title">检查更新</h3>
+                            <h3 class="modal-title" data-i18n="app:checkForUpdates">${th('app:checkForUpdates')}</h3>
                             <button class="modal-close-btn" id="update-modal-close">
                                 <svg class="icon" viewBox="0 0 24 24">
                                     <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
@@ -105,7 +107,7 @@ class UpdateModal extends Component {
                                 <!-- 检查中状态 -->
                                 <div class="update-checking" id="update-checking">
                                     <div class="loading-spinner"></div>
-                                    <p class="update-message">正在检查更新...</p>
+                                    <p class="update-message" data-i18n="messages:checkingForUpdates">${th('messages:checkingForUpdates')}</p>
                                 </div>
 
                                 <!-- 有新版本 -->
@@ -115,19 +117,19 @@ class UpdateModal extends Component {
                                             <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.41,10.09L6,11.5L11,16.5Z"/>
                                         </svg>
                                     </div>
-                                    <h4 class="update-title">发现新版本</h4>
+                                    <h4 class="update-title" data-i18n="messages:newVersionAvailable">${th('messages:newVersionAvailable')}</h4>
                                     <div class="version-info">
                                         <div class="version-item">
-                                            <span class="version-label">当前版本：</span>
+                                            <span class="version-label" data-i18n="messages:currentVersion">${th('messages:currentVersion')}</span>
                                             <span class="version-value current" id="current-version"></span>
                                         </div>
                                         <div class="version-item">
-                                            <span class="version-label">最新版本：</span>
+                                            <span class="version-label" data-i18n="messages:latestVersion">${th('messages:latestVersion')}</span>
                                             <span class="version-value latest" id="latest-version"></span>
                                         </div>
                                     </div>
                                     <div class="release-notes" id="release-notes">
-                                        <h5>更新内容：</h5>
+                                        <h5 data-i18n="messages:releaseNotes">${th('messages:releaseNotes')}</h5>
                                         <div class="notes-content" id="notes-content"></div>
                                     </div>
                                 </div>
@@ -139,8 +141,8 @@ class UpdateModal extends Component {
                                             <path d="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
                                         </svg>
                                     </div>
-                                    <h4 class="update-title">已是最新版本</h4>
-                                    <p class="update-message">您当前使用的版本 <strong id="current-version-latest"></strong> 已是最新版本。</p>
+                                    <h4 class="update-title" data-i18n="messages:upToDate">${th('messages:upToDate')}</h4>
+                                    <p class="update-message"><span data-i18n="messages:yourCurrentVersion">${th('messages:yourCurrentVersion')}</span><strong id="current-version-latest"></strong><span data-i18n="messages:isUpToDate">${th('messages:isUpToDate')}</span></p>
                                 </div>
 
                                 <!-- 检查失败 -->
@@ -150,17 +152,17 @@ class UpdateModal extends Component {
                                             <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
                                         </svg>
                                     </div>
-                                    <h4 class="update-title">检查更新失败</h4>
-                                    <p class="update-message" id="error-message">无法连接到更新服务器，请检查网络连接后重试。</p>
+                                    <h4 class="update-title" data-i18n="messages:couldNotCheckForUpdates">${th('messages:couldNotCheckForUpdates')}</h4>
+                                    <p class="update-message" id="error-message" data-i18n="messages:couldNotConnectToTheUpdateServerCheckYourConnection">${th('messages:couldNotConnectToTheUpdateServerCheckYourConnection')}</p>
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <div class="modal-actions">
-                                <button class="btn btn-secondary" id="update-later">稍后提醒</button>
-                                <button class="btn btn-primary" id="update-now" style="display: none;">立即更新</button>
-                                <button class="btn btn-secondary" id="update-retry" style="display: none;">重试</button>
-                                <button class="btn btn-primary" id="update-ok" style="display: none;">确定</button>
+                                <button class="btn btn-secondary" id="update-later" data-i18n="messages:remindMeLater">${th('messages:remindMeLater')}</button>
+                                <button class="btn btn-primary" id="update-now" style="display: none;" data-i18n="messages:updateNow">${th('messages:updateNow')}</button>
+                                <button class="btn btn-secondary" id="update-retry" style="display: none;" data-i18n="messages:retry">${th('messages:retry')}</button>
+                                <button class="btn btn-primary" id="update-ok" style="display: none;" data-i18n="app:confirm">${th('app:confirm')}</button>
                             </div>
                         </div>
                     </div>
@@ -272,7 +274,7 @@ class UpdateModal extends Component {
         if (this.releaseInfo?.body) {
             this.notesContentEl.innerHTML = this.formatReleaseNotes(this.releaseInfo.body);
         } else {
-            this.notesContentEl.textContent = '暂无更新说明';
+            setLocalizedText(this.notesContentEl, 'messages:noReleaseNotesAvailable', {}, 'textContent');
         }
 
         this.hideAllButtons();
@@ -331,7 +333,7 @@ class UpdateModal extends Component {
         const releaseUrl = this.releaseInfo?.html_url || undefined;
         const result = await updateService.openReleasePage(releaseUrl);
         if (!result.success) {
-            this.showError(result.error || '打开发布页面失败');
+            this.showError(result.error || t('messages:couldNotOpenReleasePage'));
             return;
         }
 

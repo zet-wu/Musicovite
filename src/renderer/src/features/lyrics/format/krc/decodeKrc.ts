@@ -1,3 +1,4 @@
+import {t} from '@/shared/i18n';
 import {inflate} from 'pako';
 
 const KRC_HEADER = new Uint8Array([0x6b, 0x72, 0x63, 0x31]);
@@ -10,7 +11,7 @@ const KRC_XOR_KEY = new Uint8Array([
 
 export function decodeKrc(bytes: Uint8Array): string {
     if (bytes.length <= KRC_HEADER.length || !hasHeader(bytes)) {
-        throw new Error('无效的 KRC 文件头');
+        throw new Error(t('audit:invalidKrcHeader'));
     }
 
     const encrypted = bytes.subarray(KRC_HEADER.length);
@@ -22,7 +23,7 @@ export function decodeKrc(bytes: Uint8Array): string {
     try {
         return inflate(compressed, {to: 'string'});
     } catch (error) {
-        throw new Error('KRC 解压失败', {cause: error});
+        throw new Error(t('audit:krcDecompressionFailed'), {cause: error});
     }
 }
 

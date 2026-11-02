@@ -1,3 +1,4 @@
+import {setLocalizedText, t} from '@/shared/i18n';
 /**
  * 快捷键录制器
  * 负责捕获用户按键并转换为快捷键字符串
@@ -51,7 +52,7 @@ class ShortcutRecorder extends EventEmitter {
         // 更新UI状态
         if (element) {
             element.classList.add('recording');
-            element.textContent = '请按下快捷键...';
+            setLocalizedText(element, 'audit:pressShortcut', {}, 'textContent');
             element.setAttribute('data-recording', 'true');
         }
 
@@ -163,7 +164,7 @@ class ShortcutRecorder extends EventEmitter {
 
         // 如果所有键都释放了，重置显示
         if (this.pressedKeys.size === 0 && this.currentElement) {
-            this.currentElement.textContent = '请按下快捷键...';
+            setLocalizedText(this.currentElement, 'audit:pressShortcut', {}, 'textContent');
         }
     }
 
@@ -289,18 +290,18 @@ class ShortcutRecorder extends EventEmitter {
      */
     static validateShortcut(shortcutString: unknown): ShortcutValidationResult {
         if (!shortcutString || typeof shortcutString !== 'string') {
-            return {valid: false, error: '快捷键不能为空'};
+            return {valid: false, error: t('audit:shortcutRequired')};
         }
 
         const parts = shortcutString.split('+');
         if (parts.length === 0) {
-            return {valid: false, error: '无效的快捷键格式'};
+            return {valid: false, error: t('audit:invalidShortcut')};
         }
 
         // 检查是否有重复的键
         const uniqueParts = new Set(parts);
         if (uniqueParts.size !== parts.length) {
-            return {valid: false, error: '快捷键包含重复的键'};
+            return {valid: false, error: t('audit:duplicateShortcutKeys')};
         }
 
         // 检查修饰键的顺序
@@ -313,11 +314,11 @@ class ShortcutRecorder extends EventEmitter {
 
             if (modifierIndex !== -1) {
                 if (modifierIndex <= lastModifierIndex) {
-                    return {valid: false, error: '修饰键顺序不正确'};
+                    return {valid: false, error: t('audit:modifierOrder')};
                 }
                 lastModifierIndex = modifierIndex;
             } else {
-                return {valid: false, error: `无效的修饰键: ${part}`};
+                return {valid: false, error: t('audit:invalidModifier', {key: part})};
             }
         }
 

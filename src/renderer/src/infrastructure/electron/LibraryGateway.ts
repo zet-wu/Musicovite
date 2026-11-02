@@ -114,7 +114,7 @@ class LibraryGateway extends ElectronNamespaceAdapter<'library'> {
         return this.call('getTrackPlaybackMetadata', filePath);
     }
 
-    updateTrackMetadata(data: unknown): Promise<Result & {updatedMetadata?: Track}> {
+    updateTrackMetadata(data: unknown): Promise<{success: boolean; code?: string; details?: string; updatedMetadata?: Track}> {
         return this.call('updateTrackMetadata', data);
     }
 
