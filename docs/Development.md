@@ -100,10 +100,9 @@ npm run lint
 
 架构检查会阻止以下问题：
 
-- 新代码导入 deprecated `@/core`、`@/services` 或旧 `@js` 路径。
+- 代码导入已移除的 `@/core`、`@/services` 或旧 `@js` 路径。
 - 主 renderer 中使用 `eval` 或 script 注入加载插件。
 - 插件 host/framework 硬编码具体内置插件 ID。
-- 兼容转发文件混入业务逻辑。
 
 类型检查：
 
@@ -284,5 +283,4 @@ npm run build:python
 
 - 将 `@/core` 导入改为 `@/app` 或 `@/features`。
 - 将 `@/services` 导入改为 `@/features/*/service` 或 `@/infrastructure/electron`。
-- 把业务逻辑移出兼容转发文件。
 - 移除主 renderer 中的 `eval`、script 注入或插件 ID 硬编码。

@@ -8,16 +8,11 @@ const configFiles = [
     path.join(rendererRoot, 'tsconfig.json'),
     path.join(rendererRoot, 'vite.config.js')
 ];
-const legacyCompatibilityRoots = [
-    path.join(sourceRoot, 'core'),
-    path.join(sourceRoot, 'services')
-];
 const sandboxRuntimeFile = path.join(sourceRoot, 'extensions/core/sandbox/SandboxFrameRuntime.ts');
 const pluginHostCodeRoots = [
     path.join(sourceRoot, 'extensions/core'),
     path.join(sourceRoot, 'extensions/api'),
     path.join(sourceRoot, 'features/extensions'),
-    path.join(sourceRoot, 'services/plugins'),
     path.resolve(rendererRoot, '..', 'main/services/extensions'),
     path.resolve(rendererRoot, '..', 'main/controllers/ExtensionsController.ts')
 ];
@@ -53,7 +48,7 @@ const forbiddenPatterns = [
     },
     {
         pattern: /src=["']\.\/core\/main\.ts["']/g,
-        message: 'HTML entries must use ./app/bootstrap/main.ts; core/main.ts is compatibility only.'
+        message: 'HTML entries must use ./app/bootstrap/main.ts; app/bootstrap/main.ts is the application entry.'
     },
     {
         pattern: /['"]@core(?:\/\*)?['"]\s*:/g,
@@ -136,10 +131,6 @@ function checkFile(filePath) {
     const contents = readFileSync(filePath, 'utf8');
     const lineStarts = computeLineStarts(contents);
 
-    if (isLegacyCompatibilityFile(filePath)) {
-        checkLegacyCompatibilityFile(normalized, contents);
-    }
-
     for (const {pattern, message} of forbiddenPatterns) {
         if (pattern.source.includes('eval') && path.resolve(filePath) === sandboxRuntimeFile) {
             continue;
@@ -187,49 +178,6 @@ function checkPluginHostFile(filePath) {
             });
         }
     }
-}
-
-function checkLegacyCompatibilityFile(filePath, contents) {
-    if (!contents.includes('@deprecated')) {
-        violations.push({
-            filePath,
-            line: 1,
-            column: 1,
-            match: '<missing @deprecated>',
-            message: 'Legacy core/services compatibility files must be marked @deprecated.'
-        });
-    }
-
-    const lines = contents.split(/\r?\n/);
-    for (let index = 0; index < lines.length; index++) {
-        const trimmed = lines[index].trim();
-        if (
-            trimmed === ''
-            || trimmed.startsWith('//')
-            || trimmed.startsWith('/*')
-            || trimmed.startsWith('*')
-            || trimmed.startsWith('*/')
-            || trimmed.startsWith('import ')
-            || trimmed.startsWith('export ')
-        ) {
-            continue;
-        }
-
-        violations.push({
-            filePath,
-            line: index + 1,
-            column: lines[index].indexOf(trimmed) + 1,
-            match: trimmed,
-            message: 'Legacy core/services compatibility files may only contain comments and import/export forwarding.'
-        });
-    }
-}
-
-function isLegacyCompatibilityFile(filePath) {
-    return legacyCompatibilityRoots.some((root) => {
-        const relative = path.relative(root, filePath);
-        return relative !== '' && !relative.startsWith('..') && !path.isAbsolute(relative);
-    });
 }
 
 function isPluginOwnedFile(filePath) {

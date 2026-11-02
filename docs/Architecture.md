@@ -1,6 +1,6 @@
 # MusicBox 架构说明
 
-本文描述 MusicBox 当前代码结构和主要运行链路。它以仓库现状为准：主进程和渲染进程都已经从早期全局对象模式迁移到更明确的 controller/service/composition 分层，渲染进程旧 `core/`、`services/` 目录现在仅作为兼容转发层保留。
+本文描述 MusicBox 当前代码结构和主要运行链路。主进程采用 controller/service 分层，渲染进程使用 app/features/ui/infrastructure/shared 结构，由 composition root 组合各模块。
 
 ## 总览
 
@@ -125,8 +125,6 @@ src/renderer/src/
   shared/                  跨功能共享的缓存、网络、类型
   styles/                  SCSS 分层样式
   assets/                  图标和图片
-  core/                    deprecated 兼容转发层
-  services/                deprecated 兼容转发层
 ```
 
 ### app 层
@@ -161,9 +159,9 @@ Renderer feature 不应直接散落调用 `window.electronAPI`。新增 IPC 后�
 main controller -> preload namespace -> infrastructure/electron gateway -> feature service/controller -> UI
 ```
 
-### 兼容层
+### 模块入口
 
-`src/renderer/src/core/**` 和 `src/renderer/src/services/**` 已标记 `@deprecated`。这些文件只能包含注释和 import/export forwarding，由 `src/renderer/scripts/check-architecture-boundaries.mjs` 保护。新增代码不要从 `@/core`、`@/services` 或旧 `@js` 路径导入。
+渲染进程直接从 `@/app`、`@/features`、`@/ui`、`@/infrastructure/electron` 和 `@/shared` 导入实现。`src/renderer/scripts/check-architecture-boundaries.mjs` 检查导入路径、插件加载边界及宿主与具体插件的隔离。
 
 ## 音频架构
 
@@ -257,5 +255,5 @@ npm run build
 1. 优先放在对应 `features/<domain>/`。
 2. UI 放在 `ui/pages`、`ui/widgets`、`ui/dialogs` 或 `ui/modals`。
 3. 跨功能共享的纯逻辑放到 `shared/`。
-4. 不要从 deprecated `core/`、`services/` 引入新依赖。
+4. 使用 app/features/ui/infrastructure/shared 对应模块的实现入口。
 5. 运行 `npm run typecheck:renderer` 和 `cd src/renderer && npm run lint`。
