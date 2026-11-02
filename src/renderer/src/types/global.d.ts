@@ -49,6 +49,11 @@ interface ElectronAppAPI {
  * Electron API 类型定义
  */
 interface ElectronAPI {
+    locale: {
+        getState(): Promise<import('@/shared/i18n').LocaleState>;
+        setPreference(preference: import('@/shared/i18n').LocalePreference): Promise<import('@/shared/i18n').LocaleState>;
+        onChanged(callback: (state: import('@/shared/i18n').LocaleState) => void): () => void;
+    };
     // 获取Electron版本
     getVersion: () => Promise<string>;
 

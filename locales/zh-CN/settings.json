@@ -1,0 +1,7 @@
+{
+  "system": "跟随系统",
+  "languageSaveFailed": "语言设置保存失败，请重试",
+  "restartHardwareConfirm": "关闭硬件加速可能会降低应用性能，但可以解决某些显卡兼容性问题。\n\n更改此设置需要重启应用才能生效。\n\n是否要关闭硬件加速并立即重启应用？",
+  "clearIgnoredConfirm": "确定要清空忽略列表吗？\n\n清空后,之前手动删除的歌曲在下次自动扫描时会被重新添加到音乐库。",
+  "resetShortcutsConfirm": "确定要将所有快捷键重置为默认设置吗？\n\n此操作将清除您的所有自定义快捷键配置。"
+}

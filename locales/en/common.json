@@ -1,0 +1,22 @@
+{
+  "unavailable": "Unavailable",
+  "tracks_one": "{{count}} track",
+  "tracks_other": "{{count}} tracks",
+  "artists_one": "{{count}} artist",
+  "artists_other": "{{count}} artists",
+  "playlists_one": "{{count}} playlist",
+  "playlists_other": "{{count}} playlists",
+  "folders_one": "{{count}} folder",
+  "folders_other": "{{count}} folders",
+  "availableTracks_one": "{{count}} available track",
+  "availableTracks_other": "{{count}} available tracks",
+  "excludedTracks_one": "{{count}} excluded track",
+  "excludedTracks_other": "{{count}} excluded tracks",
+  "lastSync": "Last synced: {{date}}",
+  "createdAt": "Created {{date}}",
+  "loadingFolder": "Loading tracks in {{name}}...",
+  "band": "Band #{{id}}",
+  "sortToggle": "Toggle sort direction",
+  "moodCount_one": "{{count}} time ({{percentage}}%)",
+  "moodCount_other": "{{count}} times ({{percentage}}%)"
+}

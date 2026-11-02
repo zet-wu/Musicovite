@@ -1,0 +1,22 @@
+{
+  "asxez-vocal-godName": "Intimate vocals · asxez",
+  "asxez-vocal-godDescription": "Forward vocals with detailed breath sounds.",
+  "50hz-killer-cnName": "50 Hz hum removal",
+  "50hz-killer-cnDescription": "Reduce 50 Hz mains hum and its harmonics.",
+  "harman-ie-2023Name": "Harman headphone target 2023",
+  "harman-ie-2023Description": "A balanced target curve for in-ear and over-ear headphones.",
+  "ultra-bass-2025Name": "Deep bass",
+  "ultra-bass-2025Description": "Strong bass for headphones and speakers.",
+  "crystal-clearName": "Crystal clear treble",
+  "crystal-clearDescription": "Emphasize cymbals, strings and fine details.",
+  "rock-concertName": "Rock concert",
+  "rock-concertDescription": "Emphasize guitar distortion, drums and vocals.",
+  "classical-hallName": "Classical hall",
+  "classical-hallDescription": "Natural space and rich string harmonics.",
+  "night-modeName": "Late-night listening",
+  "night-modeDescription": "Reduced bass and gentler treble for quiet listening.",
+  "podcast-proName": "Podcast",
+  "podcast-proDescription": "Bring speech forward and reduce background noise.",
+  "warm-tubeName": "Warm tube sound",
+  "warm-tubeDescription": "A warm tone for jazz, vintage records and vocals."
+}

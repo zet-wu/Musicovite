@@ -1,0 +1,5 @@
+{
+  "lock": "未鎖定（點擊鎖定）",
+  "unlock": "已鎖定（點擊解鎖）",
+  "sourceMissingFormat": "來源未提供 {{format}}"
+}

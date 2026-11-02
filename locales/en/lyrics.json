@@ -1,0 +1,5 @@
+{
+  "lock": "Unlocked (click to lock)",
+  "unlock": "Locked (click to unlock)",
+  "sourceMissingFormat": "Source has no {{format}}"
+}

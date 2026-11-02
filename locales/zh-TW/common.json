@@ -1,0 +1,22 @@
+{
+  "unavailable": "暫時無法顯示",
+  "tracks_one": "{{count}} 首歌曲",
+  "tracks_other": "{{count}} 首歌曲",
+  "artists_one": "{{count}} 位藝術家",
+  "artists_other": "{{count}} 位藝術家",
+  "playlists_one": "{{count}} 個播放清單",
+  "playlists_other": "{{count}} 個播放清單",
+  "folders_one": "{{count}} 個資料夾",
+  "folders_other": "{{count}} 個資料夾",
+  "availableTracks_one": "{{count}} 首可用歌曲",
+  "availableTracks_other": "{{count}} 首可用歌曲",
+  "excludedTracks_one": "{{count}} 首已排除",
+  "excludedTracks_other": "{{count}} 首已排除",
+  "lastSync": "上次同步：{{date}}",
+  "createdAt": "創建於 {{date}}",
+  "loadingFolder": "正在載入 {{name}} 中的歌曲...",
+  "band": "頻段 #{{id}}",
+  "sortToggle": "切換排序方向",
+  "moodCount_one": "{{count}} 次（{{percentage}}%）",
+  "moodCount_other": "{{count}} 次（{{percentage}}%）"
+}

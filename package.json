@@ -30,7 +30,10 @@
     "build:linux": "npm run build:python && npm run build:renderer && npm run build:ts && electron-builder --linux",
     "build:icons": "electron-icon-builder --input=./docs/images/logo.png --output=build --flatten",
     "build:python": "node scripts/build-python-module.js",
-    "clean": "rimraf dist && cd src/renderer && npm run clean"
+    "clean": "rimraf dist && cd src/renderer && npm run clean",
+    "prebuild:ts": "node scripts/generate-i18n.mjs",
+    "prewatch:ts": "node scripts/generate-i18n.mjs",
+    "check:i18n": "node scripts/generate-i18n.mjs"
   },
   "devDependencies": {
     "@types/node": "^22",
@@ -47,6 +50,7 @@
     "adm-zip": "^0.5.17",
     "chardet": "^2.1.1",
     "electron-icon-builder": "^2.0.1",
+    "i18next": "26.7.1",
     "iconv-lite": "^0.7.2",
     "music-metadata": "11.12.3",
     "node-id3": "^0.2.9",

@@ -42,6 +42,15 @@ const legacyNodeApis = ENABLE_LEGACY_NODE_APIS
 // 暴露安全的IPC方法给渲染进程
 contextBridge.exposeInMainWorld('electronAPI', {
     ...legacyNodeApis,
+    locale: {
+        getState: () => ipcRenderer.invoke('locale:getState'),
+        setPreference: (preference: string) => ipcRenderer.invoke('locale:setPreference', preference),
+        onChanged: (callback: (state: unknown) => void) => {
+            const handler = (_event: unknown, state: unknown) => callback(state);
+            ipcRenderer.on('locale:changed', handler);
+            return () => ipcRenderer.removeListener('locale:changed', handler);
+        }
+    },
     // 应用信息
     getVersion: () => ipcRenderer.invoke('app:getVersion'),
     getPlatform: () => ipcRenderer.invoke('app:getPlatform'),

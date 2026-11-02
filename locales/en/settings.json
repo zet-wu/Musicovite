@@ -1,0 +1,7 @@
+{
+  "system": "Follow system",
+  "languageSaveFailed": "Could not save language. Please try again.",
+  "restartHardwareConfirm": "Disabling hardware acceleration may reduce performance but resolve graphics compatibility issues.\n\nA restart is required.\n\nDisable hardware acceleration and restart now?",
+  "clearIgnoredConfirm": "Clear ignored tracks?\n\nPreviously removed tracks will be added to the library during the next automatic scan.",
+  "resetShortcutsConfirm": "Reset all shortcuts to defaults?\n\nThis clears your custom shortcut configuration."
+}

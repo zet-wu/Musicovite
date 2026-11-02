@@ -4,6 +4,7 @@
  */
 
 import {app} from 'electron';
+import {registerLocaleController} from '../controllers/LocaleController';
 import * as fs from 'fs';
 import {ServiceContainer} from './ServiceContainer';
 import {WindowManager} from './WindowManager';
@@ -67,6 +68,7 @@ export class Application {
     private windowManager: WindowManager;
     private configManager: ConfigManager;
     private controllers: BaseController[] = [];
+    private disposeLocale: (() => void) | null = null;
     private libraryScanner: LibraryScanner | null = null;
     private musicFolderSettingsProvider: MusicFolderSettingsProvider | null = null;
     private embeddedCoverService: {destroy(): Promise<void>} | null = null;
@@ -105,6 +107,7 @@ export class Application {
 
             // 3. 注册启动 IPC 控制器
             // 渲染进程加载后会立即调用 preload 暴露的多个 IPC，因此 handler 必须先于窗口创建完成。
+            this.disposeLocale = await registerLocaleController();
             await this.registerStartupControllers();
             this.perfTimer.mark('startup-controllers');
 
@@ -476,6 +479,8 @@ export class Application {
             }
 
             // 注销所有控制器
+            this.disposeLocale?.();
+            this.disposeLocale = null;
             for (const controller of this.controllers) {
                 controller.unregister();
             }

@@ -1,0 +1,7 @@
+{
+  "system": "跟隨系統",
+  "languageSaveFailed": "語言設定儲存失敗，請重試",
+  "restartHardwareConfirm": "關閉硬體加速可能會降低應用效能，但可以解決某些顯示卡相容性問題。\n\n更改此設定需要重啟應用才能生效。\n\n是否要關閉硬體加速並立即重啟應用？",
+  "clearIgnoredConfirm": "確定要清空忽略列表嗎？\n\n清空後,之前手動刪除的歌曲在下次自動掃描時會被重新新增到音樂庫。",
+  "resetShortcutsConfirm": "確定要將所有快速鍵重置為預設設定嗎？\n\n此操作將清除您的所有自訂快速鍵配置。"
+}

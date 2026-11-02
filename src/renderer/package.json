@@ -12,7 +12,11 @@
     "lint": "npm run check:architecture && eslint src/**/*.js",
     "check:architecture": "node scripts/check-architecture-boundaries.mjs",
     "clean": "rimraf public",
-    "build:css": "sass src/styles/main.scss public/styles/main.css --style=compressed"
+    "build:css": "sass src/styles/main.scss public/styles/main.css --style=compressed",
+    "predev": "node ../../scripts/generate-i18n.mjs",
+    "prebuild": "node ../../scripts/generate-i18n.mjs",
+    "pretypecheck": "node ../../scripts/generate-i18n.mjs",
+    "pretest": "node ../../scripts/generate-i18n.mjs"
   },
   "dependencies": {
     "@applemusic-like-lyrics/core": "0.5.2",
@@ -21,6 +25,7 @@
     "@tanstack/virtual-core": "3.17.7",
     "dayjs": "^1.11.7",
     "fuzzball": "2.2.6",
+    "i18next": "26.7.1",
     "lru-cache": "11.5.2",
     "opencc-js": "^1.4.1",
     "p-queue": "9.3.3",

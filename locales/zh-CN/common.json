@@ -1,0 +1,22 @@
+{
+  "unavailable": "暂时无法显示",
+  "tracks_one": "{{count}} 首歌曲",
+  "tracks_other": "{{count}} 首歌曲",
+  "artists_one": "{{count}} 位艺术家",
+  "artists_other": "{{count}} 位艺术家",
+  "playlists_one": "{{count}} 个歌单",
+  "playlists_other": "{{count}} 个歌单",
+  "folders_one": "{{count}} 个文件夹",
+  "folders_other": "{{count}} 个文件夹",
+  "availableTracks_one": "{{count}} 首可用歌曲",
+  "availableTracks_other": "{{count}} 首可用歌曲",
+  "excludedTracks_one": "{{count}} 首已排除",
+  "excludedTracks_other": "{{count}} 首已排除",
+  "lastSync": "上次同步：{{date}}",
+  "createdAt": "创建于 {{date}}",
+  "loadingFolder": "正在加载 {{name}} 中的歌曲...",
+  "band": "频段 #{{id}}",
+  "sortToggle": "切换排序方向",
+  "moodCount_one": "{{count}} 次（{{percentage}}%）",
+  "moodCount_other": "{{count}} 次（{{percentage}}%）"
+}
