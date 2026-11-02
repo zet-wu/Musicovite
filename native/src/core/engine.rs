@@ -816,7 +816,9 @@ impl AudioEngine {
     }
 
     pub fn get_visualization_frame(&self) -> Option<crate::renderer::SignalFrame> {
-        if !self.is_playing.load(Ordering::Relaxed) || self.is_paused.load(Ordering::Relaxed) { return None; }
+        if !self.is_playing.load(Ordering::Relaxed) || self.is_paused.load(Ordering::Relaxed) {
+            return None;
+        }
         let frame = self.renderer.visualization.read();
         if frame.valid { Some(frame) } else { None }
     }

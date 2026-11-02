@@ -153,12 +153,18 @@ impl NativeAudioEngine {
 
     #[napi]
     pub fn get_visualization_frame(&self) -> Option<VisualizationFrame> {
-        self.engine.lock().get_visualization_frame().map(|frame| VisualizationFrame {
-            samples: frame.samples[..frame.count].iter().map(|sample| *sample as f64).collect(),
-            sequence: frame.sequence,
-            sample_rate: frame.sample_rate,
-            channels: frame.channels,
-        })
+        self.engine
+            .lock()
+            .get_visualization_frame()
+            .map(|frame| VisualizationFrame {
+                samples: frame.samples[..frame.count]
+                    .iter()
+                    .map(|sample| *sample as f64)
+                    .collect(),
+                sequence: frame.sequence,
+                sample_rate: frame.sample_rate,
+                channels: frame.channels,
+            })
     }
 
     #[napi]
@@ -195,6 +201,14 @@ impl NativeAudioEngine {
             env.create_int64(stats.render_errors as i64)?,
         )?;
         response.set_named_property("seekClears", env.create_int64(stats.seek_clears as i64)?)?;
+        response.set_named_property(
+            "callbackTotalMicros",
+            env.create_int64(stats.callback_total_micros as i64)?,
+        )?;
+        response.set_named_property(
+            "callbackMaxMicros",
+            env.create_int64(stats.callback_max_micros as i64)?,
+        )?;
         Ok(response)
     }
 

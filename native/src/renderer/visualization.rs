@@ -25,7 +25,15 @@ impl VisualizationTap {
         Self {
             enabled: AtomicBool::new(false),
             waiting: AtomicBool::new(false),
-            frame: Mutex::new(SignalFrame {samples: [0.0; POINTS], sequence: 0, sample_rate: 0, channels: 0, valid: false, count: 0, cursor: 0}),
+            frame: Mutex::new(SignalFrame {
+                samples: [0.0; POINTS],
+                sequence: 0,
+                sample_rate: 0,
+                channels: 0,
+                valid: false,
+                count: 0,
+                cursor: 0,
+            }),
         }
     }
 
@@ -53,9 +61,18 @@ impl VisualizationTap {
 
     // 实时线程仅尝试获取预分配缓冲，竞争时丢帧，不等待、不分配。
     pub fn capture(&self, input: &[f32], channels: usize, sample_rate: u32, volume: f32) {
-        if !self.enabled.load(Ordering::Relaxed) || self.waiting.load(Ordering::Acquire) || channels == 0 { return; }
-        let Some(mut frame) = self.frame.try_lock() else { return; };
-        if self.waiting.load(Ordering::Acquire) { return; }
+        if !self.enabled.load(Ordering::Relaxed)
+            || self.waiting.load(Ordering::Acquire)
+            || channels == 0
+        {
+            return;
+        }
+        let Some(mut frame) = self.frame.try_lock() else {
+            return;
+        };
+        if self.waiting.load(Ordering::Acquire) {
+            return;
+        }
         let count = (input.len() / channels).min(POINTS);
         let start = input.len() / channels - count;
         for i in 0..count {
@@ -76,7 +93,9 @@ impl VisualizationTap {
 
     pub fn read(&self) -> SignalFrame {
         let mut frame = self.frame.lock().clone();
-        if frame.count == POINTS { frame.samples.rotate_left(frame.cursor); }
+        if frame.count == POINTS {
+            frame.samples.rotate_left(frame.cursor);
+        }
         frame
     }
 }

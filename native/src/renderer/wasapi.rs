@@ -96,6 +96,8 @@ fn register_mmcss_task(task_name: &str) -> windows::core::Result<HANDLE> {
 
 #[derive(Debug, Clone)]
 pub struct RenderStats {
+    pub callback_total_micros: u64,
+    pub callback_max_micros: u64,
     pub callbacks: u64,
     pub underruns: u64,
     pub frames_written: u64,
@@ -109,6 +111,8 @@ pub struct RenderStats {
 impl Default for RenderStats {
     fn default() -> Self {
         Self {
+            callback_total_micros: 0,
+            callback_max_micros: 0,
             callbacks: 0,
             underruns: 0,
             frames_written: 0,
@@ -131,6 +135,8 @@ impl RenderStats {
     }
 
     fn merge_from(&mut self, pending: &mut Self) {
+        self.callback_total_micros += pending.callback_total_micros;
+        self.callback_max_micros = self.callback_max_micros.max(pending.callback_max_micros);
         self.callbacks += pending.callbacks;
         self.underruns += pending.underruns;
         self.frames_written += pending.frames_written;
@@ -544,6 +550,7 @@ fn run_render_loop(
         };
 
         if frames_available > 0 {
+            let callback_start = std::time::Instant::now();
             callback_counter += 1;
 
             let vol = f32::from_bits(volume.load(Ordering::Relaxed));
@@ -611,6 +618,9 @@ fn run_render_loop(
             }
 
             {
+                let elapsed = callback_start.elapsed().as_micros() as u64;
+                pending_stats.callback_total_micros += elapsed;
+                pending_stats.callback_max_micros = pending_stats.callback_max_micros.max(elapsed);
                 pending_stats.callbacks += 1;
                 pending_stats.frames_written += frames_available as u64;
                 pending_stats.samples_written += audio_data.len() as u64;

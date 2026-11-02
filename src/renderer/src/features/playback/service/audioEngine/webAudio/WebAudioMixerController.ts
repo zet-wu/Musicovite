@@ -116,6 +116,7 @@ class WebAudioMixerController {
             audioContext: this.audioContext,
             sourceNode,
             gainNode: this.gainNode,
+            analyser: this.visualizationEnabled ? this.analyser : null,
             equalizer: this.equalizer,
             equalizerEnabled: this.equalizerEnabled
         });
